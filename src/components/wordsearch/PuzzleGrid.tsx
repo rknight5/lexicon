@@ -156,6 +156,7 @@ export function PuzzleGrid({
       }}
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerLeaveGrid}
+      onPointerCancel={handlePointerLeaveGrid}
     >
       {grid.map((row, rowIdx) =>
         row.map((letter, colIdx) => {

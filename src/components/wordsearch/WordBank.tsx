@@ -1,4 +1,7 @@
-import { CheckCircle } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { CheckCircle, ChevronDown, ChevronUp } from "lucide-react";
 import type { PlacedWord } from "@/lib/types";
 
 interface WordBankProps {
@@ -7,6 +10,7 @@ interface WordBankProps {
 }
 
 export function WordBank({ words, foundWords }: WordBankProps) {
+  const [collapsed, setCollapsed] = useState(false);
   // Group words by category
   const grouped = words.reduce(
     (acc, word) => {
@@ -19,17 +23,24 @@ export function WordBank({ words, foundWords }: WordBankProps) {
 
   return (
     <div className="space-y-1">
-      {/* Progress */}
-      <div className="flex items-center justify-between mb-3">
+      {/* Progress + mobile toggle */}
+      <button
+        onClick={() => setCollapsed(!collapsed)}
+        className="flex items-center justify-between mb-3 w-full lg:cursor-default"
+      >
         <span className="font-heading text-sm font-bold text-white/60">
           WORDS
         </span>
-        <span className="font-body text-sm text-white/60">
+        <span className="flex items-center gap-2 font-body text-sm text-white/60">
           {foundWords.length} / {words.length}
+          <span className="lg:hidden">
+            {collapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+          </span>
         </span>
-      </div>
+      </button>
 
       {/* Grouped words */}
+      <div className={collapsed ? "hidden lg:block" : ""}>
       {Object.entries(grouped).map(([category, categoryWords], idx) => (
         <div key={category} className={idx > 0 ? "mt-4" : ""}>
           <h3 className="font-heading text-xs font-bold uppercase tracking-wider mb-2 text-white/40">
@@ -69,6 +80,7 @@ export function WordBank({ words, foundWords }: WordBankProps) {
           </div>
         </div>
       ))}
+      </div>
     </div>
   );
 }
