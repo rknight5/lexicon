@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import type { CellPosition } from "@/lib/types";
 
 interface PuzzleGridProps {
@@ -13,6 +13,8 @@ interface PuzzleGridProps {
   onSelectionChange: (cells: CellPosition[]) => void;
   onPointerUp: () => void;
   onPointerLeave: () => void;
+  lastMissTimestamp?: number;
+  lastFoundTimestamp?: number;
 }
 
 function isCellInList(cells: CellPosition[], row: number, col: number): boolean {
@@ -72,9 +74,29 @@ export function PuzzleGrid({
   onSelectionChange,
   onPointerUp,
   onPointerLeave,
+  lastMissTimestamp = 0,
+  lastFoundTimestamp = 0,
 }: PuzzleGridProps) {
+  const [shaking, setShaking] = useState(false);
+  const [flashingGreen, setFlashingGreen] = useState(false);
   const isDragging = useRef(false);
   const startCell = useRef<CellPosition | null>(null);
+
+  useEffect(() => {
+    if (lastMissTimestamp > 0) {
+      setShaking(true);
+      const t = setTimeout(() => setShaking(false), 300);
+      return () => clearTimeout(t);
+    }
+  }, [lastMissTimestamp]);
+
+  useEffect(() => {
+    if (lastFoundTimestamp > 0) {
+      setFlashingGreen(true);
+      const t = setTimeout(() => setFlashingGreen(false), 500);
+      return () => clearTimeout(t);
+    }
+  }, [lastFoundTimestamp]);
 
   const handlePointerDown = useCallback(
     (row: number, col: number) => {
@@ -125,7 +147,7 @@ export function PuzzleGrid({
 
   return (
     <div
-      className="inline-grid gap-0.5 p-2 rounded-2xl select-none"
+      className={`inline-grid gap-0.5 p-2 rounded-2xl select-none ${shaking ? "animate-shake" : ""}`}
       style={{
         gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
         background: "rgba(0, 0, 0, 0.2)",

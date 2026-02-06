@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { PuzzleGrid } from "@/components/wordsearch/PuzzleGrid";
 import { WordBank } from "@/components/wordsearch/WordBank";
@@ -42,6 +42,25 @@ function WordSearchGame({ puzzle }: { puzzle: PuzzleData }) {
     cancelSelection,
   } = useWordSearchGame(puzzle);
 
+  const [lastMissTimestamp, setLastMissTimestamp] = useState(0);
+  const [lastFoundTimestamp, setLastFoundTimestamp] = useState(0);
+  const prevLives = useRef(state.livesRemaining);
+  const prevFoundCount = useRef(state.foundWords.length);
+
+  useEffect(() => {
+    if (state.livesRemaining < prevLives.current) {
+      setLastMissTimestamp(Date.now());
+    }
+    prevLives.current = state.livesRemaining;
+  }, [state.livesRemaining]);
+
+  useEffect(() => {
+    if (state.foundWords.length > prevFoundCount.current) {
+      setLastFoundTimestamp(Date.now());
+    }
+    prevFoundCount.current = state.foundWords.length;
+  }, [state.foundWords.length]);
+
   // Start game on first grid interaction
   const handleFirstInteraction = () => {
     if (state.gameStatus === "idle") {
@@ -67,6 +86,7 @@ function WordSearchGame({ puzzle }: { puzzle: PuzzleData }) {
         elapsedSeconds={state.elapsedSeconds}
         onPause={pause}
         gameStatus={state.gameStatus}
+        lastMissTimestamp={lastMissTimestamp}
       />
 
       <div className="flex-1 flex flex-col lg:flex-row items-start justify-center gap-6 lg:gap-8 px-5 py-4 max-w-5xl mx-auto w-full">
@@ -89,6 +109,8 @@ function WordSearchGame({ puzzle }: { puzzle: PuzzleData }) {
             onSelectionChange={setSelection}
             onPointerUp={completeSelection}
             onPointerLeave={cancelSelection}
+            lastMissTimestamp={lastMissTimestamp}
+            lastFoundTimestamp={lastFoundTimestamp}
           />
         </div>
 

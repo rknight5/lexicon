@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Heart, Clock, PauseCircle, Shield, Flame, Skull } from "lucide-react";
 import type { Difficulty } from "@/lib/types";
 
@@ -7,6 +10,7 @@ interface GameBarProps {
   elapsedSeconds: number;
   onPause: () => void;
   gameStatus: string;
+  lastMissTimestamp?: number;
 }
 
 const DIFFICULTY_BADGE: Record<
@@ -42,8 +46,18 @@ export function GameBar({
   elapsedSeconds,
   onPause,
   gameStatus,
+  lastMissTimestamp = 0,
 }: GameBarProps) {
   const badge = DIFFICULTY_BADGE[difficulty];
+  const [heartBreaking, setHeartBreaking] = useState(false);
+
+  useEffect(() => {
+    if (lastMissTimestamp > 0) {
+      setHeartBreaking(true);
+      const t = setTimeout(() => setHeartBreaking(false), 300);
+      return () => clearTimeout(t);
+    }
+  }, [lastMissTimestamp]);
 
   return (
     <div
@@ -78,7 +92,7 @@ export function GameBar({
                 i < livesRemaining
                   ? "text-red-400"
                   : "text-gray-600"
-              }`}
+              } ${heartBreaking && i === livesRemaining ? "animate-heart-break" : ""}`}
               fill={i < livesRemaining ? "currentColor" : "none"}
             />
           ))}
