@@ -1,26 +1,52 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-purple-deep: #1A0A2E;
+  --color-purple-dark: #2D1B69;
+  --color-purple-mid: #5B2D8E;
+  --color-purple-vibrant: #7B3FBF;
+  --color-purple-light: #9D6CD2;
+
+  --color-gold-primary: #FFD700;
+  --color-gold-dark: #E5A100;
+  --color-gold-light: #FFF0A0;
+
+  --color-green-accent: #00E676;
+  --color-green-dark: #00C853;
+
+  --color-cyan-glow: #00E5FF;
+
+  --color-pink-accent: #FF4081;
+
+  --font-display: "Bungee", cursive;
+  --font-heading: "Fredoka One", "Nunito", sans-serif;
+  --font-body: "Nunito", "Quicksand", sans-serif;
+  --font-grid: "Space Mono", "JetBrains Mono", monospace;
+
+  --radius-card: 24px;
+  --radius-pill: 50px;
+  --radius-cell: 6px;
+
+  --shadow-gold: 0 4px 15px rgba(255, 215, 0, 0.4);
+  --shadow-gold-hover: 0 6px 20px rgba(255, 215, 0, 0.5);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-cyan: 0 0 12px rgba(0, 229, 255, 0.6);
+  --shadow-green-glow: 0 0 8px rgba(0, 230, 118, 0.4);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* CSS custom properties for values Tailwind can't express directly */
+:root {
+  --overlay-dark: rgba(26, 10, 46, 0.85);
+  --white-soft: rgba(255, 255, 255, 0.9);
+  --white-muted: rgba(255, 255, 255, 0.6);
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-hover: rgba(255, 255, 255, 0.15);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Nunito", "Quicksand", sans-serif;
+  background: linear-gradient(180deg, #2D1B69 0%, #1A0A2E 100%);
+  color: white;
+  min-height: 100vh;
 }
