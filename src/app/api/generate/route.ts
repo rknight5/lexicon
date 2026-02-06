@@ -79,8 +79,21 @@ export async function POST(request: NextRequest) {
     };
 
     return NextResponse.json(puzzle);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Generate error:", error);
+
+    // Handle Anthropic API rate limits
+    if (
+      error instanceof Error &&
+      "status" in error &&
+      (error as { status: number }).status === 429
+    ) {
+      return NextResponse.json(
+        { error: "Too many requests. Please wait a moment and try again." },
+        { status: 429 }
+      );
+    }
+
     const message =
       error instanceof Error ? error.message : "Failed to generate puzzle";
     return NextResponse.json({ error: message }, { status: 500 });

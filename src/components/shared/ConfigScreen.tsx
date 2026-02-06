@@ -105,7 +105,12 @@ export function ConfigScreen({ topic, onTopicChange, onBack }: ConfigScreenProps
 
       const puzzle = await res.json();
       // Store puzzle in sessionStorage and navigate
-      sessionStorage.setItem("lexicon-puzzle", JSON.stringify(puzzle));
+      try {
+        sessionStorage.setItem("lexicon-puzzle", JSON.stringify(puzzle));
+      } catch {
+        // sessionStorage may be unavailable in private browsing
+        throw new Error("Unable to save puzzle data. Try disabling private browsing.");
+      }
       router.push("/puzzle/wordsearch");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
