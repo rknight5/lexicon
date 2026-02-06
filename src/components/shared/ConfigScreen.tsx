@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Shield, Flame, Skull, Sparkles, Tag } from "lucide-react";
 import type { Difficulty, CategorySuggestion } from "@/lib/types";
+import { LoadingOverlay } from "@/components/shared/LoadingOverlay";
 
 interface ConfigScreenProps {
   topic: string;
@@ -112,6 +113,10 @@ export function ConfigScreen({ topic, onTopicChange, onBack }: ConfigScreenProps
       setGenerating(false);
     }
   };
+
+  if (generating) {
+    return <LoadingOverlay topic={topic} difficulty={difficulty} />;
+  }
 
   return (
     <main className="min-h-screen flex flex-col items-center px-5 py-8">
