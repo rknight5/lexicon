@@ -10,7 +10,7 @@ interface PuzzleGridProps {
   foundPaths: CellPosition[][];
   gameStatus: string;
   onCellPointerDown: (cell: CellPosition) => void;
-  onCellPointerEnter: (cell: CellPosition) => void;
+  onSelectionChange: (cells: CellPosition[]) => void;
   onPointerUp: () => void;
   onPointerLeave: () => void;
 }
@@ -69,7 +69,7 @@ export function PuzzleGrid({
   foundPaths,
   gameStatus,
   onCellPointerDown,
-  onCellPointerEnter,
+  onSelectionChange,
   onPointerUp,
   onPointerLeave,
 }: PuzzleGridProps) {
@@ -89,9 +89,10 @@ export function PuzzleGrid({
   const handlePointerEnter = useCallback(
     (row: number, col: number) => {
       if (!isDragging.current || !startCell.current) return;
-      onCellPointerEnter({ row, col });
+      const snapped = getSnappedCells(startCell.current, { row, col }, gridSize);
+      onSelectionChange(snapped);
     },
-    [onCellPointerEnter]
+    [gridSize, onSelectionChange]
   );
 
   const handlePointerUp = useCallback(() => {

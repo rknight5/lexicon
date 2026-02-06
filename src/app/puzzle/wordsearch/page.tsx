@@ -37,7 +37,7 @@ function WordSearchGame({ puzzle }: { puzzle: PuzzleData }) {
     pause,
     resume,
     startSelection,
-    extendSelection,
+    setSelection,
     completeSelection,
     cancelSelection,
   } = useWordSearchGame(puzzle);
@@ -86,7 +86,7 @@ function WordSearchGame({ puzzle }: { puzzle: PuzzleData }) {
               handleFirstInteraction();
               startSelection(cell);
             }}
-            onCellPointerEnter={extendSelection}
+            onSelectionChange={setSelection}
             onPointerUp={completeSelection}
             onPointerLeave={cancelSelection}
           />
