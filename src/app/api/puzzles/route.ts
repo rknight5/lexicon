@@ -20,7 +20,6 @@ export async function GET() {
         title: savedPuzzles.title,
         topic: savedPuzzles.topic,
         difficulty: savedPuzzles.difficulty,
-        gameState: savedPuzzles.gameState,
         createdAt: savedPuzzles.createdAt,
       })
       .from(savedPuzzles)
@@ -34,7 +33,6 @@ export async function GET() {
         title: p.title,
         topic: p.topic,
         difficulty: p.difficulty,
-        hasGameState: p.gameState !== null,
         createdAt: p.createdAt,
       }))
     );

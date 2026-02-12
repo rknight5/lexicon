@@ -60,7 +60,6 @@ export interface SavedPuzzleSummary {
   title: string;
   topic: string;
   difficulty: Difficulty;
-  hasGameState: boolean;
   createdAt: string;
 }
 
@@ -103,12 +102,12 @@ export async function getSavedPuzzles(): Promise<SavedPuzzleSummary[]> {
 
 export async function loadSavedPuzzle(
   id: string
-): Promise<{ gameType: GameType; puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData; gameState?: unknown } | null> {
+): Promise<{ gameType: GameType; puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData } | null> {
   try {
     const res = await fetch(`/api/puzzles/${id}`, { credentials: "include" });
     if (!res.ok) return null;
     const data = await res.json();
-    return { gameType: data.gameType, puzzleData: data.puzzleData, gameState: data.gameState ?? null };
+    return { gameType: data.gameType, puzzleData: data.puzzleData };
   } catch {
     return null;
   }
@@ -117,37 +116,6 @@ export async function loadSavedPuzzle(
 export async function deleteSavedPuzzle(id: string): Promise<boolean> {
   try {
     const res = await fetch(`/api/puzzles/${id}`, { method: "DELETE", credentials: "include" });
-    return res.ok;
-  } catch {
-    return false;
-  }
-}
-
-export async function updateGameState(
-  id: string,
-  gameState: Record<string, unknown>
-): Promise<boolean> {
-  try {
-    const res = await fetch(`/api/puzzles/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gameState }),
-      credentials: "include",
-    });
-    return res.ok;
-  } catch {
-    return false;
-  }
-}
-
-export async function clearGameState(id: string): Promise<boolean> {
-  try {
-    const res = await fetch(`/api/puzzles/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gameState: null }),
-      credentials: "include",
-    });
     return res.ok;
   } catch {
     return false;
