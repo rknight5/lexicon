@@ -140,7 +140,7 @@ export function GameBar({
             </button>
           </form>
         ) : (
-          <>
+          <div className="flex items-center gap-1">
             <span className="font-heading text-sm font-bold">{title}</span>
             {onTitleChange && (
               <button
@@ -151,7 +151,7 @@ export function GameBar({
                 <Pencil className="w-3 h-3" />
               </button>
             )}
-          </>
+          </div>
         )}
         <div
           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-pill border text-[10px] font-heading font-bold ${badge.className}`}

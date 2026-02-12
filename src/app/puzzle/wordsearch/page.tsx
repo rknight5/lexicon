@@ -143,7 +143,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
       <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-4 pb-8">
         <div className="relative">
           {/* Instructions: positioned to the left of the panel, top-aligned */}
-          <div className="absolute right-full top-0 mr-16 flex flex-col gap-2.5 text-white/25 text-xs font-body whitespace-nowrap">
+          <div className="absolute right-full top-0 mr-20 flex flex-col gap-2.5 text-white/25 text-xs font-body whitespace-nowrap">
             <div>
               <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold">How to Play</span>
               <div className="h-px bg-white/10 mt-2" />
@@ -154,7 +154,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
           </div>
 
           {/* Hint: positioned to the right of the panel, top-aligned, mirroring How to Play */}
-          <div className="absolute left-full top-0 ml-16 flex flex-col items-center whitespace-nowrap">
+          <div className="absolute left-full top-0 ml-24 flex flex-col items-center whitespace-nowrap">
             {state.gameStatus === "playing" && (
               <div className="flex flex-col items-center gap-3">
                 <div>
