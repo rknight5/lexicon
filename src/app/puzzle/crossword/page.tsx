@@ -79,11 +79,15 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
 
   const handleNewTopic = () => {
     sessionStorage.removeItem("lexicon-puzzle-crossword");
+    sessionStorage.removeItem("lexicon-saved-puzzle-id");
+    sessionStorage.removeItem("lexicon-game-state");
     router.push("/");
   };
 
   const handlePlayAgain = () => {
     sessionStorage.removeItem("lexicon-puzzle-crossword");
+    sessionStorage.removeItem("lexicon-saved-puzzle-id");
+    sessionStorage.removeItem("lexicon-game-state");
     router.push("/");
   };
 

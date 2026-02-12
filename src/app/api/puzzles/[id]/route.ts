@@ -56,6 +56,10 @@ export async function PATCH(
   const { id } = await params;
   const body = await request.json();
 
+  if (!("gameState" in body)) {
+    return NextResponse.json({ error: "Missing gameState field" }, { status: 400 });
+  }
+
   try {
     const [existing] = await db
       .select({ id: savedPuzzles.id })

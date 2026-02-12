@@ -125,6 +125,9 @@ export default function HomePage() {
         : "/puzzle/wordsearch";
 
     try {
+      // Clear stale state from any previous puzzle load
+      sessionStorage.removeItem("lexicon-game-state");
+
       sessionStorage.setItem(storageKey, JSON.stringify(loaded.puzzleData));
       sessionStorage.setItem("lexicon-saved-puzzle-id", puzzle.id);
 

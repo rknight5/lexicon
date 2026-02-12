@@ -128,11 +128,15 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
 
   const handleNewTopic = () => {
     sessionStorage.removeItem("lexicon-puzzle");
+    sessionStorage.removeItem("lexicon-saved-puzzle-id");
+    sessionStorage.removeItem("lexicon-game-state");
     router.push("/");
   };
 
   const handlePlayAgain = () => {
     sessionStorage.removeItem("lexicon-puzzle");
+    sessionStorage.removeItem("lexicon-saved-puzzle-id");
+    sessionStorage.removeItem("lexicon-game-state");
     router.push("/");
   };
 
