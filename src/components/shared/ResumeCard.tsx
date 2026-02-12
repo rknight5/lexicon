@@ -23,29 +23,29 @@ const DIFFICULTY_ICON: Record<string, React.ReactNode> = {
   hard: <Skull className="w-3 h-3 text-pink-accent" />,
 };
 
-function getProgress(autoSave: AutoSaveSummary): { line: string; livesRemaining: number } {
+function getProgress(autoSave: AutoSaveSummary): { count: string; label: string; livesRemaining: number } {
   const gs = autoSave.gameState;
 
   if (autoSave.gameType === "wordsearch") {
     const foundWords = (gs.foundWords as string[]) ?? [];
     const totalWords = (autoSave.puzzleData as { words: unknown[] }).words?.length ?? 0;
-    return { line: `${foundWords.length}/${totalWords} words found`, livesRemaining: (gs.livesRemaining as number) ?? 3 };
+    return { count: `${foundWords.length}/${totalWords}`, label: "words found", livesRemaining: (gs.livesRemaining as number) ?? 3 };
   }
 
   if (autoSave.gameType === "crossword") {
     const solvedClues = (gs.solvedClues as number[]) ?? [];
     const totalClues = (autoSave.puzzleData as { clues: unknown[] }).clues?.length ?? 0;
-    return { line: `${solvedClues.length}/${totalClues} clues solved`, livesRemaining: (gs.livesRemaining as number) ?? 3 };
+    return { count: `${solvedClues.length}/${totalClues}`, label: "clues solved", livesRemaining: (gs.livesRemaining as number) ?? 3 };
   }
 
   // anagram
   const solvedWords = (gs.solvedWords as string[]) ?? [];
   const totalWords = (autoSave.puzzleData as { words: unknown[] }).words?.length ?? 0;
-  return { line: `${solvedWords.length}/${totalWords} words unscrambled`, livesRemaining: (gs.livesRemaining as number) ?? 3 };
+  return { count: `${solvedWords.length}/${totalWords}`, label: "words unscrambled", livesRemaining: (gs.livesRemaining as number) ?? 3 };
 }
 
 export function ResumeCard({ autoSave, onResume, onSave, onDismiss }: ResumeCardProps) {
-  const { line, livesRemaining } = getProgress(autoSave);
+  const { count, label, livesRemaining } = getProgress(autoSave);
   const [saved, setSaved] = useState(false);
 
   const handleSave = async () => {
@@ -67,13 +67,18 @@ export function ResumeCard({ autoSave, onResume, onSave, onDismiss }: ResumeCard
         {GAME_TYPE_ICON[autoSave.gameType]}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="font-heading text-sm font-bold text-white truncate">
-          {autoSave.title}
+        <div className="flex items-center gap-2">
+          <span className="font-heading text-sm font-bold text-white truncate">
+            {autoSave.title}
+          </span>
+          {DIFFICULTY_ICON[autoSave.difficulty]}
         </div>
         <div className="flex items-center gap-2 mt-1">
-          {DIFFICULTY_ICON[autoSave.difficulty]}
-          <span className="text-[11px] text-white/30 font-body">{line}</span>
-          <span className="text-[11px] text-white/30 font-body flex items-center gap-0.5">
+          <span className="text-[11px] font-body">
+            <span className="text-white font-bold">{count}</span>
+            <span className="text-white/30"> {label}</span>
+          </span>
+          <span className="text-[11px] text-white/30 font-body flex items-center gap-1.5">
             <Heart className="w-3 h-3 text-pink-accent" fill="currentColor" />
             {livesRemaining}
           </span>
