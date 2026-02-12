@@ -16,24 +16,29 @@ export async function GET(
   }
 
   const { id } = await params;
-  const [puzzle] = await db
-    .select()
-    .from(savedPuzzles)
-    .where(and(eq(savedPuzzles.id, id), eq(savedPuzzles.username, username)));
+  try {
+    const [puzzle] = await db
+      .select()
+      .from(savedPuzzles)
+      .where(and(eq(savedPuzzles.id, id), eq(savedPuzzles.username, username)));
 
-  if (!puzzle) {
-    return NextResponse.json({ error: "Puzzle not found" }, { status: 404 });
+    if (!puzzle) {
+      return NextResponse.json({ error: "Puzzle not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      id: puzzle.id,
+      gameType: puzzle.gameType,
+      title: puzzle.title,
+      topic: puzzle.topic,
+      difficulty: puzzle.difficulty,
+      puzzleData: JSON.parse(puzzle.puzzleData),
+      createdAt: puzzle.createdAt,
+    });
+  } catch (err) {
+    console.error("Failed to load puzzle:", err);
+    return NextResponse.json({ error: "Failed to load puzzle" }, { status: 500 });
   }
-
-  return NextResponse.json({
-    id: puzzle.id,
-    gameType: puzzle.gameType,
-    title: puzzle.title,
-    topic: puzzle.topic,
-    difficulty: puzzle.difficulty,
-    puzzleData: JSON.parse(puzzle.puzzleData),
-    createdAt: puzzle.createdAt,
-  });
 }
 
 export async function DELETE(
@@ -48,9 +53,14 @@ export async function DELETE(
   }
 
   const { id } = await params;
-  await db
-    .delete(savedPuzzles)
-    .where(and(eq(savedPuzzles.id, id), eq(savedPuzzles.username, username)));
+  try {
+    await db
+      .delete(savedPuzzles)
+      .where(and(eq(savedPuzzles.id, id), eq(savedPuzzles.username, username)));
 
-  return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("Failed to delete puzzle:", err);
+    return NextResponse.json({ error: "Failed to delete puzzle" }, { status: 500 });
+  }
 }

@@ -92,7 +92,7 @@ export function GameBar({
       {/* Left: back button */}
       <button
         onClick={onBack}
-        className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors"
+        className="relative z-10 flex items-center gap-1.5 text-white/50 hover:text-white transition-colors"
       >
         <ArrowLeft className="w-5 h-5" />
         <span className="font-body text-sm">Back</span>
@@ -145,12 +145,12 @@ export function GameBar({
       </div>
 
       {/* Right: save + stats + help + settings + logout */}
-      <div className="ml-auto flex items-center gap-5">
+      <div className="ml-auto flex items-center gap-5 relative z-10">
         {onSave && (
           <button
             onClick={onSave}
             disabled={isSaved}
-            className={`transition-colors p-1.5 -m-1.5 ${isSaved ? "text-gold-primary" : "text-white/30 hover:text-white/60"}`}
+            className={`transition-colors p-1.5 -m-1.5 cursor-pointer ${isSaved ? "text-gold-primary cursor-default" : "text-white/30 hover:text-white/60"}`}
             title={isSaved ? "Saved" : "Save puzzle"}
           >
             <Bookmark className="w-5 h-5" fill={isSaved ? "currentColor" : "none"} />

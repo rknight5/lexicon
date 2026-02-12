@@ -12,20 +12,25 @@ export async function GET() {
     return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   }
 
-  const puzzles = await db
-    .select({
-      id: savedPuzzles.id,
-      gameType: savedPuzzles.gameType,
-      title: savedPuzzles.title,
-      topic: savedPuzzles.topic,
-      difficulty: savedPuzzles.difficulty,
-      createdAt: savedPuzzles.createdAt,
-    })
-    .from(savedPuzzles)
-    .where(eq(savedPuzzles.username, username))
-    .orderBy(desc(savedPuzzles.createdAt));
+  try {
+    const puzzles = await db
+      .select({
+        id: savedPuzzles.id,
+        gameType: savedPuzzles.gameType,
+        title: savedPuzzles.title,
+        topic: savedPuzzles.topic,
+        difficulty: savedPuzzles.difficulty,
+        createdAt: savedPuzzles.createdAt,
+      })
+      .from(savedPuzzles)
+      .where(eq(savedPuzzles.username, username))
+      .orderBy(desc(savedPuzzles.createdAt));
 
-  return NextResponse.json(puzzles);
+    return NextResponse.json(puzzles);
+  } catch (err) {
+    console.error("Failed to list puzzles:", err);
+    return NextResponse.json({ error: "Failed to list puzzles" }, { status: 500 });
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -42,14 +47,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  const [puzzle] = await db.insert(savedPuzzles).values({
-    username,
-    gameType: body.gameType,
-    title: body.title,
-    topic: body.topic,
-    difficulty: body.difficulty,
-    puzzleData: typeof body.puzzleData === "string" ? body.puzzleData : JSON.stringify(body.puzzleData),
-  }).returning({ id: savedPuzzles.id });
+  try {
+    const [puzzle] = await db.insert(savedPuzzles).values({
+      username,
+      gameType: body.gameType,
+      title: body.title,
+      topic: body.topic,
+      difficulty: body.difficulty,
+      puzzleData: typeof body.puzzleData === "string" ? body.puzzleData : JSON.stringify(body.puzzleData),
+    }).returning({ id: savedPuzzles.id });
 
-  return NextResponse.json({ id: puzzle.id });
+    return NextResponse.json({ id: puzzle.id });
+  } catch (err) {
+    console.error("Failed to save puzzle:", err);
+    return NextResponse.json({ error: "Failed to save puzzle" }, { status: 500 });
+  }
 }
