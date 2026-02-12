@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Shield, Flame, Skull, Sparkles, Tag, Search, Grid3X3 } from "lucide-react";
+import { ArrowLeft, Shield, Flame, Skull, Sparkles, Tag, Search, Grid3X3, Shuffle } from "lucide-react";
 import type { Difficulty, GameType, CategorySuggestion } from "@/lib/types";
 import { LoadingOverlay } from "@/components/shared/LoadingOverlay";
 
@@ -124,8 +124,17 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
 
       const puzzle = await res.json();
       // Store puzzle in sessionStorage and navigate
-      const storageKey = gameType === "crossword" ? "lexicon-puzzle-crossword" : "lexicon-puzzle";
-      const route = gameType === "crossword" ? "/puzzle/crossword" : "/puzzle/wordsearch";
+      const storageKey = gameType === "crossword"
+        ? "lexicon-puzzle-crossword"
+        : gameType === "anagram"
+          ? "lexicon-puzzle-anagram"
+          : "lexicon-puzzle";
+
+      const route = gameType === "crossword"
+        ? "/puzzle/crossword"
+        : gameType === "anagram"
+          ? "/puzzle/anagram"
+          : "/puzzle/wordsearch";
       try {
         sessionStorage.setItem(storageKey, JSON.stringify(puzzle));
       } catch {
@@ -187,7 +196,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
           <label className="block font-heading text-sm mb-3 text-white/60">
             Game Type
           </label>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <button
               onClick={() => setGameType("wordsearch")}
               className="p-4 rounded-2xl text-center transition-all"
@@ -218,6 +227,22 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
               <div className="font-heading text-sm font-bold">Crossword</div>
               <div className="text-xs mt-1" style={{ color: "var(--white-muted)" }}>
                 Solve clues in a mini grid
+              </div>
+            </button>
+            <button
+              onClick={() => setGameType("anagram")}
+              className="p-4 rounded-2xl text-center transition-all"
+              style={{
+                background: gameType === "anagram" ? "rgba(255, 215, 0, 0.1)" : "var(--glass-bg)",
+                border: gameType === "anagram" ? "2px solid #FFD700" : "1px solid var(--glass-border)",
+              }}
+            >
+              <div className="text-gold-primary flex justify-center mb-2">
+                <Shuffle className="w-6 h-6" />
+              </div>
+              <div className="font-heading text-sm font-bold">Anagram</div>
+              <div className="text-xs mt-1" style={{ color: "var(--white-muted)" }}>
+                Unscramble jumbled words
               </div>
             </button>
           </div>

@@ -1,11 +1,11 @@
 interface LoadingOverlayProps {
   topic: string;
   difficulty: string;
-  gameType?: "wordsearch" | "crossword";
+  gameType?: "wordsearch" | "crossword" | "anagram";
 }
 
 export function LoadingOverlay({ topic, difficulty, gameType = "wordsearch" }: LoadingOverlayProps) {
-  const gameLabel = gameType === "crossword" ? "crossword" : "word search";
+  const gameLabel = gameType === "crossword" ? "crossword" : gameType === "anagram" ? "anagram" : "word search";
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-5">
