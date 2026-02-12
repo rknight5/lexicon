@@ -73,12 +73,12 @@ export function ResumeCard({ autoSave, onResume, onSave, onDismiss }: ResumeCard
           </span>
           {DIFFICULTY_ICON[autoSave.difficulty]}
         </div>
-        <div className="flex items-center gap-2 mt-1">
+        <div className="flex items-center gap-3 mt-1">
           <span className="text-[11px] font-body">
             <span className="text-white font-bold">{count}</span>
             <span className="text-white/30"> {label}</span>
           </span>
-          <span className="text-[11px] text-white/30 font-body flex items-center gap-1.5">
+          <span className="text-[11px] text-white/30 font-body flex items-center gap-1">
             <Heart className="w-3 h-3 text-pink-accent" fill="currentColor" />
             {livesRemaining}
           </span>
