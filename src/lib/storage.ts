@@ -62,6 +62,31 @@ export interface SavedPuzzleSummary {
   createdAt: string;
 }
 
+export async function savePuzzle(
+  gameType: GameType,
+  topic: string,
+  difficulty: Difficulty,
+  puzzleData: PuzzleData | CrosswordPuzzleData
+): Promise<boolean> {
+  try {
+    const res = await fetch("/api/puzzles", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        gameType,
+        title: puzzleData.title,
+        topic,
+        difficulty,
+        puzzleData,
+      }),
+      credentials: "include",
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 export async function getSavedPuzzles(): Promise<SavedPuzzleSummary[]> {
   try {
     const res = await fetch("/api/puzzles", { credentials: "include" });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Shield, Flame, Skull, ArrowLeft, Pencil, Check, BarChart2, HelpCircle, Settings, LogOut } from "lucide-react";
+import { Shield, Flame, Skull, ArrowLeft, Pencil, Check, BarChart2, Bookmark, HelpCircle, Settings, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Difficulty } from "@/lib/types";
 
@@ -13,6 +13,8 @@ interface GameBarProps {
   title?: string;
   onTitleChange?: (newTitle: string) => void;
   onStats?: () => void;
+  onSave?: () => void;
+  isSaved?: boolean;
 }
 
 const DIFFICULTY_BADGE: Record<
@@ -44,6 +46,8 @@ export function GameBar({
   title,
   onTitleChange,
   onStats,
+  onSave,
+  isSaved,
 }: GameBarProps) {
   const router = useRouter();
   const badge = DIFFICULTY_BADGE[difficulty];
@@ -140,8 +144,18 @@ export function GameBar({
         </div>
       </div>
 
-      {/* Right: stats + help + settings + logout */}
+      {/* Right: save + stats + help + settings + logout */}
       <div className="ml-auto flex items-center gap-5">
+        {onSave && (
+          <button
+            onClick={onSave}
+            disabled={isSaved}
+            className={`transition-colors p-1.5 -m-1.5 ${isSaved ? "text-gold-primary" : "text-white/30 hover:text-white/60"}`}
+            title={isSaved ? "Saved" : "Save puzzle"}
+          >
+            <Bookmark className="w-5 h-5" fill={isSaved ? "currentColor" : "none"} />
+          </button>
+        )}
         <button
           onClick={onStats}
           className="text-white/30 hover:text-white/60 transition-colors p-1.5 -m-1.5"

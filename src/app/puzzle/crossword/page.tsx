@@ -12,7 +12,7 @@ import { CompletionModal } from "@/components/shared/CompletionModal";
 import { StatsModal } from "@/components/shared/StatsModal";
 import { useCrosswordGame } from "@/hooks/useCrosswordGame";
 import { calculateScore } from "@/lib/scoring";
-import { saveResult } from "@/lib/storage";
+import { saveResult, savePuzzle } from "@/lib/storage";
 import type { CrosswordPuzzleData, CrosswordClue } from "@/lib/types";
 
 export default function CrosswordPage() {
@@ -37,6 +37,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
   const router = useRouter();
   const [puzzleTitle, setPuzzleTitle] = useState(initialPuzzle.title);
   const [showStats, setShowStats] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const puzzle = initialPuzzle;
   const {
     state,
@@ -65,6 +66,11 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
   const handlePlayAgain = () => {
     sessionStorage.removeItem("lexicon-puzzle-crossword");
     router.push("/");
+  };
+
+  const handleSave = async () => {
+    const ok = await savePuzzle("crossword", puzzle.title, puzzle.difficulty, puzzle);
+    if (ok) setIsSaved(true);
   };
 
   const handleClueClick = (clue: CrosswordClue) => {
@@ -117,6 +123,8 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
         title={puzzleTitle}
         onTitleChange={setPuzzleTitle}
         onStats={() => setShowStats(true)}
+        onSave={handleSave}
+        isSaved={isSaved}
       />
 
       {/* Desktop: unified game panel */}

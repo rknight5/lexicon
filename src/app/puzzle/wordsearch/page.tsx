@@ -13,7 +13,7 @@ import { CompletionModal } from "@/components/shared/CompletionModal";
 import { StatsModal } from "@/components/shared/StatsModal";
 import { useWordSearchGame } from "@/hooks/useWordSearchGame";
 import { calculateScore } from "@/lib/scoring";
-import { saveResult } from "@/lib/storage";
+import { saveResult, savePuzzle } from "@/lib/storage";
 import type { PuzzleData } from "@/lib/types";
 
 export default function WordSearchPage() {
@@ -38,6 +38,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
   const router = useRouter();
   const [puzzleTitle, setPuzzleTitle] = useState(initialPuzzle.title);
   const [showStats, setShowStats] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const puzzle = initialPuzzle;
   const {
     state,
@@ -109,6 +110,11 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
     router.push("/");
   };
 
+  const handleSave = async () => {
+    const ok = await savePuzzle("wordsearch", puzzle.title, puzzle.difficulty, puzzle);
+    if (ok) setIsSaved(true);
+  };
+
   const score = calculateScore(
     state.foundWords.length,
     state.livesRemaining,
@@ -138,6 +144,8 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
         title={puzzleTitle}
         onTitleChange={setPuzzleTitle}
         onStats={() => setShowStats(true)}
+        onSave={handleSave}
+        isSaved={isSaved}
       />
 
       {/* Desktop: unified game panel */}
