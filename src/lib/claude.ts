@@ -65,6 +65,7 @@ Rules:
   - Medium: mix of 1s, 2s, and a few 3s
   - Hard: heavy on 2s and 3s, fewer 1s
 - Include a brief, interesting fun fact related to the topic
+- Vary your selections: prioritize surprising, lesser-known, and creative word choices over the most obvious ones. Each generation should feel fresh, not formulaic.
 
 Respond with ONLY valid JSON in this exact format, with no markdown fences, no preamble, no explanation:
 {
@@ -110,6 +111,7 @@ export async function generatePuzzleWords(
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-5-20250929",
       max_tokens: 4096,
+      temperature: 0.9,
       system: SYSTEM_PROMPT,
       messages: [
         {
@@ -176,6 +178,7 @@ Rules:
   - Medium: moderate clues, some require topic knowledge (e.g., "Cobain's band" for NIRVANA)
   - Hard: obscure or indirect clues that require deep knowledge (e.g., "Sub Pop label's hometown sound" for GRUNGE)
 - Include a brief, interesting fun fact related to the topic
+- Vary your selections: prioritize surprising, lesser-known, and creative word choices over the most obvious ones. Each generation should feel fresh, not formulaic.
 
 Respond with ONLY valid JSON in this exact format, with no markdown fences, no preamble, no explanation:
 {
@@ -222,6 +225,7 @@ export async function generateCrosswordWords(
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-5-20250929",
       max_tokens: 4096,
+      temperature: 0.9,
       system: CROSSWORD_SYSTEM_PROMPT,
       messages: [
         {
@@ -287,6 +291,7 @@ Rules:
   - Medium: mix of 1s, 2s, and a few 3s
   - Hard: heavy on 2s and 3s, fewer 1s
 - Include a brief, interesting fun fact related to the topic
+- Vary your selections: prioritize surprising, lesser-known, and creative word choices over the most obvious ones. Each generation should feel fresh, not formulaic.
 
 Respond with ONLY valid JSON in this exact format, with no markdown fences, no preamble, no explanation:
 {
@@ -333,6 +338,7 @@ export async function generateAnagramWords(
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-5-20250929",
       max_tokens: 4096,
+      temperature: 0.9,
       system: ANAGRAM_SYSTEM_PROMPT,
       messages: [
         {
