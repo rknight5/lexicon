@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Search, Grid3X3, Shuffle, Shield, Flame, Skull, Trash2, Play } from "lucide-react";
 import { getSavedPuzzles, loadSavedPuzzle, deleteSavedPuzzle, type SavedPuzzleSummary } from "@/lib/storage";
+import { Toast } from "@/components/shared/Toast";
 
 const GAME_TYPE_ICON: Record<string, React.ReactNode> = {
   wordsearch: <Search className="w-5 h-5 text-white/60" />,
@@ -29,6 +30,7 @@ export default function SavedPage() {
   const [loading, setLoading] = useState(true);
   const [loadingPuzzleId, setLoadingPuzzleId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     getSavedPuzzles().then((p) => {
@@ -38,10 +40,12 @@ export default function SavedPage() {
   }, []);
 
   const handleLoad = async (puzzle: SavedPuzzleSummary) => {
+    setErrorMessage(null);
     setLoadingPuzzleId(puzzle.id);
     const loaded = await loadSavedPuzzle(puzzle.id);
     if (!loaded) {
       setLoadingPuzzleId(null);
+      setErrorMessage("Couldn't load puzzle — check your connection");
       return;
     }
 
@@ -64,6 +68,7 @@ export default function SavedPage() {
       sessionStorage.setItem(storageKey, JSON.stringify(loaded.puzzleData));
     } catch {
       setLoadingPuzzleId(null);
+      setErrorMessage("Couldn't load puzzle — try again");
       return;
     }
     router.push(route);
@@ -178,6 +183,13 @@ export default function SavedPage() {
           )}
         </div>
       </div>
+
+      {errorMessage && (
+        <Toast
+          message={errorMessage}
+          onDismiss={() => setErrorMessage(null)}
+        />
+      )}
     </div>
   );
 }
