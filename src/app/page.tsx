@@ -6,7 +6,7 @@ import { Sparkles, LogOut, BarChart2, Bookmark } from "lucide-react";
 import { ConfigScreen } from "@/components/shared/ConfigScreen";
 import { StatsModal } from "@/components/shared/StatsModal";
 import { ResumeCard } from "@/components/shared/ResumeCard";
-import { getAutoSave, deleteAutoSave, getSavedPuzzles, type AutoSaveSummary } from "@/lib/storage";
+import { getAutoSave, deleteAutoSave, getSavedPuzzles, savePuzzle, type AutoSaveSummary } from "@/lib/storage";
 import type { CategorySuggestion } from "@/lib/types";
 
 const EXAMPLE_TOPICS = [
@@ -109,6 +109,17 @@ export default function HomePage() {
     sessionStorage.setItem(storageKey, JSON.stringify(autoSave.puzzleData));
     sessionStorage.setItem("lexicon-game-state", JSON.stringify(autoSave.gameState));
     router.push(route);
+  };
+
+  const handleSaveAutoSave = async (): Promise<boolean> => {
+    if (!autoSave) return false;
+    const id = await savePuzzle(
+      autoSave.gameType,
+      autoSave.title,
+      autoSave.difficulty,
+      autoSave.puzzleData
+    );
+    return !!id;
   };
 
   const handleDismissResume = async () => {
@@ -222,6 +233,7 @@ export default function HomePage() {
           <ResumeCard
             autoSave={autoSave}
             onResume={handleResume}
+            onSave={handleSaveAutoSave}
             onDismiss={handleDismissResume}
           />
         </div>
