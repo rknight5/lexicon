@@ -116,17 +116,29 @@ export function useAutoSave({
       if (deletedRef.current) return;
       const { gameType: gt, title: t, difficulty: d, puzzleData: pd, getGameState: gs } =
         optionsRef.current;
+      const payload = {
+        gameType: gt,
+        title: t,
+        difficulty: d,
+        puzzleData: pd,
+        gameState: gs(),
+      };
+      // Write to sessionStorage synchronously so the home page can read it
+      // immediately — the async fetch below may not complete before the home
+      // page's getAutoSave() call hits the server.
+      try {
+        sessionStorage.setItem(
+          "lexicon-pending-autosave",
+          JSON.stringify({ ...payload, updatedAt: new Date().toISOString() })
+        );
+      } catch {
+        // private browsing or quota
+      }
       try {
         fetch("/api/autosave", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            gameType: gt,
-            title: t,
-            difficulty: d,
-            puzzleData: pd,
-            gameState: gs(),
-          }),
+          body: JSON.stringify(payload),
           credentials: "include",
           keepalive: true,
         });

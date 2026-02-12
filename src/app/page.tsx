@@ -31,6 +31,16 @@ export default function HomePage() {
   const [savedCount, setSavedCount] = useState(0);
 
   useEffect(() => {
+    // Check sessionStorage first for instant resume after SPA navigation
+    // (the async server save may still be in-flight)
+    const pending = sessionStorage.getItem("lexicon-pending-autosave");
+    if (pending) {
+      try {
+        setAutoSave(JSON.parse(pending));
+      } catch { /* ignore corrupt data */ }
+      sessionStorage.removeItem("lexicon-pending-autosave");
+    }
+    // Also fetch from server (authoritative, covers tab-close saves)
     getAutoSave().then(setAutoSave);
     getSavedPuzzles().then((p) => setSavedCount(p.length));
   }, []);
