@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Shield, Flame, Skull, Sparkles, Tag, Search, Grid3X3, Shuffle } from "lucide-react";
 import type { Difficulty, GameType, CategorySuggestion } from "@/lib/types";
@@ -53,6 +53,8 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
   const [categoryError, setCategoryError] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const cancelledRef = useRef(false);
 
   // Use prefetched categories if available, otherwise fetch on mount
   useEffect(() => {
@@ -99,10 +101,13 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
     if (selectedCategories.length === 0) return;
     setGenerating(true);
     setError(null);
+    cancelledRef.current = false;
 
+    let timeout: ReturnType<typeof setTimeout> | undefined;
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 60000);
+      abortRef.current = controller;
+      timeout = setTimeout(() => controller.abort(), 60000);
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -143,18 +148,30 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
       }
       router.push(route);
     } catch (err) {
+      clearTimeout(timeout);
       if (err instanceof DOMException && err.name === "AbortError") {
-        setError("Generation timed out. Try a simpler topic or lower difficulty.");
+        if (!cancelledRef.current) {
+          setError("Generation timed out. Try a simpler topic or lower difficulty.");
+        }
+      } else if (err instanceof TypeError && err.message === "Failed to fetch") {
+        setError("No internet connection. Check your network and try again.");
       } else {
         setError(err instanceof Error ? err.message : "Something went wrong");
       }
     } finally {
       setGenerating(false);
+      abortRef.current = null;
     }
   };
 
+  const handleCancel = () => {
+    cancelledRef.current = true;
+    abortRef.current?.abort();
+    setGenerating(false);
+  };
+
   if (generating) {
-    return <LoadingOverlay />;
+    return <LoadingOverlay onCancel={handleCancel} />;
   }
 
   return (

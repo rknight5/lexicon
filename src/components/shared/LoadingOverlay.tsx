@@ -17,7 +17,11 @@ const SPARKLES = [
   { size: 3, color: "#C084FC", radius: 58, duration: 5.5, delay: 3.2 },
 ];
 
-export function LoadingOverlay() {
+interface LoadingOverlayProps {
+  onCancel?: () => void;
+}
+
+export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
   const [messageIndex, setMessageIndex] = useState(0);
 
   useEffect(() => {
@@ -217,6 +221,19 @@ export function LoadingOverlay() {
           {MESSAGES[messageIndex]}
         </p>
       </div>
+
+      {onCancel && (
+        <button
+          onClick={onCancel}
+          className="mt-6 px-5 py-2 rounded-pill font-body text-sm text-white/70 hover:text-white transition-colors"
+          style={{
+            background: "var(--glass-bg)",
+            border: "1px solid var(--glass-border)",
+          }}
+        >
+          Cancel
+        </button>
+      )}
     </div>
   );
 }
