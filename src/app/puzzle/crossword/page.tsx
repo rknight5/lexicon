@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { CrosswordGrid } from "@/components/crossword/CrosswordGrid";
 import { ClueList } from "@/components/crossword/ClueList";
 import { GameBar } from "@/components/shared/GameBar";
+import { GameStatsBar } from "@/components/shared/GameStatsBar";
 import { PauseMenu } from "@/components/shared/PauseMenu";
 import { GameOverModal } from "@/components/shared/GameOverModal";
 import { CompletionModal } from "@/components/shared/CompletionModal";
@@ -108,19 +109,22 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
     <div className="min-h-screen lg:h-screen flex flex-col lg:overflow-hidden">
       <GameBar
         difficulty={puzzle.difficulty}
-        livesRemaining={state.livesRemaining}
-        elapsedSeconds={state.elapsedSeconds}
-        score={score}
         onPause={pause}
         onBack={handleNewTopic}
         gameStatus={state.gameStatus}
-        lastMissTimestamp={0}
         title={puzzleTitle}
         onTitleChange={setPuzzleTitle}
       />
+      <GameStatsBar
+        score={score}
+        livesRemaining={state.livesRemaining}
+        hintsUsed={state.hintsUsed}
+        elapsedSeconds={state.elapsedSeconds}
+        gameStatus={state.gameStatus}
+      />
 
       {/* Desktop: unified game panel */}
-      <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-4 pb-8">
+      <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-1 pb-8">
         <div className="relative">
           {/* Instructions */}
           <div className="absolute right-full top-0 mr-24 flex flex-col gap-2.5 text-white/25 text-xs font-body whitespace-nowrap">

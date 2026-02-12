@@ -1,19 +1,15 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Heart, Clock, PauseCircle, Shield, Flame, Skull, ArrowLeft, Star, LogOut, Pencil, Check } from "lucide-react";
+import { Shield, Flame, Skull, ArrowLeft, Pencil, Check, BarChart2, HelpCircle, Settings, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Difficulty } from "@/lib/types";
 
 interface GameBarProps {
   difficulty: Difficulty;
-  livesRemaining: number;
-  elapsedSeconds: number;
-  score: number;
   onPause: () => void;
   onBack?: () => void;
   gameStatus: string;
-  lastMissTimestamp?: number;
   title?: string;
   onTitleChange?: (newTitle: string) => void;
 }
@@ -39,27 +35,16 @@ const DIFFICULTY_BADGE: Record<
   },
 };
 
-function formatTime(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
-}
-
 export function GameBar({
   difficulty,
-  livesRemaining,
-  elapsedSeconds,
-  score,
   onPause,
   onBack,
   gameStatus,
-  lastMissTimestamp = 0,
   title,
   onTitleChange,
 }: GameBarProps) {
   const router = useRouter();
   const badge = DIFFICULTY_BADGE[difficulty];
-  const [heartBreaking, setHeartBreaking] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(title || "");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -69,14 +54,6 @@ export function GameBar({
     router.push("/login");
     router.refresh();
   };
-
-  useEffect(() => {
-    if (lastMissTimestamp > 0) {
-      setHeartBreaking(true);
-      const t = setTimeout(() => setHeartBreaking(false), 300);
-      return () => clearTimeout(t);
-    }
-  }, [lastMissTimestamp]);
 
   useEffect(() => {
     if (editing && inputRef.current) {
@@ -100,10 +77,10 @@ export function GameBar({
 
   return (
     <div
-      className="h-14 px-4 flex items-center border-b relative"
+      className="h-12 px-4 flex items-center border-b relative"
       style={{
         background: "#1A0A2E",
-        borderColor: "rgba(255, 255, 255, 0.1)",
+        borderColor: "rgba(255, 255, 255, 0.08)",
       }}
     >
       {/* Left: back button */}
@@ -161,54 +138,31 @@ export function GameBar({
         </div>
       </div>
 
-      {/* Right: score + lives + timer + pause */}
-      <div className="ml-auto flex items-center gap-5">
-        {/* Score */}
-        <div className="inline-flex items-center gap-1.5 text-gold-primary">
-          <Star className="w-4 h-4" fill="currentColor" />
-          <span className="font-grid text-sm font-semibold">{score}</span>
-        </div>
-
-        {/* Lives */}
-        <div className="flex items-center gap-1.5">
-          {[0, 1, 2].map((i) => (
-            <Heart
-              key={i}
-              className={`w-4 h-4 transition-all ${
-                i < livesRemaining
-                  ? "text-red-400"
-                  : "text-gray-600"
-              } ${heartBreaking && i === livesRemaining ? "animate-heart-break" : ""}`}
-              fill={i < livesRemaining ? "currentColor" : "none"}
-            />
-          ))}
-        </div>
-
-        {/* Timer */}
-        <div className="inline-flex items-center gap-1.5 text-white/60">
-          <Clock className="w-4 h-4" />
-          <span
-            className={`font-grid text-sm ${
-              gameStatus === "paused" ? "animate-pulse" : ""
-            }`}
-          >
-            {formatTime(elapsedSeconds)}
-          </span>
-        </div>
-
-        {/* Pause */}
+      {/* Right: stats + help + settings + logout */}
+      <div className="ml-auto flex items-center gap-4">
+        <button
+          className="text-white/30 hover:text-white/60 transition-colors p-1 -m-1"
+          title="Stats"
+        >
+          <BarChart2 className="w-4 h-4" />
+        </button>
+        <button
+          className="text-white/30 hover:text-white/60 transition-colors p-1 -m-1"
+          title="Help"
+        >
+          <HelpCircle className="w-4 h-4" />
+        </button>
         <button
           onClick={onPause}
-          className="text-white/60 hover:text-white transition-colors"
+          className="text-white/30 hover:text-white/60 transition-colors p-1 -m-1"
+          title="Settings"
           disabled={gameStatus !== "playing"}
         >
-          <PauseCircle className="w-6 h-6" />
+          <Settings className="w-4 h-4" />
         </button>
-
-        {/* Logout */}
         <button
           onClick={handleLogout}
-          className="text-white/30 hover:text-white/60 transition-colors p-1.5 -m-1.5"
+          className="text-white/30 hover:text-white/60 transition-colors p-1 -m-1"
           title="Log out"
         >
           <LogOut className="w-4 h-4" />

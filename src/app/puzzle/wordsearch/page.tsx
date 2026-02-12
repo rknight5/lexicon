@@ -6,6 +6,7 @@ import { PuzzleGrid } from "@/components/wordsearch/PuzzleGrid";
 import { WordProgress } from "@/components/wordsearch/WordProgress";
 import { WordList } from "@/components/wordsearch/WordList";
 import { GameBar } from "@/components/shared/GameBar";
+import { GameStatsBar } from "@/components/shared/GameStatsBar";
 import { PauseMenu } from "@/components/shared/PauseMenu";
 import { GameOverModal } from "@/components/shared/GameOverModal";
 import { CompletionModal } from "@/components/shared/CompletionModal";
@@ -129,22 +130,26 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
     <div className="min-h-screen lg:h-screen flex flex-col lg:overflow-hidden">
       <GameBar
         difficulty={puzzle.difficulty}
-        livesRemaining={state.livesRemaining}
-        elapsedSeconds={state.elapsedSeconds}
-        score={score}
         onPause={pause}
         onBack={handleNewTopic}
         gameStatus={state.gameStatus}
-        lastMissTimestamp={lastMissTimestamp}
         title={puzzleTitle}
         onTitleChange={setPuzzleTitle}
       />
+      <GameStatsBar
+        score={score}
+        livesRemaining={state.livesRemaining}
+        hintsUsed={state.hintsUsed}
+        elapsedSeconds={state.elapsedSeconds}
+        gameStatus={state.gameStatus}
+        lastMissTimestamp={lastMissTimestamp}
+      />
 
       {/* Desktop: unified game panel */}
-      <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-4 pb-8">
+      <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-1 pb-8">
         <div className="relative">
           {/* Instructions: positioned to the left of the panel, top-aligned */}
-          <div className="absolute right-full top-0 mr-20 flex flex-col gap-2.5 text-white/25 text-xs font-body whitespace-nowrap">
+          <div className="absolute right-full top-0 mr-23 flex flex-col gap-2.5 text-white/25 text-xs font-body whitespace-nowrap">
             <div>
               <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold">How to Play</span>
               <div className="h-px bg-white/10 mt-2" />
