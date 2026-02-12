@@ -14,9 +14,9 @@ Next.js 16 (App Router) + React 19 + TypeScript | Tailwind CSS 4 | PostgreSQL + 
 - Status lifecycle: `idle` → `playing` → `won`/`lost` (with `paused` side state)
 - Grid generators: `src/lib/games/wordsearch/gridGenerator.ts`, `src/lib/games/crossword/gridGenerator.ts`
 - Hints cost 1 life, disabled at 1 life remaining. Crossword reveals letter at cursor (gold, locked). Word search shows direction arrow.
-- Scoring: `wordsFound × 100 × difficultyMultiplier × livesBonus` (`src/lib/scoring.ts`)
-- Auth is username-only (no password). Sessions via iron-session encrypted cookies. All fetch must include `credentials: "include"`
-- Puzzle history persisted in PostgreSQL, scoped by username. Stats derived server-side (`/api/stats`)
+- Scoring logic in `src/lib/scoring.ts`
+- All fetch to `/api/*` must include `credentials: "include"`
+- Puzzle history persisted in PostgreSQL, scoped by username. Stats derived server-side
 - Landing page debounces topic input (600ms) for category prefetch
 - All shared types/config constants in `src/lib/types.ts`
 - Tests in `__tests__/` dirs alongside source. Setup at `src/test/setup.ts`. Path alias `@/` → `src/`
