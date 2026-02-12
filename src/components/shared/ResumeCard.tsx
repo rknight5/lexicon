@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, Grid3X3, Shuffle, Play, X, Shield, Flame, Skull, Heart } from "lucide-react";
+import { Search, Grid3X3, Shuffle, Play, Trash2, Shield, Flame, Skull, Heart } from "lucide-react";
 import type { AutoSaveSummary } from "@/lib/storage";
 
 interface ResumeCardProps {
@@ -72,25 +72,17 @@ export function ResumeCard({ autoSave, onResume, onDismiss }: ResumeCardProps) {
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <span
-            className="text-[10px] uppercase tracking-wider font-heading font-bold px-2 py-1 rounded-pill"
-            style={{ background: "rgba(255, 215, 0, 0.15)", color: "#FFD700" }}
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <button
+            onClick={(e) => { e.stopPropagation(); onDismiss(); }}
+            className="text-white/20 hover:text-pink-accent transition-colors p-1.5 -m-1.5"
+            title="Delete saved game"
           >
-            Continue
-          </span>
+            <Trash2 className="w-4 h-4" />
+          </button>
           <Play className="w-4 h-4 text-gold-primary" fill="currentColor" />
         </div>
       </button>
-      <div className="flex justify-end mt-1 pr-1">
-        <button
-          onClick={onDismiss}
-          className="text-white/20 hover:text-white/40 transition-colors p-1.5 -m-1.5"
-          title="Dismiss"
-        >
-          <X className="w-3.5 h-3.5" />
-        </button>
-      </div>
     </div>
   );
 }
