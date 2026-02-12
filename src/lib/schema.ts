@@ -32,5 +32,6 @@ export const savedPuzzles = pgTable("saved_puzzles", {
   topic: text("topic").notNull(),
   difficulty: text("difficulty").notNull(),
   puzzleData: text("puzzle_data").notNull(),
+  gameState: text("game_state"),
   createdAt: timestamp("created_at").defaultNow(),
 });
