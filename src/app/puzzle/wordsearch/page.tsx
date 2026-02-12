@@ -154,7 +154,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
           </div>
 
           {/* Hint: positioned to the right of the panel, top-aligned, mirroring How to Play */}
-          <div className="absolute left-full top-0 ml-24 flex flex-col items-center whitespace-nowrap">
+          <div className="absolute left-full top-0 ml-32 flex flex-col items-center whitespace-nowrap">
             {state.gameStatus === "playing" && (
               <div className="flex flex-col items-center gap-3">
                 <div>
