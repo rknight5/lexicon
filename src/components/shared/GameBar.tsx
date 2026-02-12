@@ -77,9 +77,8 @@ export function GameBar({
     <div
       className="h-14 px-4 flex items-center border-b relative"
       style={{
-        background: "rgba(26, 10, 46, 0.9)",
+        background: "#1A0A2E",
         borderColor: "rgba(255, 255, 255, 0.1)",
-        backdropFilter: "blur(10px)",
       }}
     >
       {/* Left: back button */}

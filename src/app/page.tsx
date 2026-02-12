@@ -103,13 +103,13 @@ export default function HomePage() {
       </h1>
 
       {/* Tagline */}
-      <p className="font-heading text-lg md:text-xl mb-10"
+      <p className="font-heading text-lg md:text-xl mb-8"
          style={{ color: "var(--white-muted)" }}>
         Turn your interests into word puzzles
       </p>
 
       {/* Topic Input */}
-      <div className="w-full max-w-md mb-10">
+      <div className="w-full max-w-md mb-6">
         <input
           type="text"
           value={topic}
@@ -142,7 +142,7 @@ export default function HomePage() {
       </button>
 
       {/* Quick Starts */}
-      <div className="flex flex-col items-center mt-14 gap-4 w-full max-w-md">
+      <div className="flex flex-col items-center mt-10 gap-4 w-full max-w-md">
         <div className="flex items-center gap-3 w-full">
           <div className="h-px flex-1 bg-white/10" />
           <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold whitespace-nowrap">Quick Starts</span>

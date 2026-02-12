@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -50,37 +50,34 @@ export default function LoginPage() {
       </h1>
 
       <p
-        className="font-heading text-lg mb-10"
+        className="font-heading text-lg mb-8"
         style={{ color: "var(--white-muted)" }}
       >
         Turn your interests into word puzzles
       </p>
 
       <div
-        className="w-full max-w-sm rounded-2xl p-8 space-y-5"
+        className="w-full max-w-xs rounded-card p-6 space-y-4"
         style={{
           background: "var(--glass-bg)",
           border: "1px solid var(--glass-border)",
         }}
       >
-        <h2 className="font-heading text-lg font-bold text-center">
-          Welcome
-        </h2>
-        <p
-          className="font-body text-sm text-center"
-          style={{ color: "var(--white-muted)" }}
-        >
-          Enter your name to start playing
-        </p>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <label
+            className="block font-heading text-sm text-white/60 mb-1"
+            htmlFor="username"
+          >
+            Your name
+          </label>
           <input
+            id="username"
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="Your name"
+            placeholder="Enter a name"
             maxLength={50}
-            className="w-full h-[48px] px-4 rounded-xl text-base font-body text-white placeholder:text-white/40 outline-none"
+            className="w-full h-[44px] px-4 rounded-xl text-base font-body text-white placeholder:text-white/40 outline-none"
             style={{
               background: "rgba(255, 255, 255, 0.05)",
               border: "1px solid var(--glass-border)",
@@ -97,7 +94,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading || !username.trim()}
-            className="w-full flex items-center justify-center gap-2 h-12 rounded-full font-heading text-sm font-bold uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 h-11 rounded-full font-heading text-sm font-bold uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
               color: "#1A0A2E",
@@ -109,21 +106,18 @@ export default function LoginPage() {
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              <>
-                <Sparkles className="w-5 h-5" />
-                Continue
-              </>
+              "Start Playing"
             )}
           </button>
         </form>
-      </div>
 
-      <p
-        className="text-xs text-center mt-5 max-w-xs"
-        style={{ color: "var(--white-muted)" }}
-      >
-        Pick a unique name — your puzzle history is saved under it
-      </p>
+        <p
+          className="text-xs text-center"
+          style={{ color: "var(--white-muted)" }}
+        >
+          Your puzzle history is saved under this name
+        </p>
+      </div>
     </main>
   );
 }

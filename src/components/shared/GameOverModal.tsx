@@ -51,7 +51,7 @@ export function GameOverModal({
         <div className="space-y-3 pt-2">
           <button
             onClick={onTryAgain}
-            className="w-full h-12 rounded-pill font-heading text-sm font-bold uppercase tracking-wider text-purple-deep transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+            className="w-full h-11 rounded-pill font-heading text-sm font-bold uppercase tracking-wider text-purple-deep transition-all hover:-translate-y-0.5 active:scale-[0.97]"
             style={{
               background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
               boxShadow: "0 4px 15px rgba(255, 215, 0, 0.4)",
@@ -61,9 +61,9 @@ export function GameOverModal({
           </button>
           <button
             onClick={onNewTopic}
-            className="w-full h-10 rounded-pill font-heading text-sm font-bold uppercase tracking-wider text-green-accent border-2 border-green-accent transition-all hover:-translate-y-0.5"
+            className="w-full h-10 rounded-pill font-body text-sm text-white/60 hover:text-white transition-colors"
           >
-            New Topic
+            Change Topic
           </button>
         </div>
       </div>

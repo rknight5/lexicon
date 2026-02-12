@@ -1,9 +1,12 @@
 interface LoadingOverlayProps {
   topic: string;
   difficulty: string;
+  gameType?: "wordsearch" | "crossword";
 }
 
-export function LoadingOverlay({ topic, difficulty }: LoadingOverlayProps) {
+export function LoadingOverlay({ topic, difficulty, gameType = "wordsearch" }: LoadingOverlayProps) {
+  const gameLabel = gameType === "crossword" ? "crossword" : "word search";
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-5">
       {/* 3D rotating orb */}
@@ -95,8 +98,7 @@ export function LoadingOverlay({ topic, difficulty }: LoadingOverlayProps) {
         Building your puzzle...
       </p>
       <p className="font-body text-sm" style={{ color: "var(--white-muted)" }}>
-        {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} {topic} word
-        search
+        {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} {topic} {gameLabel}
       </p>
     </div>
   );
