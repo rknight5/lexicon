@@ -31,8 +31,10 @@ export default function CrosswordPage() {
   return <CrosswordGame puzzle={puzzle} />;
 }
 
-function CrosswordGame({ puzzle }: { puzzle: CrosswordPuzzleData }) {
+function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData }) {
   const router = useRouter();
+  const [puzzleTitle, setPuzzleTitle] = useState(initialPuzzle.title);
+  const puzzle = initialPuzzle;
   const {
     state,
     startGame,
@@ -113,7 +115,8 @@ function CrosswordGame({ puzzle }: { puzzle: CrosswordPuzzleData }) {
         onBack={handleNewTopic}
         gameStatus={state.gameStatus}
         lastMissTimestamp={0}
-        title={puzzle.title}
+        title={puzzleTitle}
+        onTitleChange={setPuzzleTitle}
       />
 
       {/* Desktop: unified game panel */}

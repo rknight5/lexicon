@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Heart, Clock, PauseCircle, Shield, Flame, Skull, ArrowLeft, Star, LogOut } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Heart, Clock, PauseCircle, Shield, Flame, Skull, ArrowLeft, Star, LogOut, Pencil, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Difficulty } from "@/lib/types";
 
@@ -15,6 +15,7 @@ interface GameBarProps {
   gameStatus: string;
   lastMissTimestamp?: number;
   title?: string;
+  onTitleChange?: (newTitle: string) => void;
 }
 
 const DIFFICULTY_BADGE: Record<
@@ -54,10 +55,14 @@ export function GameBar({
   gameStatus,
   lastMissTimestamp = 0,
   title,
+  onTitleChange,
 }: GameBarProps) {
   const router = useRouter();
   const badge = DIFFICULTY_BADGE[difficulty];
   const [heartBreaking, setHeartBreaking] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editValue, setEditValue] = useState(title || "");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
@@ -72,6 +77,26 @@ export function GameBar({
       return () => clearTimeout(t);
     }
   }, [lastMissTimestamp]);
+
+  useEffect(() => {
+    if (editing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [editing]);
+
+  const startEditing = () => {
+    setEditValue(title || "");
+    setEditing(true);
+  };
+
+  const commitEdit = () => {
+    const trimmed = editValue.trim();
+    if (trimmed && trimmed !== title && onTitleChange) {
+      onTitleChange(trimmed);
+    }
+    setEditing(false);
+  };
 
   return (
     <div
@@ -92,7 +117,42 @@ export function GameBar({
 
       {/* Center: title + difficulty badge */}
       <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2.5">
-        <span className="font-heading text-sm font-bold">{title}</span>
+        {editing ? (
+          <form
+            onSubmit={(e) => { e.preventDefault(); commitEdit(); }}
+            className="flex items-center gap-1.5"
+          >
+            <input
+              ref={inputRef}
+              type="text"
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              onBlur={commitEdit}
+              maxLength={60}
+              className="font-heading text-sm font-bold bg-transparent border-b border-white/30 outline-none text-white text-center px-1 py-0.5"
+              style={{ minWidth: "120px", maxWidth: "280px", width: `${Math.max(120, editValue.length * 9)}px` }}
+            />
+            <button
+              type="submit"
+              className="text-green-accent hover:text-green-accent/80 transition-colors p-0.5"
+            >
+              <Check className="w-3.5 h-3.5" />
+            </button>
+          </form>
+        ) : (
+          <>
+            <span className="font-heading text-sm font-bold">{title}</span>
+            {onTitleChange && (
+              <button
+                onClick={startEditing}
+                className="text-white/30 hover:text-white/60 transition-colors p-0.5"
+                title="Edit title"
+              >
+                <Pencil className="w-3 h-3" />
+              </button>
+            )}
+          </>
+        )}
         <div
           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-pill border text-[10px] font-heading font-bold ${badge.className}`}
         >

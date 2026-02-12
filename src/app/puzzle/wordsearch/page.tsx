@@ -32,8 +32,10 @@ export default function WordSearchPage() {
   return <WordSearchGame puzzle={puzzle} />;
 }
 
-function WordSearchGame({ puzzle }: { puzzle: PuzzleData }) {
+function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
   const router = useRouter();
+  const [puzzleTitle, setPuzzleTitle] = useState(initialPuzzle.title);
+  const puzzle = initialPuzzle;
   const {
     state,
     startGame,
@@ -133,17 +135,15 @@ function WordSearchGame({ puzzle }: { puzzle: PuzzleData }) {
         onBack={handleNewTopic}
         gameStatus={state.gameStatus}
         lastMissTimestamp={lastMissTimestamp}
-        title={puzzle.title}
+        title={puzzleTitle}
+        onTitleChange={setPuzzleTitle}
       />
 
       {/* Desktop: unified game panel */}
       <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-4 pb-8">
-        {/* Left spacer — matches hint section width to keep panel centered */}
-        <div className="w-40 flex-shrink-0" />
-
         <div className="relative">
           {/* Instructions: positioned to the left of the panel, top-aligned */}
-          <div className="absolute right-full top-0 mr-24 flex flex-col gap-2.5 text-white/25 text-xs font-body whitespace-nowrap">
+          <div className="absolute right-full top-0 mr-16 flex flex-col gap-2.5 text-white/25 text-xs font-body whitespace-nowrap">
             <div>
               <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold">How to Play</span>
               <div className="h-px bg-white/10 mt-2" />
@@ -151,6 +151,32 @@ function WordSearchGame({ puzzle }: { puzzle: PuzzleData }) {
             <p>1. Drag across letters to form words</p>
             <p>2. Words can go in any direction</p>
             <p>3. You have 3 lives per puzzle</p>
+          </div>
+
+          {/* Hint: positioned to the right of the panel, top-aligned, mirroring How to Play */}
+          <div className="absolute left-full top-0 ml-16 flex flex-col items-center whitespace-nowrap">
+            {state.gameStatus === "playing" && (
+              <div className="flex flex-col items-center gap-3">
+                <div>
+                  <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold">Hint</span>
+                  <div className="h-px bg-white/10 mt-2" />
+                </div>
+                <button
+                  onClick={handleRandomHint}
+                  disabled={!canHint}
+                  className="w-16 h-16 rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-110 hover:shadow-lg active:scale-95 disabled:opacity-25 disabled:cursor-not-allowed"
+                  style={{
+                    background: "rgba(255, 215, 0, 0.15)",
+                    border: "2px solid rgba(255, 215, 0, 0.4)",
+                    boxShadow: "0 0 20px rgba(255, 215, 0, 0.15)",
+                  }}
+                  title="Get a random hint (costs 1 life)"
+                >
+                  <span className="text-2xl pointer-events-none">💡</span>
+                </button>
+                <span className="text-xs text-white/50 font-body">Costs 1 life</span>
+              </div>
+            )}
           </div>
 
           <div
@@ -197,30 +223,6 @@ function WordSearchGame({ puzzle }: { puzzle: PuzzleData }) {
               />
             </div>
           </div>
-        </div>
-
-        {/* Hint section: right of panel, top-aligned, centered in remaining space */}
-        <div className="w-40 flex-shrink-0 flex justify-center self-start pt-4">
-          {state.gameStatus === "playing" && (
-            <div className="flex flex-col items-center gap-3">
-              <span className="text-xs uppercase tracking-[2px] text-white/60 font-heading font-bold">Hint</span>
-              <div className="h-px w-12 bg-white/20" />
-              <button
-                onClick={handleRandomHint}
-                disabled={!canHint}
-                className="w-16 h-16 rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-110 hover:shadow-lg active:scale-95 disabled:opacity-25 disabled:cursor-not-allowed"
-                style={{
-                  background: "rgba(255, 215, 0, 0.15)",
-                  border: "2px solid rgba(255, 215, 0, 0.4)",
-                  boxShadow: "0 0 20px rgba(255, 215, 0, 0.15)",
-                }}
-                title="Get a random hint (costs 1 life)"
-              >
-                <span className="text-2xl pointer-events-none">💡</span>
-              </button>
-              <span className="text-xs text-white/50 font-body whitespace-nowrap">Costs 1 life</span>
-            </div>
-          )}
         </div>
       </div>
 
