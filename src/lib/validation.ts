@@ -44,14 +44,15 @@ export function parseClaudeResponse(rawText: string): PuzzleContent {
 
 export function validateAndFilterWords(
   words: WordEntry[],
-  config: { minWords: number; maxWords: number; focusCategories: string[] }
+  config: { minWords: number; maxWords: number; maxWordLength?: number; focusCategories: string[] }
 ): WordEntry[] {
+  const maxLen = config.maxWordLength ?? 12;
   return words
     .map((w) => ({
       ...w,
       word: w.word.toUpperCase().replace(/[^A-Z]/g, ""),
     }))
-    .filter((w) => w.word.length >= 3 && w.word.length <= 12)
+    .filter((w) => w.word.length >= 3 && w.word.length <= maxLen)
     .filter((w, i, arr) => arr.findIndex((x) => x.word === w.word) === i)
     .filter((w) => config.focusCategories.includes(w.category))
     .slice(0, config.maxWords);

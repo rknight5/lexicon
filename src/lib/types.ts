@@ -71,6 +71,8 @@ export interface WordSearchGameState {
   selectedCells: CellPosition[];
   selectionDirection: Direction | null;
   livesRemaining: number;
+  hintsUsed: number;
+  hintedWords: Record<string, Direction>; // word -> direction shown
   elapsedSeconds: number;
   timerRunning: boolean;
   gameStatus: "idle" | "playing" | "paused" | "won" | "lost";
@@ -82,10 +84,89 @@ export type WordSearchAction =
   | { type: "SET_SELECTION"; cells: CellPosition[] }
   | { type: "COMPLETE_SELECTION" }
   | { type: "CANCEL_SELECTION" }
+  | { type: "USE_HINT"; word: string }
   | { type: "TICK_TIMER" }
   | { type: "PAUSE" }
   | { type: "RESUME" }
   | { type: "START_GAME" };
+
+// ============================================
+// Crossword specific types
+// ============================================
+
+export type GameType = "wordsearch" | "crossword";
+
+export interface CrosswordCell {
+  letter: string | null; // null = black square
+  number?: number; // clue number if word starts here
+  acrossClueNum?: number; // which across clue this cell belongs to
+  downClueNum?: number; // which down clue this cell belongs to
+}
+
+export interface CrosswordClue {
+  number: number;
+  direction: "across" | "down";
+  clue: string;
+  answer: string;
+  startRow: number;
+  startCol: number;
+  length: number;
+}
+
+export interface CrosswordPuzzleData {
+  title: string;
+  grid: CrosswordCell[][];
+  clues: CrosswordClue[];
+  gridSize: number;
+  funFact: string;
+  difficulty: Difficulty;
+}
+
+export interface CrosswordGameState {
+  puzzle: CrosswordPuzzleData;
+  cellValues: (string | null)[][]; // player's current input
+  hintedCells: Set<string>; // "row,col" keys for cells revealed by hints
+  cursorRow: number;
+  cursorCol: number;
+  cursorDirection: "across" | "down";
+  solvedClues: number[]; // clue numbers that are correct
+  livesRemaining: number;
+  hintsUsed: number;
+  elapsedSeconds: number;
+  timerRunning: boolean;
+  gameStatus: "idle" | "playing" | "paused" | "won" | "lost";
+}
+
+export type CrosswordAction =
+  | { type: "SELECT_CELL"; row: number; col: number }
+  | { type: "TOGGLE_DIRECTION" }
+  | { type: "TYPE_LETTER"; letter: string }
+  | { type: "DELETE_LETTER" }
+  | { type: "CHECK_WORD" }
+  | { type: "HINT" }
+  | { type: "TICK_TIMER" }
+  | { type: "PAUSE" }
+  | { type: "RESUME" }
+  | { type: "START_GAME" };
+
+// ============================================
+// Storage types
+// ============================================
+
+export interface PuzzleResult {
+  id: string;
+  timestamp: number;
+  topic: string;
+  gameType: GameType;
+  difficulty: Difficulty;
+  score: number;
+  wordsFound: number;
+  wordsTotal: number;
+  elapsedSeconds: number;
+  livesRemaining: number;
+  hintsUsed: number;
+  outcome: "won" | "lost";
+}
 
 // ============================================
 // API types
@@ -144,5 +225,35 @@ export const DIFFICULTY_CONFIG = {
     label: "Hard",
     description: "18×18 grid, 18-22 words, all 8 directions, includes obscure terms",
     weightedFill: false,
+  },
+} as const;
+
+export const CROSSWORD_DIFFICULTY_CONFIG = {
+  easy: {
+    gridSize: 9,
+    minWords: 8,
+    maxWords: 12,
+    candidateWords: 25,
+    lives: 3,
+    label: "Easy",
+    description: "9×9 grid, straightforward clues",
+  },
+  medium: {
+    gridSize: 11,
+    minWords: 10,
+    maxWords: 16,
+    candidateWords: 30,
+    lives: 3,
+    label: "Medium",
+    description: "11×11 grid, moderate clues",
+  },
+  hard: {
+    gridSize: 13,
+    minWords: 14,
+    maxWords: 20,
+    candidateWords: 35,
+    lives: 3,
+    label: "Hard",
+    description: "13×13 grid, obscure and indirect clues",
   },
 } as const;

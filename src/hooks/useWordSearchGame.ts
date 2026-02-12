@@ -14,6 +14,8 @@ export function createInitialState(puzzle: PuzzleData): WordSearchGameState {
     selectedCells: [],
     selectionDirection: null,
     livesRemaining: 3,
+    hintsUsed: 0,
+    hintedWords: {},
     elapsedSeconds: 0,
     timerRunning: false,
     gameStatus: "idle",
@@ -115,6 +117,26 @@ export function wordSearchReducer(
     case "CANCEL_SELECTION":
       return { ...state, selectedCells: [], selectionDirection: null };
 
+    case "USE_HINT": {
+      if (state.gameStatus !== "playing") return state;
+      if (state.livesRemaining <= 1) return state; // Can't hint at 1 life
+      if (state.foundWords.includes(action.word)) return state;
+      if (state.hintedWords[action.word]) return state; // Already hinted
+
+      const placedWord = state.puzzle.words.find((w) => w.word === action.word);
+      if (!placedWord) return state;
+
+      const newLives = state.livesRemaining - 1;
+      return {
+        ...state,
+        hintedWords: { ...state.hintedWords, [action.word]: placedWord.direction },
+        hintsUsed: state.hintsUsed + 1,
+        livesRemaining: newLives,
+        gameStatus: newLives <= 0 ? "lost" : state.gameStatus,
+        timerRunning: newLives <= 0 ? false : state.timerRunning,
+      };
+    }
+
     case "TICK_TIMER":
       if (!state.timerRunning) return state;
       return { ...state, elapsedSeconds: state.elapsedSeconds + 1 };
@@ -201,6 +223,10 @@ export function useWordSearchGame(puzzle: PuzzleData | null) {
     () => dispatch({ type: "CANCEL_SELECTION" }),
     []
   );
+  const useHint = useCallback(
+    (word: string) => dispatch({ type: "USE_HINT", word }),
+    []
+  );
 
   return {
     state,
@@ -212,5 +238,6 @@ export function useWordSearchGame(puzzle: PuzzleData | null) {
     setSelection,
     completeSelection,
     cancelSelection,
+    useHint,
   };
 }

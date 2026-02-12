@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
+import { Inter, Nunito, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const nunito = Nunito({ subsets: ["latin"], weight: ["700", "800", "900"], variable: "--font-nunito" });
+const jetbrains = JetBrains_Mono({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-jetbrains" });
 
 export const metadata: Metadata = {
   title: "Lexicon — AI Word Puzzles",
@@ -13,13 +18,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka+One&family=Nunito:wght@400;600;700;800&family=Space+Mono:wght@700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="antialiased">{children}</body>
+      <body className={`${inter.variable} ${nunito.variable} ${jetbrains.variable} antialiased`}>
+        {children}
+      </body>
     </html>
   );
 }

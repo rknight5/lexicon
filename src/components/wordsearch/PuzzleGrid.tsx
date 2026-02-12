@@ -131,27 +131,25 @@ export function PuzzleGrid({
     }
   }, [onPointerLeave]);
 
+  // Cell sizes: 28px mobile, 32px tablet, 40px desktop (smaller for 18x18)
   const cellSizeClass =
-    gridSize <= 12
-      ? "w-7 h-7 md:w-9 md:h-9 lg:w-10 lg:h-10"
-      : gridSize <= 15
-        ? "w-6 h-6 md:w-8 md:h-8 lg:w-10 lg:h-10"
-        : "w-5 h-5 md:w-7 md:h-7 lg:w-9 lg:h-9";
+    gridSize <= 15
+      ? "w-7 h-7 md:w-8 md:h-8 lg:w-10 lg:h-10"
+      : "w-5 h-5 md:w-7 md:h-7 lg:w-8 lg:h-8";
 
+  // Font at ~45% of cell size for visual ~60% letter coverage
   const fontSizeClass =
-    gridSize <= 12
+    gridSize <= 15
       ? "text-sm md:text-base lg:text-lg"
-      : gridSize <= 15
-        ? "text-xs md:text-sm lg:text-base"
-        : "text-[10px] md:text-xs lg:text-sm";
+      : "text-[11px] md:text-sm lg:text-base";
 
   return (
     <div
-      className={`inline-grid gap-0.5 p-2 rounded-2xl select-none ${shaking ? "animate-shake" : ""}`}
+      className={`inline-grid gap-0 p-3 rounded-xl select-none ${shaking ? "animate-shake" : ""}`}
       style={{
         gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-        background: "rgba(0, 0, 0, 0.2)",
-        border: "2px solid rgba(255, 255, 255, 0.1)",
+        background: "#FFFFFF",
+        borderRadius: "12px",
         touchAction: "none",
       }}
       onPointerUp={handlePointerUp}
@@ -167,23 +165,13 @@ export function PuzzleGrid({
             <div
               key={`${rowIdx}-${colIdx}`}
               className={`
+                grid-cell
+                ${isSelected ? "grid-cell--selecting" : ""}
+                ${isFound ? "grid-cell--found" : ""}
                 ${cellSizeClass} ${fontSizeClass}
                 flex items-center justify-center
-                rounded-cell font-grid font-bold
-                cursor-pointer transition-all duration-150
-                ${isFound ? "text-green-accent" : "text-white"}
+                font-grid cursor-pointer
               `}
-              style={{
-                background: isSelected
-                  ? "rgba(0, 229, 255, 0.3)"
-                  : isFound
-                    ? "rgba(0, 230, 118, 0.25)"
-                    : "rgba(255, 255, 255, 0.08)",
-                boxShadow: isSelected
-                  ? "0 0 8px rgba(0, 229, 255, 0.4)"
-                  : "none",
-                transform: isSelected ? "scale(1.05)" : "none",
-              }}
               onPointerDown={() => handlePointerDown(rowIdx, colIdx)}
               onPointerEnter={() => handlePointerEnter(rowIdx, colIdx)}
             >

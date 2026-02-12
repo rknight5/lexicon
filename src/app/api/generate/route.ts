@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { suggestCategories, generatePuzzleWords } from "@/lib/claude";
+import { suggestCategories, generatePuzzleWords, generateCrosswordWords } from "@/lib/claude";
 import { generateGrid } from "@/lib/games/wordsearch/gridGenerator";
-import { DIFFICULTY_CONFIG } from "@/lib/types";
-import type { Difficulty, PlacedWord, PuzzleData } from "@/lib/types";
+import { generateCrosswordGrid } from "@/lib/games/crossword/gridGenerator";
+import { DIFFICULTY_CONFIG, CROSSWORD_DIFFICULTY_CONFIG } from "@/lib/types";
+import type { Difficulty, GameType, PlacedWord, PuzzleData, CrosswordPuzzleData } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,10 +16,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Route 2: Full puzzle generation
-    const { topic, difficulty, focusCategories } = body as {
+    const { topic, difficulty, focusCategories, gameType = "wordsearch" } = body as {
       topic: string;
       difficulty: Difficulty;
       focusCategories: string[];
+      gameType?: GameType;
     };
 
     if (!topic || !difficulty || !focusCategories?.length) {
@@ -35,6 +37,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // ---- Crossword generation ----
+    if (gameType === "crossword") {
+      const config = CROSSWORD_DIFFICULTY_CONFIG[difficulty];
+      if (!config) {
+        return NextResponse.json(
+          { error: "Invalid difficulty. Must be: easy, medium, or hard" },
+          { status: 400 }
+        );
+      }
+
+      const { title, words, funFact } = await generateCrosswordWords(
+        topic,
+        difficulty,
+        focusCategories
+      );
+
+      const { grid, clues } = generateCrosswordGrid(
+        words,
+        config.gridSize,
+        config.minWords
+      );
+
+      const puzzle: CrosswordPuzzleData = {
+        title,
+        grid,
+        clues,
+        gridSize: config.gridSize,
+        funFact,
+        difficulty,
+      };
+
+      return NextResponse.json(puzzle);
+    }
+
+    // ---- Word search generation ----
     const config = DIFFICULTY_CONFIG[difficulty];
     if (!config) {
       return NextResponse.json(
@@ -43,14 +80,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate words via Claude
     const { title, words, funFact } = await generatePuzzleWords(
       topic,
       difficulty,
       focusCategories
     );
 
-    // Generate the grid
     const { grid, placedWords } = generateGrid(
       words.map((w) => w.word),
       config.gridSize,
@@ -58,7 +93,6 @@ export async function POST(request: NextRequest) {
       config.weightedFill
     );
 
-    // Merge word metadata with placement data
     const mergedWords: PlacedWord[] = placedWords.map((pw) => {
       const wordEntry = words.find((w) => w.word === pw.word)!;
       return {
@@ -82,7 +116,6 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     console.error("Generate error:", error);
 
-    // Handle Anthropic API rate limits
     if (
       error instanceof Error &&
       "status" in error &&

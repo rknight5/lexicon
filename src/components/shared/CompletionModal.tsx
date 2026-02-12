@@ -1,10 +1,11 @@
-import { Trophy } from "lucide-react";
+import { Trophy, Star } from "lucide-react";
 
 interface CompletionModalProps {
   wordsFound: number;
   wordsTotal: number;
   elapsedSeconds: number;
   livesRemaining: number;
+  score: number;
   funFact: string;
   onPlayAgain: () => void;
   onNewTopic: () => void;
@@ -21,6 +22,7 @@ export function CompletionModal({
   wordsTotal,
   elapsedSeconds,
   livesRemaining,
+  score,
   funFact,
   onPlayAgain,
   onNewTopic,
@@ -47,18 +49,16 @@ export function CompletionModal({
         </h2>
 
         <div className="space-y-2">
-          <p className="font-body text-lg">
-            <span className="font-bold">{wordsFound}</span>
-            <span style={{ color: "var(--white-muted)" }}>
-              {" "}/ {wordsTotal} words
-            </span>
-          </p>
+          <div className="flex items-center justify-center gap-2 text-gold-primary">
+            <Star className="w-5 h-5" fill="currentColor" />
+            <span className="font-grid text-3xl font-bold">{score}</span>
+          </div>
           <p className="font-body text-sm" style={{ color: "var(--white-muted)" }}>
-            Time: {formatTime(elapsedSeconds)} · Lives: {livesRemaining}/3
+            {wordsFound}/{wordsTotal} words · {formatTime(elapsedSeconds)} · {livesRemaining}/3 lives
           </p>
           {livesRemaining === 3 && (
-            <p className="font-heading text-sm text-gold-primary">
-              Perfect Game! +500 bonus
+            <p className="font-heading text-xs text-gold-primary">
+              Perfect Game!
             </p>
           )}
         </div>

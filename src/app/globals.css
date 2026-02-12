@@ -18,10 +18,10 @@
 
   --color-pink-accent: #FF4081;
 
-  --font-display: "Bungee", cursive;
-  --font-heading: "Fredoka One", "Nunito", sans-serif;
-  --font-body: "Nunito", "Quicksand", sans-serif;
-  --font-grid: "Space Mono", "JetBrains Mono", monospace;
+  --font-display: var(--font-nunito), sans-serif;
+  --font-heading: var(--font-nunito), sans-serif;
+  --font-body: var(--font-inter), sans-serif;
+  --font-grid: var(--font-jetbrains), monospace;
 
   --radius-card: 24px;
   --radius-pill: 50px;
@@ -45,11 +45,67 @@
 }
 
 body {
-  font-family: "Nunito", "Quicksand", sans-serif;
+  font-family: var(--font-inter), sans-serif;
   background: linear-gradient(180deg, #2D1B69 0%, #1A0A2E 100%);
   color: white;
   min-height: 100vh;
 }
+
+/* ── Grid cell styles ── */
+
+.grid-cell {
+  background: transparent;
+  color: #1A1A2E;
+  border: none;
+  border-radius: 4px;
+  transition: all 0.12s ease;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.grid-cell:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #1A1A2E;
+}
+
+.grid-cell--selecting,
+.grid-cell--selecting:hover {
+  background: rgba(0, 229, 255, 0.4);
+  color: #FFFFFF;
+  border-color: rgba(0, 229, 255, 0.6);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+  transform: scale(1.04);
+}
+
+.grid-cell--found,
+.grid-cell--found:hover {
+  background: rgba(0, 230, 118, 0.35);
+  color: #00C853;
+  border-color: rgba(0, 230, 118, 0.4);
+}
+
+/* ── Word bank scrollbar ── */
+
+.word-bank-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.word-bank-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.word-bank-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.word-bank-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+/* ── Animations ── */
 
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
