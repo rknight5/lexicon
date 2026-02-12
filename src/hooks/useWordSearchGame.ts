@@ -150,7 +150,7 @@ export function wordSearchReducer(
       return { ...state, gameStatus: "playing", timerRunning: true };
 
     case "RESTORE_GAME":
-      return { ...action.savedState, timerRunning: false, gameStatus: "paused" };
+      return { ...action.savedState, timerRunning: true, gameStatus: "playing" };
 
     default:
       return state;

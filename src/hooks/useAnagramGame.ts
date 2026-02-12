@@ -210,7 +210,7 @@ export function anagramReducer(
       return { ...state, gameStatus: "playing", timerRunning: true };
 
     case "RESTORE_GAME":
-      return { ...action.savedState, gameStatus: "paused", timerRunning: false };
+      return { ...action.savedState, gameStatus: "playing", timerRunning: true };
 
     default:
       return state;

@@ -362,8 +362,8 @@ export function crosswordReducer(
       return {
         ...action.savedState,
         hintedCells: new Set(action.savedState.hintedCells),
-        timerRunning: false,
-        gameStatus: "paused",
+        timerRunning: true,
+        gameStatus: "playing",
       };
 
     default:
