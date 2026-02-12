@@ -5,11 +5,9 @@ import { useState } from "react";
 interface PauseMenuProps {
   onResume: () => void;
   onQuit: () => void;
-  onSaveAndExit?: () => void;
-  isSaving?: boolean;
 }
 
-export function PauseMenu({ onResume, onQuit, onSaveAndExit, isSaving }: PauseMenuProps) {
+export function PauseMenu({ onResume, onQuit }: PauseMenuProps) {
   const [confirmQuit, setConfirmQuit] = useState(false);
 
   return (
@@ -30,7 +28,7 @@ export function PauseMenu({ onResume, onQuit, onSaveAndExit, isSaving }: PauseMe
         {confirmQuit ? (
           <>
             <p className="text-sm text-center" style={{ color: "var(--white-muted)" }}>
-              Are you sure? Your progress will be lost.
+              Are you sure you want to exit?
             </p>
             <div className="space-y-3">
               <button
@@ -59,25 +57,19 @@ export function PauseMenu({ onResume, onQuit, onSaveAndExit, isSaving }: PauseMe
             >
               Resume
             </button>
-            {onSaveAndExit && (
-              <button
-                onClick={onSaveAndExit}
-                disabled={isSaving}
-                className="w-full h-12 rounded-pill font-heading text-sm font-bold uppercase tracking-wider transition-all disabled:opacity-50"
-                style={{
-                  background: "var(--glass-bg)",
-                  border: "1px solid var(--glass-border)",
-                  color: "var(--white-muted)",
-                }}
-              >
-                {isSaving ? "Saving..." : "Save & Exit"}
-              </button>
-            )}
+            <p className="text-center text-white/40 text-xs font-body">
+              Progress saved automatically
+            </p>
             <button
               onClick={() => setConfirmQuit(true)}
-              className="w-full h-10 rounded-pill font-body text-sm text-white/60 hover:text-white transition-colors"
+              className="w-full h-12 rounded-pill font-heading text-sm font-bold uppercase tracking-wider transition-all"
+              style={{
+                background: "var(--glass-bg)",
+                border: "1px solid var(--glass-border)",
+                color: "var(--white-muted)",
+              }}
             >
-              Quit Without Saving
+              Exit Game
             </button>
           </div>
         )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { PuzzleGrid } from "@/components/wordsearch/PuzzleGrid";
 import { WordProgress } from "@/components/wordsearch/WordProgress";
@@ -13,7 +13,10 @@ import { CompletionModal } from "@/components/shared/CompletionModal";
 import { StatsModal } from "@/components/shared/StatsModal";
 import { useWordSearchGame } from "@/hooks/useWordSearchGame";
 import { calculateScore } from "@/lib/scoring";
-import { saveResult, savePuzzle, updateGameState, clearGameState } from "@/lib/storage";
+import { saveResult, savePuzzle } from "@/lib/storage";
+import { useAutoSave } from "@/hooks/useAutoSave";
+import { Toast } from "@/components/shared/Toast";
+import { Bookmark } from "lucide-react";
 import type { PuzzleData } from "@/lib/types";
 
 export default function WordSearchPage() {
@@ -39,6 +42,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
   const [puzzleTitle, setPuzzleTitle] = useState(initialPuzzle.title);
   const [showStats, setShowStats] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const puzzle = initialPuzzle;
   const {
     state,
@@ -53,13 +57,18 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
     restoreGame,
   } = useWordSearchGame(puzzle);
 
-  const [savedPuzzleId, setSavedPuzzleId] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      return sessionStorage.getItem("lexicon-saved-puzzle-id");
-    }
-    return null;
+  const getGameState = useCallback(() => {
+    return { ...state } as unknown as Record<string, unknown>;
+  }, [state]);
+
+  useAutoSave({
+    gameType: "wordsearch",
+    title: puzzleTitle,
+    difficulty: puzzle.difficulty,
+    puzzleData: puzzle,
+    gameStatus: state.gameStatus,
+    getGameState,
   });
-  const [isSaving, setIsSaving] = useState(false);
 
   // Restore saved game state if present
   useEffect(() => {
@@ -112,13 +121,6 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
     }
   }, [state.gameStatus, state.foundWords.length, state.livesRemaining, state.elapsedSeconds, state.hintsUsed, puzzle]);
 
-  // Clear saved game state when game ends
-  useEffect(() => {
-    if ((state.gameStatus === "won" || state.gameStatus === "lost") && savedPuzzleId) {
-      void clearGameState(savedPuzzleId);
-    }
-  }, [state.gameStatus, savedPuzzleId]);
-
   // Start game on first grid interaction
   const handleFirstInteraction = () => {
     if (state.gameStatus === "idle") {
@@ -128,40 +130,22 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
 
   const handleNewTopic = () => {
     sessionStorage.removeItem("lexicon-puzzle");
-    sessionStorage.removeItem("lexicon-saved-puzzle-id");
     sessionStorage.removeItem("lexicon-game-state");
     router.push("/");
   };
 
   const handlePlayAgain = () => {
     sessionStorage.removeItem("lexicon-puzzle");
-    sessionStorage.removeItem("lexicon-saved-puzzle-id");
     sessionStorage.removeItem("lexicon-game-state");
     router.push("/");
   };
 
   const handleSave = async () => {
     const ok = await savePuzzle("wordsearch", puzzle.title, puzzle.difficulty, puzzle);
-    if (ok) setIsSaved(true);
-  };
-
-  const handleSaveAndExit = async () => {
-    setIsSaving(true);
-    const gameStateToSave = { ...state };
-
-    if (savedPuzzleId) {
-      await updateGameState(savedPuzzleId, gameStateToSave as unknown as Record<string, unknown>);
-    } else {
-      const id = await savePuzzle("wordsearch", puzzle.title, puzzle.difficulty, puzzle);
-      if (id) {
-        await updateGameState(id, gameStateToSave as unknown as Record<string, unknown>);
-      }
+    if (ok) {
+      setIsSaved(true);
+      setToastMessage("Saved to library");
     }
-
-    sessionStorage.removeItem("lexicon-puzzle");
-    sessionStorage.removeItem("lexicon-saved-puzzle-id");
-    sessionStorage.removeItem("lexicon-game-state");
-    router.push("/");
   };
 
   const score = calculateScore(
@@ -350,8 +334,6 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
         <PauseMenu
           onResume={resume}
           onQuit={handleNewTopic}
-          onSaveAndExit={handleSaveAndExit}
-          isSaving={isSaving}
         />
       )}
 
@@ -379,6 +361,14 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
       )}
 
       {showStats && <StatsModal onClose={() => setShowStats(false)} />}
+
+      {toastMessage && (
+        <Toast
+          message={toastMessage}
+          icon={<Bookmark className="w-4 h-4 text-gold-primary" fill="currentColor" />}
+          onDismiss={() => setToastMessage(null)}
+        />
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { CrosswordGrid } from "@/components/crossword/CrosswordGrid";
 import { ClueList } from "@/components/crossword/ClueList";
@@ -12,7 +12,10 @@ import { CompletionModal } from "@/components/shared/CompletionModal";
 import { StatsModal } from "@/components/shared/StatsModal";
 import { useCrosswordGame } from "@/hooks/useCrosswordGame";
 import { calculateScore } from "@/lib/scoring";
-import { saveResult, savePuzzle, updateGameState, clearGameState } from "@/lib/storage";
+import { saveResult, savePuzzle } from "@/lib/storage";
+import { useAutoSave } from "@/hooks/useAutoSave";
+import { Toast } from "@/components/shared/Toast";
+import { Bookmark } from "lucide-react";
 import type { CrosswordPuzzleData, CrosswordClue } from "@/lib/types";
 
 export default function CrosswordPage() {
@@ -38,6 +41,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
   const [puzzleTitle, setPuzzleTitle] = useState(initialPuzzle.title);
   const [showStats, setShowStats] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const puzzle = initialPuzzle;
   const {
     state,
@@ -53,14 +57,6 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
     restoreGame,
   } = useCrosswordGame(puzzle);
 
-  const [savedPuzzleId, setSavedPuzzleId] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      return sessionStorage.getItem("lexicon-saved-puzzle-id");
-    }
-    return null;
-  });
-  const [isSaving, setIsSaving] = useState(false);
-
   // Restore saved game state if present
   useEffect(() => {
     const savedState = sessionStorage.getItem("lexicon-game-state");
@@ -71,6 +67,22 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
     }
   }, [restoreGame]);
 
+  const getGameState = useCallback(() => {
+    return {
+      ...state,
+      hintedCells: Array.from(state.hintedCells), // Set -> Array for JSON serialization
+    } as unknown as Record<string, unknown>;
+  }, [state]);
+
+  useAutoSave({
+    gameType: "crossword",
+    title: puzzleTitle,
+    difficulty: puzzle.difficulty,
+    puzzleData: puzzle,
+    gameStatus: state.gameStatus,
+    getGameState,
+  });
+
   const handleFirstInteraction = () => {
     if (state.gameStatus === "idle") {
       startGame();
@@ -79,43 +91,22 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
 
   const handleNewTopic = () => {
     sessionStorage.removeItem("lexicon-puzzle-crossword");
-    sessionStorage.removeItem("lexicon-saved-puzzle-id");
     sessionStorage.removeItem("lexicon-game-state");
     router.push("/");
   };
 
   const handlePlayAgain = () => {
     sessionStorage.removeItem("lexicon-puzzle-crossword");
-    sessionStorage.removeItem("lexicon-saved-puzzle-id");
     sessionStorage.removeItem("lexicon-game-state");
     router.push("/");
   };
 
   const handleSave = async () => {
     const ok = await savePuzzle("crossword", puzzle.title, puzzle.difficulty, puzzle);
-    if (ok) setIsSaved(true);
-  };
-
-  const handleSaveAndExit = async () => {
-    setIsSaving(true);
-    const gameStateToSave = {
-      ...state,
-      hintedCells: Array.from(state.hintedCells),  // Set -> array for JSON
-    };
-
-    if (savedPuzzleId) {
-      await updateGameState(savedPuzzleId, gameStateToSave as unknown as Record<string, unknown>);
-    } else {
-      const id = await savePuzzle("crossword", puzzle.title, puzzle.difficulty, puzzle);
-      if (id) {
-        await updateGameState(id, gameStateToSave as unknown as Record<string, unknown>);
-      }
+    if (ok) {
+      setIsSaved(true);
+      setToastMessage("Saved to library");
     }
-
-    sessionStorage.removeItem("lexicon-puzzle-crossword");
-    sessionStorage.removeItem("lexicon-saved-puzzle-id");
-    sessionStorage.removeItem("lexicon-game-state");
-    router.push("/");
   };
 
   const handleClueClick = (clue: CrosswordClue) => {
@@ -157,13 +148,6 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
       });
     }
   }, [state.gameStatus, state.solvedClues.length, state.livesRemaining, state.elapsedSeconds, state.hintsUsed, score, puzzle]);
-
-  // Clear saved game state when game ends
-  useEffect(() => {
-    if ((state.gameStatus === "won" || state.gameStatus === "lost") && savedPuzzleId) {
-      void clearGameState(savedPuzzleId);
-    }
-  }, [state.gameStatus, savedPuzzleId]);
 
   return (
     <div className="min-h-screen lg:h-screen flex flex-col lg:overflow-hidden">
@@ -304,8 +288,6 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
         <PauseMenu
           onResume={resume}
           onQuit={handleNewTopic}
-          onSaveAndExit={handleSaveAndExit}
-          isSaving={isSaving}
         />
       )}
 
@@ -333,6 +315,14 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
       )}
 
       {showStats && <StatsModal onClose={() => setShowStats(false)} />}
+
+      {toastMessage && (
+        <Toast
+          message={toastMessage}
+          icon={<Bookmark className="w-4 h-4 text-gold-primary" fill="currentColor" />}
+          onDismiss={() => setToastMessage(null)}
+        />
+      )}
     </div>
   );
 }
