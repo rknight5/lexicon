@@ -7,8 +7,7 @@ export interface SessionData {
 }
 
 if (process.env.NODE_ENV === "production" && !process.env.SESSION_SECRET) {
-  console.error("FATAL: SESSION_SECRET is required in production");
-  process.exit(1);
+  throw new Error("FATAL: SESSION_SECRET is required in production");
 }
 
 export const sessionOptions: SessionOptions = {
