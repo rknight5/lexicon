@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/session";
 import { db } from "@/lib/db";
 import { savedPuzzles } from "@/lib/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 export async function GET() {
   let username: string;
@@ -57,6 +57,22 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // Check for existing save with same user + gameType + title
+    const [existing] = await db
+      .select({ id: savedPuzzles.id })
+      .from(savedPuzzles)
+      .where(
+        and(
+          eq(savedPuzzles.username, username),
+          eq(savedPuzzles.gameType, body.gameType),
+          eq(savedPuzzles.title, body.title)
+        )
+      );
+
+    if (existing) {
+      return NextResponse.json({ id: existing.id });
+    }
+
     const [puzzle] = await db.insert(savedPuzzles).values({
       username,
       gameType: body.gameType,

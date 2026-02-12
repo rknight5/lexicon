@@ -29,11 +29,13 @@ export function useAutoSave({
 }: UseAutoSaveOptions): void {
   const savingRef = useRef(false);
   const deletedRef = useRef(false);
+  const gameStatusRef = useRef(gameStatus);
 
   // Keep stable refs for values used in doSave so the callback identity stays fixed
   const optionsRef = useRef({ gameType, title, difficulty, puzzleData, getGameState });
   useEffect(() => {
     optionsRef.current = { gameType, title, difficulty, puzzleData, getGameState };
+    gameStatusRef.current = gameStatus;
   });
 
   const doSave = useCallback(async () => {
@@ -106,6 +108,33 @@ export function useAutoSave({
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [gameStatus]);
+
+  // ── Save on component unmount (SPA navigation) ──
+  useEffect(() => {
+    return () => {
+      if (gameStatusRef.current !== "playing" && gameStatusRef.current !== "paused") return;
+      if (deletedRef.current) return;
+      const { gameType: gt, title: t, difficulty: d, puzzleData: pd, getGameState: gs } =
+        optionsRef.current;
+      try {
+        fetch("/api/autosave", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            gameType: gt,
+            title: t,
+            difficulty: d,
+            puzzleData: pd,
+            gameState: gs(),
+          }),
+          credentials: "include",
+          keepalive: true,
+        });
+      } catch {
+        // best-effort
+      }
+    };
+  }, []);
 
   // ── Delete auto-save on game end ──
   useEffect(() => {

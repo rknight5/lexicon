@@ -101,11 +101,22 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
     router.push("/");
   };
 
+  const [isSaving, setIsSaving] = useState(false);
   const handleSave = async () => {
-    const ok = await savePuzzle("crossword", puzzle.title, puzzle.difficulty, puzzle);
-    if (ok) {
-      setIsSaved(true);
-      setToastMessage("Saved to library");
+    if (isSaving) return;
+    setIsSaving(true);
+    try {
+      const ok = await savePuzzle("crossword", puzzle.title, puzzle.difficulty, puzzle);
+      if (ok) {
+        setIsSaved(true);
+        setToastMessage("Saved to library");
+      } else {
+        setToastMessage("Couldn't save — try again");
+      }
+    } catch {
+      setToastMessage("Couldn't save — try again");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -160,7 +171,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
         onTitleChange={setPuzzleTitle}
         onStats={() => setShowStats(true)}
         onSave={handleSave}
-        isSaved={isSaved}
+        isSaved={isSaved || isSaving}
       />
 
       {/* Desktop: unified game panel */}
