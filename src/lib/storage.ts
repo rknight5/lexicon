@@ -153,3 +153,53 @@ export async function clearGameState(id: string): Promise<boolean> {
     return false;
   }
 }
+
+// --- Auto-Save ---
+
+export interface AutoSaveSummary {
+  gameType: GameType;
+  title: string;
+  difficulty: Difficulty;
+  puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData;
+  gameState: Record<string, unknown>;
+  updatedAt: string;
+}
+
+export async function getAutoSave(): Promise<AutoSaveSummary | null> {
+  try {
+    const res = await fetch("/api/autosave", { credentials: "include" });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+export async function upsertAutoSave(
+  gameType: GameType,
+  title: string,
+  difficulty: Difficulty,
+  puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData,
+  gameState: Record<string, unknown>
+): Promise<boolean> {
+  try {
+    const res = await fetch("/api/autosave", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ gameType, title, difficulty, puzzleData, gameState }),
+      credentials: "include",
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function deleteAutoSave(): Promise<boolean> {
+  try {
+    const res = await fetch("/api/autosave", { method: "DELETE", credentials: "include" });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
