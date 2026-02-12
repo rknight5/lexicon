@@ -17,6 +17,7 @@ export async function GET() {
     const bestScores: Record<GameType, Record<Difficulty, number>> = {
       wordsearch: { easy: 0, medium: 0, hard: 0 },
       crossword: { easy: 0, medium: 0, hard: 0 },
+      anagram: { easy: 0, medium: 0, hard: 0 },
     };
 
     let currentStreak = 0;
