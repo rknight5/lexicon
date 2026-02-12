@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { CategorySuggestion, Difficulty, WordEntry } from "./types";
 import { parseClaudeResponse, validateAndFilterWords } from "./validation";
-import { DIFFICULTY_CONFIG, CROSSWORD_DIFFICULTY_CONFIG } from "./types";
+import { DIFFICULTY_CONFIG, CROSSWORD_DIFFICULTY_CONFIG, ANAGRAM_DIFFICULTY_CONFIG } from "./types";
 
 const anthropic = new Anthropic();
 
@@ -260,6 +260,118 @@ export async function generateCrosswordWords(
       }
     } catch {
       if (attempt === 3) throw new Error("Failed to parse crossword data after 3 attempts");
+    }
+  }
+
+  throw new Error(
+    "Couldn't generate enough words for that topic. Try something broader."
+  );
+}
+
+// ============================================
+// Anagram word generation (Sonnet — quality)
+// ============================================
+
+const ANAGRAM_SYSTEM_PROMPT = `You are an anagram puzzle content generator. Given a user's topic of interest, generate a list of words that will be scrambled into anagrams for the player to solve.
+
+Rules:
+- Generate the number of words specified in the config
+- Each word must be a SINGLE word (no spaces, no hyphens), ALL UPPERCASE
+- Words must be within the specified length range
+- All words must be real, verifiable names, terms, or references
+- Only include words from the requested focus categories
+- Each word needs a clue that hints at the answer without giving it away
+- Assign each word a difficulty: 1 (well-known), 2 (moderate), 3 (deep cut)
+- Distribute difficulty based on the requested level:
+  - Easy: mostly difficulty 1, a few 2s
+  - Medium: mix of 1s, 2s, and a few 3s
+  - Hard: heavy on 2s and 3s, fewer 1s
+- Include a brief, interesting fun fact related to the topic
+
+Respond with ONLY valid JSON in this exact format, with no markdown fences, no preamble, no explanation:
+{
+  "title": "A catchy title for the puzzle",
+  "words": [
+    { "word": "EXAMPLE", "clue": "Brief clue", "category": "Category Name", "difficulty": 1 }
+  ],
+  "funFact": "An interesting fact about the topic"
+}`;
+
+function buildAnagramUserMessage(
+  topic: string,
+  difficulty: Difficulty,
+  focusCategories: string[],
+  attempt: number
+): string {
+  const config = ANAGRAM_DIFFICULTY_CONFIG[difficulty];
+  let message = `Topic: ${topic}
+Difficulty: ${difficulty}
+Word count: ${config.minWords}-${config.maxWords}
+Word length: ${config.minWordLength}-${config.maxWordLength} letters
+Focus categories: ${focusCategories.join(", ")}`;
+
+  if (attempt === 2) {
+    message +=
+      "\n\nNote: If the topic is narrow, broaden to include related topics, influences, and cultural references.";
+  }
+  if (attempt === 3) {
+    message +=
+      "\n\nNote: Generate any words broadly related to this topic area. Ignore category restrictions — just produce enough valid puzzle words.";
+  }
+
+  return message;
+}
+
+export async function generateAnagramWords(
+  topic: string,
+  difficulty: Difficulty,
+  focusCategories: string[]
+): Promise<{ title: string; words: WordEntry[]; funFact: string }> {
+  const config = ANAGRAM_DIFFICULTY_CONFIG[difficulty];
+
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-5-20250929",
+      max_tokens: 4096,
+      system: ANAGRAM_SYSTEM_PROMPT,
+      messages: [
+        {
+          role: "user",
+          content: buildAnagramUserMessage(topic, difficulty, focusCategories, attempt),
+        },
+      ],
+    });
+
+    if (response.stop_reason === "max_tokens") {
+      throw new Error(
+        "Response was truncated. The topic may be too broad — try a more specific topic."
+      );
+    }
+
+    const text =
+      response.content[0].type === "text" ? response.content[0].text : "";
+
+    try {
+      const parsed = parseClaudeResponse(text);
+      const categoriesToFilter =
+        attempt === 3 ? parsed.words.map((w) => w.category) : focusCategories;
+      const validated = validateAndFilterWords(parsed.words, {
+        minWords: config.minWords,
+        maxWords: config.maxWords,
+        minWordLength: config.minWordLength,
+        maxWordLength: config.maxWordLength,
+        focusCategories: categoriesToFilter,
+      });
+
+      if (validated.length >= config.minWords) {
+        return {
+          title: parsed.title,
+          words: validated,
+          funFact: parsed.funFact,
+        };
+      }
+    } catch {
+      if (attempt === 3) throw new Error("Failed to parse anagram data after 3 attempts");
     }
   }
 
