@@ -94,7 +94,7 @@ export function GameBar({
         onClick={onBack}
         className="relative z-10 flex items-center gap-1.5 text-white/50 hover:text-white transition-colors"
       >
-        <ArrowLeft className="w-5 h-5" />
+        <ArrowLeft className="w-6 h-6" />
         <span className="font-body text-sm">Back</span>
       </button>
 
@@ -150,39 +150,39 @@ export function GameBar({
           <button
             onClick={onSave}
             disabled={isSaved}
-            className={`transition-colors p-1.5 -m-1.5 cursor-pointer ${isSaved ? "text-gold-primary cursor-default" : "text-white/30 hover:text-white/60"}`}
+            className={`transition-colors p-2 -m-2 cursor-pointer ${isSaved ? "text-gold-primary cursor-default" : "text-white/30 hover:text-white/60"}`}
             title={isSaved ? "Saved" : "Save puzzle"}
           >
-            <Bookmark className="w-5 h-5" fill={isSaved ? "currentColor" : "none"} />
+            <Bookmark className="w-6 h-6" fill={isSaved ? "currentColor" : "none"} />
           </button>
         )}
         <button
           onClick={onStats}
-          className="text-white/30 hover:text-white/60 transition-colors p-1.5 -m-1.5"
+          className="text-white/30 hover:text-white/60 transition-colors p-2 -m-2"
           title="Stats"
         >
-          <BarChart2 className="w-5 h-5" />
+          <BarChart2 className="w-6 h-6" />
         </button>
         <button
-          className="text-white/30 hover:text-white/60 transition-colors p-1.5 -m-1.5"
+          className="text-white/30 hover:text-white/60 transition-colors p-2 -m-2"
           title="Help"
         >
-          <HelpCircle className="w-5 h-5" />
+          <HelpCircle className="w-6 h-6" />
         </button>
         <button
           onClick={onPause}
-          className="text-white/30 hover:text-white/60 transition-colors p-1.5 -m-1.5"
+          className="text-white/30 hover:text-white/60 transition-colors p-2 -m-2"
           title="Settings"
           disabled={gameStatus !== "playing"}
         >
-          <Settings className="w-5 h-5" />
+          <Settings className="w-6 h-6" />
         </button>
         <button
           onClick={handleLogout}
-          className="text-white/30 hover:text-white/60 transition-colors p-1.5 -m-1.5"
+          className="text-white/30 hover:text-white/60 transition-colors p-2 -m-2"
           title="Log out"
         >
-          <LogOut className="w-5 h-5" />
+          <LogOut className="w-6 h-6" />
         </button>
       </div>
     </div>
