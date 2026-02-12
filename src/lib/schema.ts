@@ -35,3 +35,14 @@ export const savedPuzzles = pgTable("saved_puzzles", {
   gameState: text("game_state"),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const autoSaves = pgTable("auto_saves", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  username: text("username").notNull().unique(),
+  gameType: text("game_type").notNull(),
+  title: text("title").notNull(),
+  difficulty: text("difficulty").notNull(),
+  puzzleData: text("puzzle_data").notNull(),
+  gameState: text("game_state").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
