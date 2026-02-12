@@ -29,7 +29,12 @@ export default function WordSearchPage() {
       router.push("/");
       return;
     }
-    setPuzzle(JSON.parse(stored));
+    try {
+      setPuzzle(JSON.parse(stored));
+    } catch {
+      sessionStorage.removeItem("lexicon-puzzle");
+      router.push("/");
+    }
   }, [router]);
 
   if (!puzzle) return null;

@@ -27,7 +27,12 @@ export default function AnagramPage() {
       router.push("/");
       return;
     }
-    setPuzzle(JSON.parse(stored));
+    try {
+      setPuzzle(JSON.parse(stored));
+    } catch {
+      sessionStorage.removeItem("lexicon-puzzle-anagram");
+      router.push("/");
+    }
   }, [router]);
 
   if (!puzzle) return null;

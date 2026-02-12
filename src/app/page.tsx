@@ -41,8 +41,8 @@ export default function HomePage() {
       sessionStorage.removeItem("lexicon-pending-autosave");
     }
     // Also fetch from server (authoritative, covers tab-close saves)
-    getAutoSave().then(setAutoSave);
-    getSavedPuzzles().then((p) => setSavedCount(p.length));
+    getAutoSave().then(setAutoSave).catch(() => {});
+    getSavedPuzzles().then((p) => setSavedCount(p.length)).catch(() => {});
   }, []);
 
   // Prefetch categories as the user types (debounced 600ms)

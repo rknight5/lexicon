@@ -28,7 +28,12 @@ export default function CrosswordPage() {
       router.push("/");
       return;
     }
-    setPuzzle(JSON.parse(stored));
+    try {
+      setPuzzle(JSON.parse(stored));
+    } catch {
+      sessionStorage.removeItem("lexicon-puzzle-crossword");
+      router.push("/");
+    }
   }, [router]);
 
   if (!puzzle) return null;
