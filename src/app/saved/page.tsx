@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Search, Grid3X3, Shuffle, Shield, Flame, Skull, Trash2 } from "lucide-react";
+import { ArrowLeft, Search, Grid3X3, Shuffle, Shield, Flame, Skull, Trash2, Play } from "lucide-react";
 import { getSavedPuzzles, loadSavedPuzzle, deleteSavedPuzzle, type SavedPuzzleSummary } from "@/lib/storage";
 
 const GAME_TYPE_ICON: Record<string, React.ReactNode> = {
@@ -15,6 +15,12 @@ const DIFFICULTY_ICON: Record<string, React.ReactNode> = {
   easy: <Shield className="w-3 h-3 text-green-accent" />,
   medium: <Flame className="w-3 h-3 text-gold-primary" />,
   hard: <Skull className="w-3 h-3 text-pink-accent" />,
+};
+
+const GAME_TYPE_LABEL: Record<string, string> = {
+  wordsearch: "Word Search",
+  crossword: "Crossword",
+  anagram: "Anagram",
 };
 
 export default function SavedPage() {
@@ -100,7 +106,7 @@ export default function SavedPage() {
 
       {/* Content */}
       <div className="flex-1 flex flex-col items-center px-5 py-6" onClick={() => setDeletingId(null)}>
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-xl">
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
@@ -119,41 +125,54 @@ export default function SavedPage() {
           ) : (
             <div className="space-y-3">
               {puzzles.map((puzzle) => (
-                <button
+                <div
                   key={puzzle.id}
-                  onClick={() => handleLoad(puzzle)}
-                  disabled={loadingPuzzleId === puzzle.id}
-                  className="w-full p-4 rounded-2xl text-left transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-60 flex items-center gap-4"
+                  className="w-full p-4 rounded-2xl flex items-center gap-4"
                   style={{
                     background: "var(--glass-bg)",
                     border: "1px solid var(--glass-border)",
+                    borderLeft: "3px solid #FFD700",
                   }}
                 >
                   <div className="flex-shrink-0">
                     {GAME_TYPE_ICON[puzzle.gameType]}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-heading text-sm font-bold text-white truncate">
-                      {puzzle.title}
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      {DIFFICULTY_ICON[puzzle.difficulty]}
-                      <span className="text-[11px] text-white/30 font-body">
-                        {puzzle.gameType}
+                    <div className="flex items-center gap-2">
+                      <span className="font-heading text-sm font-bold text-white truncate">
+                        {puzzle.title}
                       </span>
+                      {DIFFICULTY_ICON[puzzle.difficulty]}
+                    </div>
+                    <div className="text-[11px] text-white/30 font-body mt-1">
+                      {GAME_TYPE_LABEL[puzzle.gameType] ?? puzzle.gameType}
                     </div>
                   </div>
-                  <button
-                    onClick={(e) => handleDelete(e, puzzle.id)}
-                    className="flex-shrink-0 p-1.5 -m-1.5 transition-colors relative z-10"
-                    style={{
-                      color: deletingId === puzzle.id ? "var(--color-pink-accent)" : "var(--white-muted)",
-                    }}
-                    title={deletingId === puzzle.id ? "Click again to confirm" : "Delete puzzle"}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </button>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => handleLoad(puzzle)}
+                      disabled={loadingPuzzleId === puzzle.id}
+                      className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-heading font-bold px-3 py-1.5 rounded-pill transition-all hover:brightness-125 active:scale-95 disabled:opacity-50"
+                      style={{ background: "rgba(255, 215, 0, 0.15)", color: "#FFD700" }}
+                      title="Play puzzle"
+                    >
+                      <Play className="w-3 h-3" fill="currentColor" />
+                      Play
+                    </button>
+                    <button
+                      onClick={(e) => handleDelete(e, puzzle.id)}
+                      className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-heading font-bold px-3 py-1.5 rounded-pill transition-all hover:brightness-125 active:scale-95"
+                      style={{
+                        background: deletingId === puzzle.id ? "rgba(255, 64, 129, 0.3)" : "rgba(255, 64, 129, 0.15)",
+                        color: "#FF4081",
+                      }}
+                      title={deletingId === puzzle.id ? "Click again to confirm" : "Delete puzzle"}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      {deletingId === puzzle.id ? "Confirm" : "Delete"}
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
           )}
