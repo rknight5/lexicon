@@ -10,7 +10,7 @@ import { CompletionModal } from "@/components/shared/CompletionModal";
 import { StatsModal } from "@/components/shared/StatsModal";
 import { useAnagramGame } from "@/hooks/useAnagramGame";
 import { calculateScore } from "@/lib/scoring";
-import { saveResult, savePuzzle, clearGameState } from "@/lib/storage";
+import { saveResult, savePuzzle, updateGameState, clearGameState } from "@/lib/storage";
 import { ANAGRAM_DIFFICULTY_CONFIG } from "@/lib/types";
 import type { AnagramPuzzleData } from "@/lib/types";
 
@@ -61,11 +61,13 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
   }, [restoreGame]);
 
   // Track savedPuzzleId for clearing on game end
-  const [savedPuzzleId] = useState(() =>
-    typeof window !== "undefined"
-      ? sessionStorage.getItem("lexicon-saved-puzzle-id")
-      : null
-  );
+  const [savedPuzzleId, setSavedPuzzleId] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("lexicon-saved-puzzle-id");
+    }
+    return null;
+  });
+  const [isSaving, setIsSaving] = useState(false);
 
   const [lastMissTimestamp, setLastMissTimestamp] = useState(0);
   const prevLives = useRef(state.livesRemaining);
@@ -140,6 +142,25 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
   const handleSave = async () => {
     const ok = await savePuzzle("anagram", puzzle.title, puzzle.difficulty, puzzle);
     if (ok) setIsSaved(true);
+  };
+
+  const handleSaveAndExit = async () => {
+    setIsSaving(true);
+    const gameStateToSave = { ...state };
+
+    if (savedPuzzleId) {
+      await updateGameState(savedPuzzleId, gameStateToSave as unknown as Record<string, unknown>);
+    } else {
+      const id = await savePuzzle("anagram", puzzle.title, puzzle.difficulty, puzzle);
+      if (id) {
+        await updateGameState(id, gameStateToSave as unknown as Record<string, unknown>);
+      }
+    }
+
+    sessionStorage.removeItem("lexicon-puzzle-anagram");
+    sessionStorage.removeItem("lexicon-saved-puzzle-id");
+    sessionStorage.removeItem("lexicon-game-state");
+    router.push("/");
   };
 
   const score = calculateScore(
@@ -552,7 +573,12 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
 
       {/* Modals */}
       {state.gameStatus === "paused" && (
-        <PauseMenu onResume={resume} onQuit={handleNewTopic} />
+        <PauseMenu
+          onResume={resume}
+          onQuit={handleNewTopic}
+          onSaveAndExit={handleSaveAndExit}
+          isSaving={isSaving}
+        />
       )}
 
       {state.gameStatus === "lost" && (

@@ -13,7 +13,7 @@ import { CompletionModal } from "@/components/shared/CompletionModal";
 import { StatsModal } from "@/components/shared/StatsModal";
 import { useWordSearchGame } from "@/hooks/useWordSearchGame";
 import { calculateScore } from "@/lib/scoring";
-import { saveResult, savePuzzle } from "@/lib/storage";
+import { saveResult, savePuzzle, updateGameState, clearGameState } from "@/lib/storage";
 import type { PuzzleData } from "@/lib/types";
 
 export default function WordSearchPage() {
@@ -50,7 +50,26 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
     completeSelection,
     cancelSelection,
     useHint,
+    restoreGame,
   } = useWordSearchGame(puzzle);
+
+  const [savedPuzzleId, setSavedPuzzleId] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("lexicon-saved-puzzle-id");
+    }
+    return null;
+  });
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Restore saved game state if present
+  useEffect(() => {
+    const savedState = sessionStorage.getItem("lexicon-game-state");
+    if (savedState) {
+      const parsed = JSON.parse(savedState);
+      restoreGame(parsed);
+      sessionStorage.removeItem("lexicon-game-state");
+    }
+  }, [restoreGame]);
 
   const [lastMissTimestamp, setLastMissTimestamp] = useState(0);
   const [lastFoundTimestamp, setLastFoundTimestamp] = useState(0);
@@ -93,6 +112,13 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
     }
   }, [state.gameStatus, state.foundWords.length, state.livesRemaining, state.elapsedSeconds, state.hintsUsed, puzzle]);
 
+  // Clear saved game state when game ends
+  useEffect(() => {
+    if ((state.gameStatus === "won" || state.gameStatus === "lost") && savedPuzzleId) {
+      void clearGameState(savedPuzzleId);
+    }
+  }, [state.gameStatus, savedPuzzleId]);
+
   // Start game on first grid interaction
   const handleFirstInteraction = () => {
     if (state.gameStatus === "idle") {
@@ -113,6 +139,25 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
   const handleSave = async () => {
     const ok = await savePuzzle("wordsearch", puzzle.title, puzzle.difficulty, puzzle);
     if (ok) setIsSaved(true);
+  };
+
+  const handleSaveAndExit = async () => {
+    setIsSaving(true);
+    const gameStateToSave = { ...state };
+
+    if (savedPuzzleId) {
+      await updateGameState(savedPuzzleId, gameStateToSave as unknown as Record<string, unknown>);
+    } else {
+      const id = await savePuzzle("wordsearch", puzzle.title, puzzle.difficulty, puzzle);
+      if (id) {
+        await updateGameState(id, gameStateToSave as unknown as Record<string, unknown>);
+      }
+    }
+
+    sessionStorage.removeItem("lexicon-puzzle");
+    sessionStorage.removeItem("lexicon-saved-puzzle-id");
+    sessionStorage.removeItem("lexicon-game-state");
+    router.push("/");
   };
 
   const score = calculateScore(
@@ -298,7 +343,12 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
 
       {/* Modals */}
       {state.gameStatus === "paused" && (
-        <PauseMenu onResume={resume} onQuit={handleNewTopic} />
+        <PauseMenu
+          onResume={resume}
+          onQuit={handleNewTopic}
+          onSaveAndExit={handleSaveAndExit}
+          isSaving={isSaving}
+        />
       )}
 
       {state.gameStatus === "lost" && (
