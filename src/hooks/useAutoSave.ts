@@ -15,6 +15,7 @@ interface UseAutoSaveOptions {
   puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData;
   gameStatus: string;
   getGameState: () => Record<string, unknown>;
+  onSessionExpired?: () => void;
 }
 
 const AUTO_SAVE_INTERVAL = 30_000; // 30 seconds
@@ -26,15 +27,16 @@ export function useAutoSave({
   puzzleData,
   gameStatus,
   getGameState,
+  onSessionExpired,
 }: UseAutoSaveOptions): void {
   const savingRef = useRef(false);
   const deletedRef = useRef(false);
   const gameStatusRef = useRef(gameStatus);
 
   // Keep stable refs for values used in doSave so the callback identity stays fixed
-  const optionsRef = useRef({ gameType, title, difficulty, puzzleData, getGameState });
+  const optionsRef = useRef({ gameType, title, difficulty, puzzleData, getGameState, onSessionExpired });
   useEffect(() => {
-    optionsRef.current = { gameType, title, difficulty, puzzleData, getGameState };
+    optionsRef.current = { gameType, title, difficulty, puzzleData, getGameState, onSessionExpired };
     gameStatusRef.current = gameStatus;
   });
 
@@ -44,7 +46,10 @@ export function useAutoSave({
     try {
       const { gameType: gt, title: t, difficulty: d, puzzleData: pd, getGameState: gs } =
         optionsRef.current;
-      await upsertAutoSave(gt, t, d, pd, gs());
+      const result = await upsertAutoSave(gt, t, d, pd, gs());
+      if (result.error === "session-expired") {
+        optionsRef.current.onSessionExpired?.();
+      }
     } catch {
       // swallow — auto-save is best-effort
     } finally {

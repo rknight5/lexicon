@@ -16,6 +16,7 @@ import { calculateScore } from "@/lib/scoring";
 import { saveResult, savePuzzle } from "@/lib/storage";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { Toast } from "@/components/shared/Toast";
+import { SessionExpiredModal } from "@/components/shared/SessionExpiredModal";
 import { Bookmark } from "lucide-react";
 import type { PuzzleData } from "@/lib/types";
 
@@ -48,6 +49,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
   const [showStats, setShowStats] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [sessionExpired, setSessionExpired] = useState(false);
   const puzzle = initialPuzzle;
   const {
     state,
@@ -73,6 +75,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
     puzzleData: puzzle,
     gameStatus: state.gameStatus,
     getGameState,
+    onSessionExpired: () => setSessionExpired(true),
   });
 
   // Restore saved game state if present
@@ -150,10 +153,14 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
     if (isSaving) return;
     setIsSaving(true);
     try {
-      const ok = await savePuzzle("wordsearch", puzzle.title, puzzle.difficulty, puzzle);
-      if (ok) {
+      const result = await savePuzzle("wordsearch", puzzle.title, puzzle.difficulty, puzzle);
+      if (result.id) {
         setIsSaved(true);
         setToastMessage("Saved to library");
+      } else if (result.error === "session-expired") {
+        setSessionExpired(true);
+      } else if (result.error === "network") {
+        setToastMessage("No connection — try again when you're online");
       } else {
         setToastMessage("Couldn't save — try again");
       }
@@ -383,6 +390,8 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
       )}
 
       {showStats && <StatsModal onClose={() => setShowStats(false)} />}
+
+      {sessionExpired && <SessionExpiredModal />}
 
       {toastMessage && (
         <Toast

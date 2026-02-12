@@ -113,13 +113,13 @@ export default function HomePage() {
 
   const handleSaveAutoSave = async (): Promise<boolean> => {
     if (!autoSave) return false;
-    const id = await savePuzzle(
+    const result = await savePuzzle(
       autoSave.gameType,
       autoSave.title,
       autoSave.difficulty,
       autoSave.puzzleData
     );
-    return !!id;
+    return !!result.id;
   };
 
   const handleDismissResume = async () => {

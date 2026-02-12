@@ -13,6 +13,7 @@ import { calculateScore } from "@/lib/scoring";
 import { saveResult, savePuzzle } from "@/lib/storage";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { Toast } from "@/components/shared/Toast";
+import { SessionExpiredModal } from "@/components/shared/SessionExpiredModal";
 import { Bookmark } from "lucide-react";
 import { ANAGRAM_DIFFICULTY_CONFIG } from "@/lib/types";
 import type { AnagramPuzzleData } from "@/lib/types";
@@ -46,6 +47,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
   const [showStats, setShowStats] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [sessionExpired, setSessionExpired] = useState(false);
   const puzzle = initialPuzzle;
   const {
     state,
@@ -80,6 +82,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
     puzzleData: puzzle,
     gameStatus: state.gameStatus,
     getGameState,
+    onSessionExpired: () => setSessionExpired(true),
   });
 
   const [lastMissTimestamp, setLastMissTimestamp] = useState(0);
@@ -152,10 +155,14 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
     if (isSaving) return;
     setIsSaving(true);
     try {
-      const ok = await savePuzzle("anagram", puzzle.title, puzzle.difficulty, puzzle);
-      if (ok) {
+      const result = await savePuzzle("anagram", puzzle.title, puzzle.difficulty, puzzle);
+      if (result.id) {
         setIsSaved(true);
         setToastMessage("Saved to library");
+      } else if (result.error === "session-expired") {
+        setSessionExpired(true);
+      } else if (result.error === "network") {
+        setToastMessage("No connection — try again when you're online");
       } else {
         setToastMessage("Couldn't save — try again");
       }
@@ -611,6 +618,8 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
       )}
 
       {showStats && <StatsModal onClose={() => setShowStats(false)} />}
+
+      {sessionExpired && <SessionExpiredModal />}
 
       {toastMessage && (
         <Toast

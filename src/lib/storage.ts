@@ -1,5 +1,7 @@
 import type { PuzzleResult, PuzzleData, CrosswordPuzzleData, AnagramPuzzleData, GameType, Difficulty } from "./types";
 
+export type SaveError = "session-expired" | "network" | "server";
+
 export async function saveResult(result: PuzzleResult): Promise<void> {
   try {
     await fetch("/api/history", {
@@ -68,7 +70,7 @@ export async function savePuzzle(
   topic: string,
   difficulty: Difficulty,
   puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData
-): Promise<string | null> {
+): Promise<{ id: string | null; error?: SaveError }> {
   try {
     const res = await fetch("/api/puzzles", {
       method: "POST",
@@ -82,11 +84,12 @@ export async function savePuzzle(
       }),
       credentials: "include",
     });
-    if (!res.ok) return null;
+    if (res.status === 401) return { id: null, error: "session-expired" };
+    if (!res.ok) return { id: null, error: "server" };
     const data = await res.json();
-    return data.id;
+    return { id: data.id };
   } catch {
-    return null;
+    return { id: null, error: "network" };
   }
 }
 
@@ -149,7 +152,7 @@ export async function upsertAutoSave(
   difficulty: Difficulty,
   puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData,
   gameState: Record<string, unknown>
-): Promise<boolean> {
+): Promise<{ ok: boolean; error?: SaveError }> {
   try {
     const res = await fetch("/api/autosave", {
       method: "PUT",
@@ -157,9 +160,10 @@ export async function upsertAutoSave(
       body: JSON.stringify({ gameType, title, difficulty, puzzleData, gameState }),
       credentials: "include",
     });
-    return res.ok;
+    if (res.status === 401) return { ok: false, error: "session-expired" };
+    return { ok: res.ok, error: res.ok ? undefined : "server" };
   } catch {
-    return false;
+    return { ok: false, error: "network" };
   }
 }
 
