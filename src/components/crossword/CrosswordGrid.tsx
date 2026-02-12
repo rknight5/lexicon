@@ -154,11 +154,13 @@ export function CrosswordGrid({
 
       <div
         ref={containerRef}
-        className="inline-grid gap-0 p-1 rounded-xl select-none"
+        className="inline-grid select-none"
         style={{
           gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-          background: "var(--color-purple-deep)",
-          borderRadius: "12px",
+          gap: "1px",
+          padding: "2px",
+          background: "#000000",
+          borderRadius: "4px",
         }}
         onClick={focusInput}
       >
@@ -176,7 +178,7 @@ export function CrosswordGrid({
                 <div
                   key={`${rowIdx}-${colIdx}`}
                   className={`${cellSize}`}
-                  style={{ background: "var(--color-purple-deep)" }}
+                  style={{ background: "#000000" }}
                 />
               );
             }
@@ -184,17 +186,16 @@ export function CrosswordGrid({
             return (
               <div
                 key={`${rowIdx}-${colIdx}`}
-                className={`${cellSize} relative flex items-center justify-center font-grid cursor-pointer transition-colors`}
+                className={`${cellSize} relative flex items-center justify-center font-grid cursor-pointer`}
                 style={{
                   background: isCursor
-                    ? "rgba(255, 215, 0, 0.35)"
+                    ? "#FFF9C4"
+                    : inWord
+                    ? "#DCEEFB"
                     : solved
-                    ? "rgba(0, 230, 118, 0.08)"
+                    ? "#E8F5E9"
                     : "#FFFFFF",
-                  border: isCursor
-                    ? "2px solid #FFD700"
-                    : "1px solid rgba(0, 0, 0, 0.12)",
-                  color: isHinted ? "#D4A800" : solved ? "#00B860" : "#1A1A2E",
+                  color: isHinted ? "#D4A800" : solved ? "#2E7D32" : "#1A1A2E",
                 }}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -205,8 +206,8 @@ export function CrosswordGrid({
                 {/* Clue number */}
                 {cell.number !== undefined && (
                   <span
-                    className="absolute top-0.5 left-0.5 font-body leading-none"
-                    style={{ fontSize: "9px", color: "rgba(0,0,0,0.45)" }}
+                    className="absolute top-px left-0.5 font-body font-semibold leading-none"
+                    style={{ fontSize: "8px", color: "#000000" }}
                   >
                     {cell.number}
                   </span>

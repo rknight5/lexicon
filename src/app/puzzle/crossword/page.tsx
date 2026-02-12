@@ -186,7 +186,9 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
             <p>1. Tap a cell, type your answer</p>
             <p>2. Press Tab/Enter to check word</p>
             <p>3. Space to toggle direction</p>
-            <p>4. You have 3 lives per puzzle</p>
+            <p>4. Wrong checks cost 1 life</p>
+            <p>5. Hints reveal a letter in the word</p>
+            <p>6. Solve all clues to win</p>
           </div>
 
           <div

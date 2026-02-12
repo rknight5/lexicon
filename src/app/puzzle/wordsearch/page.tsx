@@ -203,7 +203,9 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
             </div>
             <p>1. Drag across letters to form words</p>
             <p>2. Words can go in any direction</p>
-            <p>3. You have 3 lives per puzzle</p>
+            <p>3. Wrong words cost 1 life</p>
+            <p>4. Hints reveal a word's direction</p>
+            <p>5. Find all words to win</p>
           </div>
 
           {/* Hint: positioned to the right of the panel, top-aligned, mirroring How to Play */}

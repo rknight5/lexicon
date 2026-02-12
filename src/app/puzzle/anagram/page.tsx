@@ -234,8 +234,9 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
             </div>
             <p>1. Tap scrambled letters to spell the word</p>
             <p>2. Tap answer slots to remove letters</p>
-            <p>3. Submit when all slots are filled</p>
-            <p>4. You have 3 lives per puzzle</p>
+            <p>3. Wrong answers and skips cost 1 life</p>
+            <p>4. Hints lock a letter in the right spot</p>
+            <p>5. Unscramble all words to win</p>
           </div>
 
           {/* Hint: positioned to the right */}
