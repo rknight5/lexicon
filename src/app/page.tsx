@@ -147,30 +147,30 @@ export default function HomePage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-5 pb-20 relative" style={{ paddingTop: "8vh" }}>
       {/* Top-right buttons */}
-      <div className="absolute top-6 right-6 flex items-center gap-3">
+      <div className="absolute top-6 right-6 flex items-center gap-5">
         <button
           onClick={() => router.push("/saved")}
-          className="relative text-white/30 hover:text-white/60 transition-colors p-1.5 -m-1.5"
+          className="relative text-white/30 hover:text-white/60 transition-colors p-2 -m-2"
           title="Saved puzzles"
         >
-          <Bookmark className="w-4 h-4" />
+          <Bookmark className="w-6 h-6" />
           {savedCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-gold-primary" />
+            <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-gold-primary" />
           )}
         </button>
         <button
           onClick={() => setShowStats(true)}
-          className="text-white/30 hover:text-white/60 transition-colors p-1.5 -m-1.5"
+          className="text-white/30 hover:text-white/60 transition-colors p-2 -m-2"
           title="Stats"
         >
-          <BarChart2 className="w-4 h-4" />
+          <BarChart2 className="w-6 h-6" />
         </button>
         <button
           onClick={handleLogout}
-          className="text-white/30 hover:text-white/60 transition-colors p-1.5 -m-1.5"
+          className="text-white/30 hover:text-white/60 transition-colors p-2 -m-2"
           title="Log out"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-6 h-6" />
         </button>
       </div>
 
