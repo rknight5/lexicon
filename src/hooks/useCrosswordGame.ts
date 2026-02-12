@@ -358,6 +358,14 @@ export function crosswordReducer(
       if (state.gameStatus !== "paused") return state;
       return { ...state, gameStatus: "playing", timerRunning: true };
 
+    case "RESTORE_GAME":
+      return {
+        ...action.savedState,
+        hintedCells: new Set(action.savedState.hintedCells),
+        timerRunning: false,
+        gameStatus: "paused",
+      };
+
     default:
       return state;
   }
@@ -433,6 +441,10 @@ export function useCrosswordGame(puzzle: CrosswordPuzzleData | null) {
     () => dispatch({ type: "HINT" }),
     []
   );
+  const restoreGame = useCallback(
+    (savedState: CrosswordGameState) => dispatch({ type: "RESTORE_GAME", savedState }),
+    []
+  );
 
   return {
     state,
@@ -445,5 +457,6 @@ export function useCrosswordGame(puzzle: CrosswordPuzzleData | null) {
     deleteLetter,
     checkWord,
     useHint,
+    restoreGame,
   };
 }

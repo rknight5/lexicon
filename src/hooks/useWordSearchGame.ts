@@ -149,6 +149,9 @@ export function wordSearchReducer(
       if (state.gameStatus !== "paused") return state;
       return { ...state, gameStatus: "playing", timerRunning: true };
 
+    case "RESTORE_GAME":
+      return { ...action.savedState, timerRunning: false, gameStatus: "paused" };
+
     default:
       return state;
   }
@@ -227,6 +230,10 @@ export function useWordSearchGame(puzzle: PuzzleData | null) {
     (word: string) => dispatch({ type: "USE_HINT", word }),
     []
   );
+  const restoreGame = useCallback(
+    (savedState: WordSearchGameState) => dispatch({ type: "RESTORE_GAME", savedState }),
+    []
+  );
 
   return {
     state,
@@ -239,5 +246,6 @@ export function useWordSearchGame(puzzle: PuzzleData | null) {
     completeSelection,
     cancelSelection,
     useHint,
+    restoreGame,
   };
 }
