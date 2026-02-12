@@ -20,17 +20,17 @@ const DIFFICULTY_BADGE: Record<
 > = {
   easy: {
     label: "Easy",
-    icon: <Shield className="w-3.5 h-3.5" />,
+    icon: <Shield className="w-4 h-4" />,
     className: "text-green-accent border-green-accent/30 bg-green-accent/10",
   },
   medium: {
     label: "Medium",
-    icon: <Flame className="w-3.5 h-3.5" />,
+    icon: <Flame className="w-4 h-4" />,
     className: "text-gold-primary border-gold-primary/30 bg-gold-primary/10",
   },
   hard: {
     label: "Hard",
-    icon: <Skull className="w-3.5 h-3.5" />,
+    icon: <Skull className="w-4 h-4" />,
     className: "text-pink-accent border-pink-accent/30 bg-pink-accent/10",
   },
 };
@@ -77,7 +77,7 @@ export function GameBar({
 
   return (
     <div
-      className="h-12 px-4 flex items-center border-b relative"
+      className="h-14 px-5 flex items-center border-b relative"
       style={{
         background: "#1A0A2E",
         borderColor: "rgba(255, 255, 255, 0.08)",
@@ -88,7 +88,7 @@ export function GameBar({
         onClick={onBack}
         className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-5 h-5" />
         <span className="font-body text-sm">Back</span>
       </button>
 
@@ -106,32 +106,32 @@ export function GameBar({
               onChange={(e) => setEditValue(e.target.value)}
               onBlur={commitEdit}
               maxLength={60}
-              className="font-heading text-sm font-bold bg-transparent border-b border-white/30 outline-none text-white text-center px-1 py-0.5"
+              className="font-heading text-base font-bold bg-transparent border-b border-white/30 outline-none text-white text-center px-1 py-0.5"
               style={{ minWidth: "120px", maxWidth: "280px", width: `${Math.max(120, editValue.length * 9)}px` }}
             />
             <button
               type="submit"
               className="text-green-accent hover:text-green-accent/80 transition-colors p-0.5"
             >
-              <Check className="w-3.5 h-3.5" />
+              <Check className="w-4 h-4" />
             </button>
           </form>
         ) : (
           <div className="flex items-center gap-1">
-            <span className="font-heading text-sm font-bold">{title}</span>
+            <span className="font-heading text-base font-bold">{title}</span>
             {onTitleChange && (
               <button
                 onClick={startEditing}
                 className="text-white/30 hover:text-white/60 transition-colors p-0.5"
                 title="Edit title"
               >
-                <Pencil className="w-3 h-3" />
+                <Pencil className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
         )}
         <div
-          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-pill border text-[10px] font-heading font-bold ${badge.className}`}
+          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-pill border text-[11px] font-heading font-bold ${badge.className}`}
         >
           {badge.icon}
           {badge.label}
@@ -139,33 +139,33 @@ export function GameBar({
       </div>
 
       {/* Right: stats + help + settings + logout */}
-      <div className="ml-auto flex items-center gap-4">
+      <div className="ml-auto flex items-center gap-5">
         <button
-          className="text-white/30 hover:text-white/60 transition-colors p-1 -m-1"
+          className="text-white/30 hover:text-white/60 transition-colors p-1.5 -m-1.5"
           title="Stats"
         >
-          <BarChart2 className="w-4 h-4" />
+          <BarChart2 className="w-5 h-5" />
         </button>
         <button
-          className="text-white/30 hover:text-white/60 transition-colors p-1 -m-1"
+          className="text-white/30 hover:text-white/60 transition-colors p-1.5 -m-1.5"
           title="Help"
         >
-          <HelpCircle className="w-4 h-4" />
+          <HelpCircle className="w-5 h-5" />
         </button>
         <button
           onClick={onPause}
-          className="text-white/30 hover:text-white/60 transition-colors p-1 -m-1"
+          className="text-white/30 hover:text-white/60 transition-colors p-1.5 -m-1.5"
           title="Settings"
           disabled={gameStatus !== "playing"}
         >
-          <Settings className="w-4 h-4" />
+          <Settings className="w-5 h-5" />
         </button>
         <button
           onClick={handleLogout}
-          className="text-white/30 hover:text-white/60 transition-colors p-1 -m-1"
+          className="text-white/30 hover:text-white/60 transition-colors p-1.5 -m-1.5"
           title="Log out"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-5 h-5" />
         </button>
       </div>
     </div>
