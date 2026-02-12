@@ -115,16 +115,9 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
         title={puzzleTitle}
         onTitleChange={setPuzzleTitle}
       />
-      <GameStatsBar
-        score={score}
-        livesRemaining={state.livesRemaining}
-        hintsUsed={state.hintsUsed}
-        elapsedSeconds={state.elapsedSeconds}
-        gameStatus={state.gameStatus}
-      />
 
       {/* Desktop: unified game panel */}
-      <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-1 pb-8">
+      <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-0 pb-6">
         <div className="relative">
           {/* Instructions */}
           <div className="absolute right-full top-0 mr-24 flex flex-col gap-2.5 text-white/25 text-xs font-body whitespace-nowrap">
@@ -185,6 +178,17 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
               />
             </div>
           </div>
+
+          {/* Stats pill below panel */}
+          <div className="flex justify-center mt-4">
+            <GameStatsBar
+              score={score}
+              livesRemaining={state.livesRemaining}
+              hintsUsed={state.hintsUsed}
+              elapsedSeconds={state.elapsedSeconds}
+              gameStatus={state.gameStatus}
+            />
+          </div>
         </div>
       </div>
 
@@ -222,6 +226,13 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
           activeClueNum={activeClueNum}
           activeDirection={state.cursorDirection}
           onClueClick={handleClueClick}
+        />
+        <GameStatsBar
+          score={score}
+          livesRemaining={state.livesRemaining}
+          hintsUsed={state.hintsUsed}
+          elapsedSeconds={state.elapsedSeconds}
+          gameStatus={state.gameStatus}
         />
       </div>
 

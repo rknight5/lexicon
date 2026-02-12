@@ -38,10 +38,10 @@ export function GameStatsBar({
 
   return (
     <div
-      className="h-10 px-6 flex items-center justify-center gap-8 border-b"
+      className="inline-flex items-center justify-center gap-6 px-6 py-2 rounded-full"
       style={{
-        background: "rgba(26, 10, 46, 0.6)",
-        borderColor: "rgba(255, 255, 255, 0.05)",
+        background: "rgba(255, 255, 255, 0.06)",
+        border: "1px solid rgba(255, 255, 255, 0.1)",
       }}
     >
       {/* Score */}
