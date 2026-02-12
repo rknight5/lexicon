@@ -20,13 +20,24 @@ export async function GET() {
         title: savedPuzzles.title,
         topic: savedPuzzles.topic,
         difficulty: savedPuzzles.difficulty,
+        gameState: savedPuzzles.gameState,
         createdAt: savedPuzzles.createdAt,
       })
       .from(savedPuzzles)
       .where(eq(savedPuzzles.username, username))
       .orderBy(desc(savedPuzzles.createdAt));
 
-    return NextResponse.json(puzzles);
+    return NextResponse.json(
+      puzzles.map((p) => ({
+        id: p.id,
+        gameType: p.gameType,
+        title: p.title,
+        topic: p.topic,
+        difficulty: p.difficulty,
+        hasGameState: p.gameState !== null,
+        createdAt: p.createdAt,
+      }))
+    );
   } catch (err) {
     console.error("Failed to list puzzles:", err);
     return NextResponse.json({ error: "Failed to list puzzles" }, { status: 500 });
