@@ -46,43 +46,50 @@ export function ResumeCard({ autoSave, onResume, onDismiss }: ResumeCardProps) {
   const { line, livesRemaining } = getProgress(autoSave);
 
   return (
-    <div className="w-full max-w-md mb-6">
-      <button
-        onClick={onResume}
-        className="w-full p-4 rounded-2xl text-left transition-all hover:-translate-y-0.5 active:scale-[0.98] flex items-center gap-4"
-        style={{
-          background: "var(--glass-bg)",
-          border: "1px solid var(--glass-border)",
-          borderLeft: "3px solid #FFD700",
-        }}
-      >
-        <div className="flex-shrink-0">
-          {GAME_TYPE_ICON[autoSave.gameType]}
+    <div
+      className="w-full max-w-md mb-6 p-4 rounded-2xl flex items-center gap-4"
+      style={{
+        background: "var(--glass-bg)",
+        border: "1px solid var(--glass-border)",
+        borderLeft: "3px solid #FFD700",
+      }}
+    >
+      <div className="flex-shrink-0">
+        {GAME_TYPE_ICON[autoSave.gameType]}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="font-heading text-sm font-bold text-white truncate">
+          {autoSave.title}
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="font-heading text-sm font-bold text-white truncate">
-            {autoSave.title}
-          </div>
-          <div className="flex items-center gap-2 mt-1">
-            {DIFFICULTY_ICON[autoSave.difficulty]}
-            <span className="text-[11px] text-white/30 font-body">{line}</span>
-            <span className="text-[11px] text-white/30 font-body flex items-center gap-0.5">
-              <Heart className="w-3 h-3 text-pink-accent" fill="currentColor" />
-              {livesRemaining}
-            </span>
-          </div>
+        <div className="flex items-center gap-2 mt-1">
+          {DIFFICULTY_ICON[autoSave.difficulty]}
+          <span className="text-[11px] text-white/30 font-body">{line}</span>
+          <span className="text-[11px] text-white/30 font-body flex items-center gap-0.5">
+            <Heart className="w-3 h-3 text-pink-accent" fill="currentColor" />
+            {livesRemaining}
+          </span>
         </div>
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <button
-            onClick={(e) => { e.stopPropagation(); onDismiss(); }}
-            className="text-white/20 hover:text-pink-accent transition-colors p-1.5 -m-1.5"
-            title="Delete saved game"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-          <Play className="w-4 h-4 text-gold-primary" fill="currentColor" />
-        </div>
-      </button>
+      </div>
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <button
+          onClick={onDismiss}
+          className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-heading font-bold px-2.5 py-1.5 rounded-pill transition-all hover:brightness-125 active:scale-95"
+          style={{ background: "rgba(255, 64, 129, 0.15)", color: "#FF4081" }}
+          title="Delete saved game"
+        >
+          <Trash2 className="w-3 h-3" />
+          Delete
+        </button>
+        <button
+          onClick={onResume}
+          className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-heading font-bold px-2.5 py-1.5 rounded-pill transition-all hover:brightness-125 active:scale-95"
+          style={{ background: "rgba(255, 215, 0, 0.15)", color: "#FFD700" }}
+          title="Resume game"
+        >
+          <Play className="w-3 h-3" fill="currentColor" />
+          Continue
+        </button>
+      </div>
     </div>
   );
 }
