@@ -155,7 +155,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
           </div>
 
           {/* Hint: positioned to the right of the panel, top-aligned, mirroring How to Play */}
-          <div className="absolute left-full top-0 ml-40 flex flex-col items-center whitespace-nowrap">
+          <div className="absolute left-full top-0 ml-56 flex flex-col items-center whitespace-nowrap">
             <div className="flex flex-col items-center gap-3">
               <div>
                 <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold">Hint</span>
