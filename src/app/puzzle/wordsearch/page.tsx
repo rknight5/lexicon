@@ -113,6 +113,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
   );
 
   const handleRandomHint = () => {
+    handleFirstInteraction();
     const unfound = puzzle.words
       .map((w) => w.word)
       .filter((w) => !state.foundWords.includes(w) && !state.hintedWords[w]);
@@ -121,7 +122,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
     useHint(pick);
   };
 
-  const canHint = state.gameStatus === "playing" && state.livesRemaining > 1 &&
+  const canHint = (state.gameStatus === "playing" || state.gameStatus === "idle") && state.livesRemaining > 1 &&
     puzzle.words.some((w) => !state.foundWords.includes(w.word) && !state.hintedWords[w.word]);
 
   return (
@@ -154,29 +155,27 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
           </div>
 
           {/* Hint: positioned to the right of the panel, top-aligned, mirroring How to Play */}
-          <div className="absolute left-full top-0 ml-32 flex flex-col items-center whitespace-nowrap">
-            {state.gameStatus === "playing" && (
-              <div className="flex flex-col items-center gap-3">
-                <div>
-                  <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold">Hint</span>
-                  <div className="h-px bg-white/10 mt-2" />
-                </div>
-                <button
-                  onClick={handleRandomHint}
-                  disabled={!canHint}
-                  className="w-16 h-16 rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-110 hover:shadow-lg active:scale-95 disabled:opacity-25 disabled:cursor-not-allowed"
-                  style={{
-                    background: "rgba(255, 215, 0, 0.15)",
-                    border: "2px solid rgba(255, 215, 0, 0.4)",
-                    boxShadow: "0 0 20px rgba(255, 215, 0, 0.15)",
-                  }}
-                  title="Get a random hint (costs 1 life)"
-                >
-                  <span className="text-2xl pointer-events-none">💡</span>
-                </button>
-                <span className="text-xs text-white/50 font-body">Costs 1 life</span>
+          <div className="absolute left-full top-0 ml-40 flex flex-col items-center whitespace-nowrap">
+            <div className="flex flex-col items-center gap-3">
+              <div>
+                <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold">Hint</span>
+                <div className="h-px bg-white/10 mt-2" />
               </div>
-            )}
+              <button
+                onClick={handleRandomHint}
+                disabled={!canHint}
+                className="w-16 h-16 rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-110 hover:shadow-lg active:scale-95 disabled:opacity-25 disabled:cursor-not-allowed"
+                style={{
+                  background: "rgba(255, 215, 0, 0.15)",
+                  border: "2px solid rgba(255, 215, 0, 0.4)",
+                  boxShadow: "0 0 20px rgba(255, 215, 0, 0.15)",
+                }}
+                title="Get a random hint (costs 1 life)"
+              >
+                <span className="text-2xl pointer-events-none">💡</span>
+              </button>
+              <span className="text-xs text-white/50 font-body">Costs 1 life</span>
+            </div>
           </div>
 
           <div
@@ -255,20 +254,18 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
           foundWords={state.foundWords}
           hintedWords={state.hintedWords}
         />
-        {state.gameStatus === "playing" && (
-          <button
-            onClick={handleRandomHint}
-            disabled={!canHint}
-            className="px-5 py-2 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
-            style={{
-              background: "rgba(255, 215, 0, 0.12)",
-              border: "1px solid rgba(255, 215, 0, 0.3)",
-              color: "#FFD700",
-            }}
-          >
-            <span className="mr-1.5">💡</span>Hint
-          </button>
-        )}
+        <button
+          onClick={handleRandomHint}
+          disabled={!canHint}
+          className="px-5 py-2 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
+          style={{
+            background: "rgba(255, 215, 0, 0.12)",
+            border: "1px solid rgba(255, 215, 0, 0.3)",
+            color: "#FFD700",
+          }}
+        >
+          <span className="mr-1.5">💡</span>Hint
+        </button>
       </div>
 
       {/* Modals */}
