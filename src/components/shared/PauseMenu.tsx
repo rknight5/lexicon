@@ -39,7 +39,7 @@ export function PauseMenu({ onResume, onQuit }: PauseMenuProps) {
               </button>
               <button
                 onClick={() => setConfirmQuit(false)}
-                className="w-full h-10 rounded-pill font-body text-sm text-white/60 hover:text-white transition-colors"
+                className="w-full h-10 rounded-pill font-body text-sm text-white/70 hover:text-white transition-colors"
               >
                 Cancel
               </button>
@@ -57,7 +57,7 @@ export function PauseMenu({ onResume, onQuit }: PauseMenuProps) {
             >
               Resume
             </button>
-            <p className="text-center text-white/40 text-xs font-body">
+            <p className="text-center text-white/60 text-xs font-body">
               Progress saved automatically
             </p>
             <button

@@ -34,12 +34,12 @@ export function ClueList({
           background: isActive
             ? "rgba(0, 229, 255, 0.1)"
             : "transparent",
-          opacity: isSolved ? 0.4 : 1,
+          opacity: isSolved ? 0.5 : 1,
         }}
       >
         <span
           className="font-grid text-xs mr-2"
-          style={{ color: "rgba(255, 255, 255, 0.4)" }}
+          style={{ color: "rgba(255, 255, 255, 0.6)" }}
         >
           {clue.number}
         </span>
@@ -59,7 +59,7 @@ export function ClueList({
       <div>
         <h3
           className="font-heading text-[11px] uppercase tracking-widest mb-2"
-          style={{ color: "rgba(255, 255, 255, 0.3)" }}
+          style={{ color: "rgba(255, 255, 255, 0.5)" }}
         >
           Across
         </h3>
@@ -72,7 +72,7 @@ export function ClueList({
       <div>
         <h3
           className="font-heading text-[11px] uppercase tracking-widest mb-2"
-          style={{ color: "rgba(255, 255, 255, 0.3)" }}
+          style={{ color: "rgba(255, 255, 255, 0.5)" }}
         >
           Down
         </h3>

@@ -121,7 +121,7 @@ export function WordBank({ words, foundWords, gridHeight }: WordBankProps) {
                       <span className="font-bold text-white text-sm tracking-wide flex-shrink-0 font-body">
                         {word.word}
                       </span>
-                      <span className="text-xs text-white/40 truncate font-body">
+                      <span className="text-xs text-white/60 truncate font-body">
                         {word.clue}
                       </span>
                     </div>

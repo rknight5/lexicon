@@ -49,7 +49,7 @@ export function StatsModal({ onClose }: StatsModalProps) {
         {/* Close */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-white/30 hover:text-white/60 transition-colors p-1 -m-1"
+          className="absolute top-4 right-4 text-white/50 hover:text-white/80 transition-colors p-1 -m-1"
         >
           <X className="w-5 h-5" />
         </button>
@@ -103,7 +103,7 @@ export function StatsModal({ onClose }: StatsModalProps) {
               <span className="font-grid text-lg font-bold text-gold-primary">
                 {winRate}%
               </span>
-              <span className="text-xs text-white/40 font-body ml-1.5">
+              <span className="text-xs text-white/60 font-body ml-1.5">
                 win rate
               </span>
             </div>
@@ -170,7 +170,7 @@ function StatCard({
         </span>
         {icon}
       </div>
-      <span className="text-[10px] uppercase tracking-wider text-white/40 font-heading font-semibold">
+      <span className="text-[10px] uppercase tracking-wider text-white/60 font-heading font-semibold">
         {label}
       </span>
     </div>
@@ -192,7 +192,7 @@ function BestScoreSection({
         border: "1px solid rgba(255, 255, 255, 0.08)",
       }}
     >
-      <span className="text-[10px] uppercase tracking-wider text-white/40 font-heading font-semibold">
+      <span className="text-[10px] uppercase tracking-wider text-white/60 font-heading font-semibold">
         {title}
       </span>
       <div className="flex items-center justify-between mt-2">
@@ -203,7 +203,7 @@ function BestScoreSection({
             >
               {scores[d] > 0 ? scores[d] : "--"}
             </span>
-            <div className="text-[9px] uppercase tracking-wider text-white/30 font-heading mt-0.5">
+            <div className="text-[9px] uppercase tracking-wider text-white/50 font-heading mt-0.5">
               {d}
             </div>
           </div>

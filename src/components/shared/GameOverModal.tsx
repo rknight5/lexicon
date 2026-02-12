@@ -59,7 +59,7 @@ export function GameOverModal({
             onClick={onSaveToLibrary}
             disabled={isSavedToLibrary}
             className={`flex items-center justify-center gap-2 w-full py-2 rounded-pill font-body text-sm transition-colors ${
-              isSavedToLibrary ? "text-gold-primary" : "text-white/50 hover:text-white/70"
+              isSavedToLibrary ? "text-gold-primary" : "text-white/60 hover:text-white/80"
             }`}
           >
             <Bookmark className="w-4 h-4" fill={isSavedToLibrary ? "currentColor" : "none"} />
@@ -80,7 +80,7 @@ export function GameOverModal({
           </button>
           <button
             onClick={onNewTopic}
-            className="w-full h-10 rounded-pill font-body text-sm text-white/60 hover:text-white transition-colors"
+            className="w-full h-10 rounded-pill font-body text-sm text-white/70 hover:text-white transition-colors"
           >
             Change Topic
           </button>

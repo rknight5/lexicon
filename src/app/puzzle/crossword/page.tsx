@@ -178,10 +178,10 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
       <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-0 pb-6">
         <div className="relative">
           {/* Instructions */}
-          <div className="absolute right-full top-0 mr-24 flex flex-col gap-2.5 text-white/25 text-xs font-body whitespace-nowrap">
+          <div className="absolute right-full top-0 mr-24 flex flex-col gap-2.5 text-white/45 text-xs font-body whitespace-nowrap">
             <div>
-              <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold">How to Play</span>
-              <div className="h-px bg-white/10 mt-2" />
+              <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold">How to Play</span>
+              <div className="h-px bg-white/15 mt-2" />
             </div>
             <p>1. Tap a cell, type your answer</p>
             <p>2. Press Tab/Enter to check word</p>
@@ -226,7 +226,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
 
             {/* Clue list */}
             <div className="py-5 pr-8 pl-3 flex flex-col gap-3 max-h-[500px] overflow-y-auto">
-              <span className="text-[11px] uppercase tracking-[2px] text-white/35 font-heading font-semibold">
+              <span className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">
                 Clues — {state.solvedClues.length}/{puzzle.clues.length}
               </span>
               <ClueList
@@ -254,7 +254,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
 
       {/* Mobile: stacked layout */}
       <div className="lg:hidden flex-1 flex flex-col items-center px-3 py-4 gap-4">
-        <div className="text-[11px] uppercase tracking-[2px] text-white/35 font-heading font-semibold">
+        <div className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">
           {state.solvedClues.length}/{puzzle.clues.length} Clues
         </div>
         <div onClick={handleFirstInteraction}>

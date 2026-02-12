@@ -12,9 +12,9 @@ interface ResumeCardProps {
 }
 
 const GAME_TYPE_ICON: Record<string, React.ReactNode> = {
-  wordsearch: <Search className="w-5 h-5 text-white/40" />,
-  crossword: <Grid3X3 className="w-5 h-5 text-white/40" />,
-  anagram: <Shuffle className="w-5 h-5 text-white/40" />,
+  wordsearch: <Search className="w-5 h-5 text-white/60" />,
+  crossword: <Grid3X3 className="w-5 h-5 text-white/60" />,
+  anagram: <Shuffle className="w-5 h-5 text-white/60" />,
 };
 
 const DIFFICULTY_ICON: Record<string, React.ReactNode> = {
@@ -76,9 +76,9 @@ export function ResumeCard({ autoSave, onResume, onSave, onDismiss }: ResumeCard
         <div className="flex items-center gap-3 mt-1">
           <span className="text-[11px] font-body">
             <span className="text-white font-bold">{count}</span>
-            <span className="text-white/30"> {label}</span>
+            <span className="text-white/50"> {label}</span>
           </span>
-          <span className="text-[11px] text-white/30 font-body flex items-center gap-1">
+          <span className="text-[11px] text-white/50 font-body flex items-center gap-1">
             <Heart className="w-3 h-3 text-pink-accent" fill="currentColor" />
             {livesRemaining}
           </span>

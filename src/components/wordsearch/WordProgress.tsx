@@ -14,7 +14,7 @@ export function WordProgress({ found, total }: WordProgressProps) {
           style={{ width: `${total > 0 ? (found / total) * 100 : 0}%` }}
         />
       </div>
-      <span className="text-xs font-bold text-white/60 font-body">
+      <span className="text-xs font-bold text-white/70 font-body">
         {found}/{total}
       </span>
     </div>

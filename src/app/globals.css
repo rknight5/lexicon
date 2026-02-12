@@ -38,7 +38,7 @@
 :root {
   --overlay-dark: rgba(26, 10, 46, 0.85);
   --white-soft: rgba(255, 255, 255, 0.9);
-  --white-muted: rgba(255, 255, 255, 0.6);
+  --white-muted: rgba(255, 255, 255, 0.7);
   --glass-bg: rgba(255, 255, 255, 0.08);
   --glass-border: rgba(255, 255, 255, 0.15);
   --glass-hover: rgba(255, 255, 255, 0.15);

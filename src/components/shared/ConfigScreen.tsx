@@ -158,7 +158,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center px-5 py-8">
+    <main className="min-h-screen flex flex-col items-center px-5 pt-16 pb-8">
       {/* Back button — pinned top-left */}
       <button
         onClick={onBack}
@@ -172,14 +172,14 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
       <div className="w-full max-w-md space-y-6">
         {/* Topic (editable) */}
         <div>
-          <label className="block font-heading text-sm mb-2 text-white/60">
+          <label className="block font-heading text-sm mb-2 text-white/70">
             Topic
           </label>
           <input
             type="text"
             value={topic}
             onChange={(e) => onTopicChange(e.target.value.slice(0, 200))}
-            className="w-full h-11 px-4 rounded-xl text-base font-body text-white placeholder:text-white/40 outline-none transition-all"
+            className="w-full h-11 px-4 rounded-xl text-base font-body text-white placeholder:text-white/50 outline-none transition-all"
             style={{
               background: "var(--glass-bg)",
               border: "1px solid var(--glass-border)",
@@ -193,7 +193,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
 
         {/* Game Type */}
         <div>
-          <label className="block font-heading text-sm mb-3 text-white/60">
+          <label className="block font-heading text-sm mb-3 text-white/70">
             Game Type
           </label>
           <div className="grid grid-cols-3 gap-3">
@@ -250,7 +250,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
 
         {/* Difficulty */}
         <div>
-          <label className="block font-heading text-sm mb-3 text-white/60">
+          <label className="block font-heading text-sm mb-3 text-white/70">
             Difficulty
           </label>
           <div className="grid grid-cols-3 gap-3">
@@ -295,7 +295,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
 
         {/* Focus Areas */}
         <div>
-          <label className="block font-heading text-sm mb-3 text-white/60">
+          <label className="block font-heading text-sm mb-3 text-white/70">
             Focus Areas
           </label>
           {loadingCategories ? (

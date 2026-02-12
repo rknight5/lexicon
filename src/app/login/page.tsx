@@ -65,7 +65,7 @@ export default function LoginPage() {
       >
         <form onSubmit={handleSubmit} className="space-y-3">
           <label
-            className="block font-heading text-sm text-white/60 mb-1"
+            className="block font-heading text-sm text-white/70 mb-1"
             htmlFor="username"
           >
             Your name
@@ -77,7 +77,7 @@ export default function LoginPage() {
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Enter a name"
             maxLength={50}
-            className="w-full h-[44px] px-4 rounded-xl text-base font-body text-white placeholder:text-white/40 outline-none"
+            className="w-full h-[44px] px-4 rounded-xl text-base font-body text-white placeholder:text-white/50 outline-none"
             style={{
               background: "rgba(255, 255, 255, 0.05)",
               border: "1px solid var(--glass-border)",

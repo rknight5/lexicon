@@ -64,13 +64,13 @@ export function GameStatsBar({
       </div>
 
       {/* Hints used */}
-      <div className="inline-flex items-center gap-1.5 text-white/40">
+      <div className="inline-flex items-center gap-1.5 text-white/60">
         <Lightbulb className="w-4 h-4" />
         <span className="font-grid text-sm">{hintsUsed}</span>
       </div>
 
       {/* Timer */}
-      <div className="inline-flex items-center gap-1.5 text-white/40">
+      <div className="inline-flex items-center gap-1.5 text-white/60">
         <Clock className="w-4 h-4" />
         <span
           className={`font-grid text-sm ${

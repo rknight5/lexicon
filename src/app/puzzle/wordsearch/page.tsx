@@ -196,10 +196,10 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
       <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-0 pb-6">
         <div className="relative">
           {/* Instructions: positioned to the left of the panel, top-aligned */}
-          <div className="absolute right-full top-0 mr-23 flex flex-col gap-2.5 text-white/25 text-xs font-body whitespace-nowrap">
+          <div className="absolute right-full top-0 mr-23 flex flex-col gap-2.5 text-white/45 text-xs font-body whitespace-nowrap">
             <div>
-              <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold">How to Play</span>
-              <div className="h-px bg-white/10 mt-2" />
+              <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold">How to Play</span>
+              <div className="h-px bg-white/15 mt-2" />
             </div>
             <p>1. Drag across letters to form words</p>
             <p>2. Words can go in any direction</p>
@@ -212,8 +212,8 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
           <div className="absolute left-full top-0 ml-38 flex flex-col items-center whitespace-nowrap">
             <div className="flex flex-col items-center gap-3">
               <div>
-                <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold">Hint</span>
-                <div className="h-px bg-white/10 mt-2" />
+                <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold">Hint</span>
+                <div className="h-px bg-white/15 mt-2" />
               </div>
               <button
                 onClick={handleRandomHint}
@@ -263,7 +263,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
             {/* Word list to the right of grid */}
             <div className="py-5 pr-8 pl-3 flex flex-col gap-3">
               <div className="flex items-center gap-3">
-                <span className="text-[11px] uppercase tracking-[2px] text-white/35 font-heading font-semibold">Progress</span>
+                <span className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">Progress</span>
                 <WordProgress
                   found={state.foundWords.length}
                   total={puzzle.words.length}

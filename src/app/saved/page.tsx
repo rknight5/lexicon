@@ -6,9 +6,9 @@ import { ArrowLeft, Search, Grid3X3, Shuffle, Shield, Flame, Skull, Trash2, Play
 import { getSavedPuzzles, loadSavedPuzzle, deleteSavedPuzzle, type SavedPuzzleSummary } from "@/lib/storage";
 
 const GAME_TYPE_ICON: Record<string, React.ReactNode> = {
-  wordsearch: <Search className="w-5 h-5 text-white/40" />,
-  crossword: <Grid3X3 className="w-5 h-5 text-white/40" />,
-  anagram: <Shuffle className="w-5 h-5 text-white/40" />,
+  wordsearch: <Search className="w-5 h-5 text-white/60" />,
+  crossword: <Grid3X3 className="w-5 h-5 text-white/60" />,
+  anagram: <Shuffle className="w-5 h-5 text-white/60" />,
 };
 
 const DIFFICULTY_ICON: Record<string, React.ReactNode> = {
@@ -94,7 +94,7 @@ export default function SavedPage() {
       >
         <button
           onClick={() => router.push("/")}
-          className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors"
+          className="flex items-center gap-1.5 text-white/70 hover:text-white transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="font-body text-sm">Back</span>
@@ -115,10 +115,10 @@ export default function SavedPage() {
             </div>
           ) : puzzles.length === 0 ? (
             <div className="text-center py-16">
-              <p className="text-white/40 font-body text-sm">
+              <p className="text-white/60 font-body text-sm">
                 No saved puzzles yet.
               </p>
-              <p className="text-white/25 font-body text-xs mt-2">
+              <p className="text-white/45 font-body text-xs mt-2">
                 Bookmark puzzles during gameplay to add them here.
               </p>
             </div>
@@ -144,7 +144,7 @@ export default function SavedPage() {
                       </span>
                       {DIFFICULTY_ICON[puzzle.difficulty]}
                     </div>
-                    <div className="text-[11px] text-white/30 font-body mt-1">
+                    <div className="text-[11px] text-white/50 font-body mt-1">
                       {GAME_TYPE_LABEL[puzzle.gameType] ?? puzzle.gameType}
                     </div>
                   </div>

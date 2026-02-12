@@ -150,7 +150,7 @@ export default function HomePage() {
       <div className="absolute top-6 right-6 flex items-center gap-5">
         <button
           onClick={() => router.push("/saved")}
-          className="relative text-white/30 hover:text-white/60 transition-colors p-2 -m-2"
+          className="relative text-white/50 hover:text-white/80 transition-colors p-2 -m-2"
           title="Saved puzzles"
         >
           <Bookmark className="w-6 h-6" />
@@ -160,14 +160,14 @@ export default function HomePage() {
         </button>
         <button
           onClick={() => setShowStats(true)}
-          className="text-white/30 hover:text-white/60 transition-colors p-2 -m-2"
+          className="text-white/50 hover:text-white/80 transition-colors p-2 -m-2"
           title="Stats"
         >
           <BarChart2 className="w-6 h-6" />
         </button>
         <button
           onClick={handleLogout}
-          className="text-white/30 hover:text-white/60 transition-colors p-2 -m-2"
+          className="text-white/50 hover:text-white/80 transition-colors p-2 -m-2"
           title="Log out"
         >
           <LogOut className="w-6 h-6" />
@@ -197,7 +197,7 @@ export default function HomePage() {
           onChange={(e) => handleTopicChange(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
           placeholder="What are you into? Try '90s grunge' or 'classic jazz piano'"
-          className="w-full h-[52px] px-5 rounded-2xl text-base font-body text-white placeholder:text-white/40 outline-none transition-all"
+          className="w-full h-[52px] px-5 rounded-2xl text-base font-body text-white placeholder:text-white/50 outline-none transition-all"
           style={{
             background: "var(--glass-bg)",
             border: "2px solid var(--glass-border)",
@@ -226,9 +226,9 @@ export default function HomePage() {
       {autoSave ? (
         <div className="flex flex-col items-center mt-16 gap-4 w-full max-w-xl">
           <div className="flex items-center gap-3 w-full">
-            <div className="h-px flex-1 bg-white/10" />
-            <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold whitespace-nowrap">Resume Game</span>
-            <div className="h-px flex-1 bg-white/10" />
+            <div className="h-px flex-1 bg-white/15" />
+            <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold whitespace-nowrap">Resume Game</span>
+            <div className="h-px flex-1 bg-white/15" />
           </div>
           <ResumeCard
             autoSave={autoSave}
@@ -240,9 +240,9 @@ export default function HomePage() {
       ) : (
         <div className="flex flex-col items-center mt-10 gap-4 w-full max-w-md">
           <div className="flex items-center gap-3 w-full">
-            <div className="h-px flex-1 bg-white/10" />
-            <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold whitespace-nowrap">Quick Starts</span>
-            <div className="h-px flex-1 bg-white/10" />
+            <div className="h-px flex-1 bg-white/15" />
+            <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold whitespace-nowrap">Quick Starts</span>
+            <div className="h-px flex-1 bg-white/15" />
           </div>
           <div className="flex flex-wrap justify-center gap-2.5">
             {EXAMPLE_TOPICS.map((example) => (

@@ -225,12 +225,12 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
       <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-0 pb-6">
         <div className="relative">
           {/* Instructions: positioned to the left */}
-          <div className="absolute right-full top-0 mr-23 flex flex-col gap-2.5 text-white/25 text-xs font-body whitespace-nowrap">
+          <div className="absolute right-full top-0 mr-23 flex flex-col gap-2.5 text-white/45 text-xs font-body whitespace-nowrap">
             <div>
-              <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold">
+              <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold">
                 How to Play
               </span>
-              <div className="h-px bg-white/10 mt-2" />
+              <div className="h-px bg-white/15 mt-2" />
             </div>
             <p>1. Tap scrambled letters to spell the word</p>
             <p>2. Tap answer slots to remove letters</p>
@@ -243,10 +243,10 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
           <div className="absolute left-full top-0 ml-38 flex flex-col items-center whitespace-nowrap">
             <div className="flex flex-col items-center gap-3">
               <div>
-                <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold">
+                <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold">
                   Hint
                 </span>
-                <div className="h-px bg-white/10 mt-2" />
+                <div className="h-px bg-white/15 mt-2" />
               </div>
               <button
                 onClick={handleHint}
@@ -283,7 +283,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
             }}
           >
             {/* Word progress */}
-            <div className="text-[11px] uppercase tracking-[2px] text-white/35 font-heading font-semibold">
+            <div className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">
               Word {state.currentWordIndex + 1} of {puzzle.words.length}
             </div>
 
@@ -417,7 +417,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
       {/* Mobile layout */}
       <div className="lg:hidden flex-1 flex flex-col items-center px-3 py-4 gap-4">
         {/* Word progress */}
-        <div className="text-[11px] uppercase tracking-[2px] text-white/35 font-heading font-semibold">
+        <div className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">
           Word {state.currentWordIndex + 1} of {puzzle.words.length}
         </div>
 
