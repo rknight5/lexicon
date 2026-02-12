@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Shield, Flame, Skull, Sparkles, Tag } from "lucide-react";
-import type { Difficulty, CategorySuggestion } from "@/lib/types";
+import { ArrowLeft, Shield, Flame, Skull, Sparkles, Tag, Search, Grid3X3 } from "lucide-react";
+import type { Difficulty, GameType, CategorySuggestion } from "@/lib/types";
 import { LoadingOverlay } from "@/components/shared/LoadingOverlay";
 
 interface ConfigScreenProps {
   topic: string;
   onTopicChange: (topic: string) => void;
   onBack: () => void;
+  prefetchedCategories?: CategorySuggestion[] | null;
 }
 
 const DIFFICULTY_OPTIONS: {
@@ -42,39 +43,51 @@ const DIFFICULTY_OPTIONS: {
   },
 ];
 
-export function ConfigScreen({ topic, onTopicChange, onBack }: ConfigScreenProps) {
+export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategories }: ConfigScreenProps) {
   const router = useRouter();
+  const [gameType, setGameType] = useState<GameType>("wordsearch");
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [categories, setCategories] = useState<CategorySuggestion[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [categoryError, setCategoryError] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch categories on mount
+  // Use prefetched categories if available, otherwise fetch on mount
   useEffect(() => {
-    async function fetchCategories() {
-      setLoadingCategories(true);
-      try {
-        const res = await fetch("/api/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ topic }),
-        });
-        const data = await res.json();
-        if (data.categories) {
-          setCategories(data.categories);
-          setSelectedCategories(data.categories.map((c: CategorySuggestion) => c.name));
-        }
-      } catch {
-        // If category fetch fails, allow generation without categories
-        setCategories([]);
-      } finally {
-        setLoadingCategories(false);
-      }
+    if (prefetchedCategories && prefetchedCategories.length > 0) {
+      setCategories(prefetchedCategories);
+      setSelectedCategories(prefetchedCategories.map((c) => c.name));
+      setLoadingCategories(false);
+      return;
     }
+
     fetchCategories();
-  }, [topic]);
+  }, [topic, prefetchedCategories]);
+
+  async function fetchCategories() {
+    setLoadingCategories(true);
+    setCategoryError(false);
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic }),
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (data.categories) {
+        setCategories(data.categories);
+        setSelectedCategories(data.categories.map((c: CategorySuggestion) => c.name));
+      }
+    } catch {
+      setCategories([]);
+      setCategoryError(true);
+    } finally {
+      setLoadingCategories(false);
+    }
+  }
 
   const toggleCategory = (name: string) => {
     setSelectedCategories((prev) =>
@@ -88,6 +101,8 @@ export function ConfigScreen({ topic, onTopicChange, onBack }: ConfigScreenProps
     setError(null);
 
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 60000);
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -95,8 +110,12 @@ export function ConfigScreen({ topic, onTopicChange, onBack }: ConfigScreenProps
           topic,
           difficulty,
           focusCategories: selectedCategories,
+          gameType,
         }),
+        credentials: "include",
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
 
       if (!res.ok) {
         const data = await res.json();
@@ -105,15 +124,21 @@ export function ConfigScreen({ topic, onTopicChange, onBack }: ConfigScreenProps
 
       const puzzle = await res.json();
       // Store puzzle in sessionStorage and navigate
+      const storageKey = gameType === "crossword" ? "lexicon-puzzle-crossword" : "lexicon-puzzle";
+      const route = gameType === "crossword" ? "/puzzle/crossword" : "/puzzle/wordsearch";
       try {
-        sessionStorage.setItem("lexicon-puzzle", JSON.stringify(puzzle));
+        sessionStorage.setItem(storageKey, JSON.stringify(puzzle));
       } catch {
         // sessionStorage may be unavailable in private browsing
         throw new Error("Unable to save puzzle data. Try disabling private browsing.");
       }
-      router.push("/puzzle/wordsearch");
+      router.push(route);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      if (err instanceof DOMException && err.name === "AbortError") {
+        setError("Generation timed out. Try a simpler topic or lower difficulty.");
+      } else {
+        setError(err instanceof Error ? err.message : "Something went wrong");
+      }
     } finally {
       setGenerating(false);
     }
@@ -125,17 +150,15 @@ export function ConfigScreen({ topic, onTopicChange, onBack }: ConfigScreenProps
 
   return (
     <main className="min-h-screen flex flex-col items-center px-5 py-8">
-      {/* Back button */}
-      <div className="w-full max-w-md mb-6">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 font-body text-sm"
-          style={{ color: "var(--white-muted)" }}
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </button>
-      </div>
+      {/* Back button — pinned top-left */}
+      <button
+        onClick={onBack}
+        className="fixed top-6 left-6 z-50 flex items-center gap-2 font-body text-sm"
+        style={{ color: "var(--white-muted)" }}
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back
+      </button>
 
       <div className="w-full max-w-md space-y-6">
         {/* Topic (editable) */}
@@ -157,6 +180,47 @@ export function ConfigScreen({ topic, onTopicChange, onBack }: ConfigScreenProps
             Tip: If your topic is very niche, we may broaden it to include
             related terms to build a great puzzle.
           </p>
+        </div>
+
+        {/* Game Type */}
+        <div>
+          <label className="block font-heading text-sm mb-3 text-white/60">
+            Game Type
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => setGameType("wordsearch")}
+              className="p-4 rounded-2xl text-center transition-all"
+              style={{
+                background: gameType === "wordsearch" ? "rgba(255, 215, 0, 0.1)" : "var(--glass-bg)",
+                border: gameType === "wordsearch" ? "2px solid #FFD700" : "1px solid var(--glass-border)",
+              }}
+            >
+              <div className="text-gold-primary flex justify-center mb-2">
+                <Search className="w-6 h-6" />
+              </div>
+              <div className="font-heading text-sm font-bold">Word Search</div>
+              <div className="text-xs mt-1" style={{ color: "var(--white-muted)" }}>
+                Find hidden words in a grid
+              </div>
+            </button>
+            <button
+              onClick={() => setGameType("crossword")}
+              className="p-4 rounded-2xl text-center transition-all"
+              style={{
+                background: gameType === "crossword" ? "rgba(255, 215, 0, 0.1)" : "var(--glass-bg)",
+                border: gameType === "crossword" ? "2px solid #FFD700" : "1px solid var(--glass-border)",
+              }}
+            >
+              <div className="text-gold-primary flex justify-center mb-2">
+                <Grid3X3 className="w-6 h-6" />
+              </div>
+              <div className="font-heading text-sm font-bold">Crossword</div>
+              <div className="text-xs mt-1" style={{ color: "var(--white-muted)" }}>
+                Solve clues in a mini grid
+              </div>
+            </button>
+          </div>
         </div>
 
         {/* Difficulty */}
@@ -244,6 +308,19 @@ export function ConfigScreen({ topic, onTopicChange, onBack }: ConfigScreenProps
                   </button>
                 );
               })}
+            </div>
+          ) : categoryError ? (
+            <div className="flex items-center gap-3">
+              <p className="text-sm" style={{ color: "var(--color-pink-accent)" }}>
+                Couldn't load categories.
+              </p>
+              <button
+                onClick={fetchCategories}
+                className="text-sm font-heading font-bold underline"
+                style={{ color: "var(--color-gold-primary)" }}
+              >
+                Retry
+              </button>
             </div>
           ) : (
             <p className="text-sm" style={{ color: "var(--white-muted)" }}>

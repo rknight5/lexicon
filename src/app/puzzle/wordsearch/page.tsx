@@ -3,12 +3,15 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { PuzzleGrid } from "@/components/wordsearch/PuzzleGrid";
-import { WordBank } from "@/components/wordsearch/WordBank";
+import { WordProgress } from "@/components/wordsearch/WordProgress";
+import { WordList } from "@/components/wordsearch/WordList";
 import { GameBar } from "@/components/shared/GameBar";
 import { PauseMenu } from "@/components/shared/PauseMenu";
 import { GameOverModal } from "@/components/shared/GameOverModal";
 import { CompletionModal } from "@/components/shared/CompletionModal";
 import { useWordSearchGame } from "@/hooks/useWordSearchGame";
+import { calculateScore } from "@/lib/scoring";
+import { saveResult } from "@/lib/storage";
 import type { PuzzleData } from "@/lib/types";
 
 export default function WordSearchPage() {
@@ -40,6 +43,7 @@ function WordSearchGame({ puzzle }: { puzzle: PuzzleData }) {
     setSelection,
     completeSelection,
     cancelSelection,
+    useHint,
   } = useWordSearchGame(puzzle);
 
   const [lastMissTimestamp, setLastMissTimestamp] = useState(0);
@@ -61,6 +65,28 @@ function WordSearchGame({ puzzle }: { puzzle: PuzzleData }) {
     prevFoundCount.current = state.foundWords.length;
   }, [state.foundWords.length]);
 
+  // Save result when game ends
+  const savedRef = useRef(false);
+  useEffect(() => {
+    if ((state.gameStatus === "won" || state.gameStatus === "lost") && !savedRef.current) {
+      savedRef.current = true;
+      void saveResult({
+        id: crypto.randomUUID(),
+        timestamp: Date.now(),
+        topic: puzzle.title,
+        gameType: "wordsearch",
+        difficulty: puzzle.difficulty,
+        score: calculateScore(state.foundWords.length, state.livesRemaining, puzzle.difficulty),
+        wordsFound: state.foundWords.length,
+        wordsTotal: puzzle.words.length,
+        elapsedSeconds: state.elapsedSeconds,
+        livesRemaining: state.livesRemaining,
+        hintsUsed: state.hintsUsed,
+        outcome: state.gameStatus,
+      });
+    }
+  }, [state.gameStatus, state.foundWords.length, state.livesRemaining, state.elapsedSeconds, state.hintsUsed, puzzle]);
+
   // Start game on first grid interaction
   const handleFirstInteraction = () => {
     if (state.gameStatus === "idle") {
@@ -78,24 +104,133 @@ function WordSearchGame({ puzzle }: { puzzle: PuzzleData }) {
     router.push("/");
   };
 
+  const score = calculateScore(
+    state.foundWords.length,
+    state.livesRemaining,
+    puzzle.difficulty
+  );
+
+  const handleRandomHint = () => {
+    const unfound = puzzle.words
+      .map((w) => w.word)
+      .filter((w) => !state.foundWords.includes(w) && !state.hintedWords[w]);
+    if (unfound.length === 0) return;
+    const pick = unfound[Math.floor(Math.random() * unfound.length)];
+    useHint(pick);
+  };
+
+  const canHint = state.gameStatus === "playing" && state.livesRemaining > 1 &&
+    puzzle.words.some((w) => !state.foundWords.includes(w.word) && !state.hintedWords[w.word]);
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen lg:h-screen flex flex-col lg:overflow-hidden">
       <GameBar
         difficulty={puzzle.difficulty}
         livesRemaining={state.livesRemaining}
         elapsedSeconds={state.elapsedSeconds}
+        score={score}
         onPause={pause}
+        onBack={handleNewTopic}
         gameStatus={state.gameStatus}
         lastMissTimestamp={lastMissTimestamp}
+        title={puzzle.title}
       />
 
-      <div className="flex-1 flex flex-col lg:flex-row items-start justify-center gap-6 lg:gap-8 px-5 py-4 max-w-5xl mx-auto w-full">
-        {/* Puzzle title (mobile) */}
-        <div className="w-full lg:hidden text-center mb-2">
-          <h2 className="font-heading text-xl font-bold">{puzzle.title}</h2>
+      {/* Desktop: unified game panel */}
+      <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-4 pb-8">
+        {/* Left spacer — matches hint section width to keep panel centered */}
+        <div className="w-40 flex-shrink-0" />
+
+        <div className="relative">
+          {/* Instructions: positioned to the left of the panel, top-aligned */}
+          <div className="absolute right-full top-0 mr-24 flex flex-col gap-2.5 text-white/25 text-xs font-body whitespace-nowrap">
+            <div>
+              <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold">How to Play</span>
+              <div className="h-px bg-white/10 mt-2" />
+            </div>
+            <p>1. Drag across letters to form words</p>
+            <p>2. Words can go in any direction</p>
+            <p>3. You have 3 lives per puzzle</p>
+          </div>
+
+          <div
+            className="flex rounded-3xl overflow-hidden"
+            style={{
+              background: "rgba(255, 255, 255, 0.05)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              boxShadow: "0 8px 40px rgba(0, 0, 0, 0.3)",
+            }}
+          >
+            {/* Grid */}
+            <div className="p-5 flex items-center">
+              <PuzzleGrid
+                grid={puzzle.grid}
+                gridSize={puzzle.gridSize}
+                selectedCells={state.selectedCells}
+                foundPaths={state.foundPaths}
+                gameStatus={state.gameStatus}
+                onCellPointerDown={(cell) => {
+                  handleFirstInteraction();
+                  startSelection(cell);
+                }}
+                onSelectionChange={setSelection}
+                onPointerUp={completeSelection}
+                onPointerLeave={cancelSelection}
+                lastMissTimestamp={lastMissTimestamp}
+                lastFoundTimestamp={lastFoundTimestamp}
+              />
+            </div>
+
+            {/* Word list to the right of grid */}
+            <div className="py-5 pr-8 pl-3 flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <span className="text-[11px] uppercase tracking-[2px] text-white/35 font-heading font-semibold">Progress</span>
+                <WordProgress
+                  found={state.foundWords.length}
+                  total={puzzle.words.length}
+                />
+              </div>
+              <WordList
+                words={puzzle.words}
+                foundWords={state.foundWords}
+                hintedWords={state.hintedWords}
+              />
+            </div>
+          </div>
         </div>
 
-        <div className="flex-shrink-0 w-full lg:w-auto flex justify-center">
+        {/* Hint section: right of panel, top-aligned, centered in remaining space */}
+        <div className="w-40 flex-shrink-0 flex justify-center self-start pt-4">
+          {state.gameStatus === "playing" && (
+            <div className="flex flex-col items-center gap-3">
+              <span className="text-xs uppercase tracking-[2px] text-white/60 font-heading font-bold">Hint</span>
+              <div className="h-px w-12 bg-white/20" />
+              <button
+                onClick={handleRandomHint}
+                disabled={!canHint}
+                className="w-16 h-16 rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-110 hover:shadow-lg active:scale-95 disabled:opacity-25 disabled:cursor-not-allowed"
+                style={{
+                  background: "rgba(255, 215, 0, 0.15)",
+                  border: "2px solid rgba(255, 215, 0, 0.4)",
+                  boxShadow: "0 0 20px rgba(255, 215, 0, 0.15)",
+                }}
+                title="Get a random hint (costs 1 life)"
+              >
+                <span className="text-2xl pointer-events-none">💡</span>
+              </button>
+              <span className="text-xs text-white/50 font-body whitespace-nowrap">Costs 1 life</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Mobile: stacked layout */}
+      <div className="lg:hidden flex-1 flex flex-col items-center px-3 py-4 gap-4">
+        <WordProgress
+          found={state.foundWords.length}
+          total={puzzle.words.length}
+        />
+        <div>
           <PuzzleGrid
             grid={puzzle.grid}
             gridSize={puzzle.gridSize}
@@ -113,16 +248,25 @@ function WordSearchGame({ puzzle }: { puzzle: PuzzleData }) {
             lastFoundTimestamp={lastFoundTimestamp}
           />
         </div>
-
-        <div className="w-full lg:w-64 lg:flex-shrink-0">
-          <div className="hidden lg:block mb-4">
-            <h2 className="font-heading text-xl font-bold">{puzzle.title}</h2>
-          </div>
-          <WordBank
-            words={puzzle.words}
-            foundWords={state.foundWords}
-          />
-        </div>
+        <WordList
+          words={puzzle.words}
+          foundWords={state.foundWords}
+          hintedWords={state.hintedWords}
+        />
+        {state.gameStatus === "playing" && (
+          <button
+            onClick={handleRandomHint}
+            disabled={!canHint}
+            className="px-5 py-2 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
+            style={{
+              background: "rgba(255, 215, 0, 0.12)",
+              border: "1px solid rgba(255, 215, 0, 0.3)",
+              color: "#FFD700",
+            }}
+          >
+            <span className="mr-1.5">💡</span>Hint
+          </button>
+        )}
       </div>
 
       {/* Modals */}
@@ -146,6 +290,7 @@ function WordSearchGame({ puzzle }: { puzzle: PuzzleData }) {
           wordsTotal={puzzle.words.length}
           elapsedSeconds={state.elapsedSeconds}
           livesRemaining={state.livesRemaining}
+          score={score}
           funFact={puzzle.funFact}
           onPlayAgain={handlePlayAgain}
           onNewTopic={handleNewTopic}
