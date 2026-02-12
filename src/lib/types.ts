@@ -88,13 +88,14 @@ export type WordSearchAction =
   | { type: "TICK_TIMER" }
   | { type: "PAUSE" }
   | { type: "RESUME" }
-  | { type: "START_GAME" };
+  | { type: "START_GAME" }
+  | { type: "RESTORE_GAME"; savedState: WordSearchGameState };
 
 // ============================================
 // Crossword specific types
 // ============================================
 
-export type GameType = "wordsearch" | "crossword";
+export type GameType = "wordsearch" | "crossword" | "anagram";
 
 export interface CrosswordCell {
   letter: string | null; // null = black square
@@ -147,7 +148,52 @@ export type CrosswordAction =
   | { type: "TICK_TIMER" }
   | { type: "PAUSE" }
   | { type: "RESUME" }
-  | { type: "START_GAME" };
+  | { type: "START_GAME" }
+  | { type: "RESTORE_GAME"; savedState: CrosswordGameState };
+
+// ============================================
+// Anagram specific types
+// ============================================
+
+export interface AnagramWord {
+  word: string;
+  clue: string;
+  category: string;
+  difficulty: 1 | 2 | 3;
+  scrambled: string;
+}
+
+export interface AnagramPuzzleData {
+  title: string;
+  words: AnagramWord[];
+  funFact: string;
+  difficulty: Difficulty;
+}
+
+export interface AnagramGameState {
+  puzzle: AnagramPuzzleData;
+  currentWordIndex: number;
+  solvedWords: string[];
+  selectedIndices: number[];
+  livesRemaining: number;
+  hintsUsed: number;
+  revealedPositions: Record<number, number[]>;
+  elapsedSeconds: number;
+  timerRunning: boolean;
+  gameStatus: "idle" | "playing" | "paused" | "won" | "lost";
+}
+
+export type AnagramAction =
+  | { type: "START_GAME" }
+  | { type: "SELECT_LETTER"; index: number }
+  | { type: "DESELECT_LETTER"; index: number }
+  | { type: "SUBMIT_WORD" }
+  | { type: "SKIP_WORD" }
+  | { type: "USE_HINT" }
+  | { type: "TICK_TIMER" }
+  | { type: "PAUSE" }
+  | { type: "RESUME" }
+  | { type: "RESTORE_GAME"; savedState: AnagramGameState };
 
 // ============================================
 // Storage types
@@ -255,5 +301,38 @@ export const CROSSWORD_DIFFICULTY_CONFIG = {
     lives: 3,
     label: "Hard",
     description: "13×13 grid, obscure and indirect clues",
+  },
+} as const;
+
+export const ANAGRAM_DIFFICULTY_CONFIG = {
+  easy: {
+    minWords: 8,
+    maxWords: 10,
+    minWordLength: 4,
+    maxWordLength: 6,
+    showClues: true,
+    lives: 3,
+    label: "Easy",
+    description: "8-10 short words, clues always shown",
+  },
+  medium: {
+    minWords: 12,
+    maxWords: 14,
+    minWordLength: 5,
+    maxWordLength: 8,
+    showClues: false,
+    lives: 3,
+    label: "Medium",
+    description: "12-14 words, clues cost a hint",
+  },
+  hard: {
+    minWords: 14,
+    maxWords: 16,
+    minWordLength: 6,
+    maxWordLength: 10,
+    showClues: false,
+    lives: 3,
+    label: "Hard",
+    description: "14-16 long words, no clues",
   },
 } as const;
