@@ -1,4 +1,4 @@
-import { Trophy, Star } from "lucide-react";
+import { Trophy, Star, Bookmark } from "lucide-react";
 
 interface CompletionModalProps {
   wordsFound: number;
@@ -9,6 +9,8 @@ interface CompletionModalProps {
   funFact: string;
   onPlayAgain: () => void;
   onNewTopic: () => void;
+  onSaveToLibrary?: () => void;
+  isSavedToLibrary?: boolean;
 }
 
 function formatTime(seconds: number): string {
@@ -26,6 +28,8 @@ export function CompletionModal({
   funFact,
   onPlayAgain,
   onNewTopic,
+  onSaveToLibrary,
+  isSavedToLibrary,
 }: CompletionModalProps) {
   return (
     <div
@@ -78,6 +82,19 @@ export function CompletionModal({
             {funFact}
           </p>
         </div>
+
+        {onSaveToLibrary && (
+          <button
+            onClick={onSaveToLibrary}
+            disabled={isSavedToLibrary}
+            className={`flex items-center justify-center gap-2 w-full py-2 rounded-pill font-body text-sm transition-colors ${
+              isSavedToLibrary ? "text-gold-primary" : "text-white/50 hover:text-white/70"
+            }`}
+          >
+            <Bookmark className="w-4 h-4" fill={isSavedToLibrary ? "currentColor" : "none"} />
+            {isSavedToLibrary ? "Saved to Library" : "Save to Library"}
+          </button>
+        )}
 
         <div className="space-y-3 pt-2">
           <button

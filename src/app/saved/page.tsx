@@ -1,0 +1,164 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Search, Grid3X3, Shuffle, Shield, Flame, Skull, Trash2 } from "lucide-react";
+import { getSavedPuzzles, loadSavedPuzzle, deleteSavedPuzzle, type SavedPuzzleSummary } from "@/lib/storage";
+
+const GAME_TYPE_ICON: Record<string, React.ReactNode> = {
+  wordsearch: <Search className="w-5 h-5 text-white/40" />,
+  crossword: <Grid3X3 className="w-5 h-5 text-white/40" />,
+  anagram: <Shuffle className="w-5 h-5 text-white/40" />,
+};
+
+const DIFFICULTY_ICON: Record<string, React.ReactNode> = {
+  easy: <Shield className="w-3 h-3 text-green-accent" />,
+  medium: <Flame className="w-3 h-3 text-gold-primary" />,
+  hard: <Skull className="w-3 h-3 text-pink-accent" />,
+};
+
+export default function SavedPage() {
+  const router = useRouter();
+  const [puzzles, setPuzzles] = useState<SavedPuzzleSummary[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingPuzzleId, setLoadingPuzzleId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    getSavedPuzzles().then((p) => {
+      setPuzzles(p);
+      setLoading(false);
+    });
+  }, []);
+
+  const handleLoad = async (puzzle: SavedPuzzleSummary) => {
+    setLoadingPuzzleId(puzzle.id);
+    const loaded = await loadSavedPuzzle(puzzle.id);
+    if (!loaded) {
+      setLoadingPuzzleId(null);
+      return;
+    }
+
+    const storageKey =
+      loaded.gameType === "crossword"
+        ? "lexicon-puzzle-crossword"
+        : loaded.gameType === "anagram"
+          ? "lexicon-puzzle-anagram"
+          : "lexicon-puzzle";
+
+    const route =
+      loaded.gameType === "crossword"
+        ? "/puzzle/crossword"
+        : loaded.gameType === "anagram"
+          ? "/puzzle/anagram"
+          : "/puzzle/wordsearch";
+
+    try {
+      sessionStorage.removeItem("lexicon-game-state");
+      sessionStorage.setItem(storageKey, JSON.stringify(loaded.puzzleData));
+    } catch {
+      setLoadingPuzzleId(null);
+      return;
+    }
+    router.push(route);
+  };
+
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (deletingId === id) {
+      const ok = await deleteSavedPuzzle(id);
+      if (ok) {
+        setPuzzles((prev) => prev.filter((p) => p.id !== id));
+      }
+      setDeletingId(null);
+    } else {
+      setDeletingId(id);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      {/* Top bar */}
+      <div
+        className="h-14 px-5 flex items-center border-b relative"
+        style={{
+          background: "#1A0A2E",
+          borderColor: "rgba(255, 255, 255, 0.08)",
+        }}
+      >
+        <button
+          onClick={() => router.push("/")}
+          className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="font-body text-sm">Back</span>
+        </button>
+        <span className="absolute left-1/2 -translate-x-1/2 font-heading text-base font-bold">
+          Saved Puzzles
+        </span>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 flex flex-col items-center px-5 py-6" onClick={() => setDeletingId(null)}>
+        <div className="w-full max-w-md">
+          {loading ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-20 rounded-2xl animate-pulse" style={{ background: "var(--glass-bg)" }} />
+              ))}
+            </div>
+          ) : puzzles.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-white/40 font-body text-sm">
+                No saved puzzles yet.
+              </p>
+              <p className="text-white/25 font-body text-xs mt-2">
+                Bookmark puzzles during gameplay to add them here.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {puzzles.map((puzzle) => (
+                <button
+                  key={puzzle.id}
+                  onClick={() => handleLoad(puzzle)}
+                  disabled={loadingPuzzleId === puzzle.id}
+                  className="w-full p-4 rounded-2xl text-left transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-60 flex items-center gap-4"
+                  style={{
+                    background: "var(--glass-bg)",
+                    border: "1px solid var(--glass-border)",
+                  }}
+                >
+                  <div className="flex-shrink-0">
+                    {GAME_TYPE_ICON[puzzle.gameType]}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-heading text-sm font-bold text-white truncate">
+                      {puzzle.title}
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      {DIFFICULTY_ICON[puzzle.difficulty]}
+                      <span className="text-[11px] text-white/30 font-body">
+                        {puzzle.gameType}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={(e) => handleDelete(e, puzzle.id)}
+                    className="flex-shrink-0 p-1.5 -m-1.5 transition-colors relative z-10"
+                    style={{
+                      color: deletingId === puzzle.id ? "var(--color-pink-accent)" : "var(--white-muted)",
+                    }}
+                    title={deletingId === puzzle.id ? "Click again to confirm" : "Delete puzzle"}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

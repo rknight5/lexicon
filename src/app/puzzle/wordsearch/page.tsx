@@ -344,6 +344,8 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
           elapsedSeconds={state.elapsedSeconds}
           onTryAgain={handlePlayAgain}
           onNewTopic={handleNewTopic}
+          onSaveToLibrary={handleSave}
+          isSavedToLibrary={isSaved}
         />
       )}
 
@@ -357,6 +359,8 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
           funFact={puzzle.funFact}
           onPlayAgain={handlePlayAgain}
           onNewTopic={handleNewTopic}
+          onSaveToLibrary={handleSave}
+          isSavedToLibrary={isSaved}
         />
       )}
 

@@ -572,6 +572,8 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
           elapsedSeconds={state.elapsedSeconds}
           onTryAgain={handlePlayAgain}
           onNewTopic={handleNewTopic}
+          onSaveToLibrary={handleSave}
+          isSavedToLibrary={isSaved}
         />
       )}
 
@@ -585,6 +587,8 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
           funFact={puzzle.funFact}
           onPlayAgain={handlePlayAgain}
           onNewTopic={handleNewTopic}
+          onSaveToLibrary={handleSave}
+          isSavedToLibrary={isSaved}
         />
       )}
 

@@ -2,10 +2,11 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, LogOut, BarChart2, Search, Grid3X3, Shield, Flame, Skull, Shuffle, Trash2 } from "lucide-react";
+import { Sparkles, LogOut, BarChart2, Bookmark } from "lucide-react";
 import { ConfigScreen } from "@/components/shared/ConfigScreen";
 import { StatsModal } from "@/components/shared/StatsModal";
-import { getSavedPuzzles, loadSavedPuzzle, deleteSavedPuzzle, type SavedPuzzleSummary } from "@/lib/storage";
+import { ResumeCard } from "@/components/shared/ResumeCard";
+import { getAutoSave, deleteAutoSave, getSavedPuzzles, type AutoSaveSummary } from "@/lib/storage";
 import type { CategorySuggestion } from "@/lib/types";
 
 const EXAMPLE_TOPICS = [
@@ -17,26 +18,6 @@ const EXAMPLE_TOPICS = [
   "Space Exploration",
 ];
 
-const DIFFICULTY_ICON: Record<string, React.ReactNode> = {
-  easy: <Shield className="w-3 h-3 text-green-accent" />,
-  medium: <Flame className="w-3 h-3 text-gold-primary" />,
-  hard: <Skull className="w-3 h-3 text-pink-accent" />,
-};
-
-function timeAgo(dateStr: string): string {
-  const now = Date.now();
-  const then = new Date(dateStr).getTime();
-  const diff = now - then;
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7) return `${days}d ago`;
-  return `${Math.floor(days / 7)}w ago`;
-}
-
 export default function HomePage() {
   const router = useRouter();
   const [topic, setTopic] = useState("");
@@ -46,18 +27,12 @@ export default function HomePage() {
   const prefetchTopicRef = useRef("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [activeTab, setActiveTab] = useState<"create" | "puzzles">("create");
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  const [savedPuzzles, setSavedPuzzles] = useState<SavedPuzzleSummary[]>([]);
-  const [loadingSaved, setLoadingSaved] = useState(true);
-  const [loadingPuzzleId, setLoadingPuzzleId] = useState<string | null>(null);
+  const [autoSave, setAutoSave] = useState<AutoSaveSummary | null>(null);
+  const [savedCount, setSavedCount] = useState(0);
 
   useEffect(() => {
-    getSavedPuzzles().then((puzzles) => {
-      setSavedPuzzles(puzzles);
-      setLoadingSaved(false);
-    });
+    getAutoSave().then(setAutoSave);
+    getSavedPuzzles().then((p) => setSavedCount(p.length));
   }, []);
 
   // Prefetch categories as the user types (debounced 600ms)
@@ -104,54 +79,31 @@ export default function HomePage() {
     setShowConfig(true);
   };
 
-  const handleLoadPuzzle = async (puzzle: SavedPuzzleSummary) => {
-    setLoadingPuzzleId(puzzle.id);
-    const loaded = await loadSavedPuzzle(puzzle.id);
-    if (!loaded) {
-      setLoadingPuzzleId(null);
-      return;
-    }
+  const handleResume = () => {
+    if (!autoSave) return;
 
-    const storageKey = loaded.gameType === "crossword"
-      ? "lexicon-puzzle-crossword"
-      : loaded.gameType === "anagram"
-        ? "lexicon-puzzle-anagram"
-        : "lexicon-puzzle";
+    const storageKey =
+      autoSave.gameType === "crossword"
+        ? "lexicon-puzzle-crossword"
+        : autoSave.gameType === "anagram"
+          ? "lexicon-puzzle-anagram"
+          : "lexicon-puzzle";
 
-    const route = loaded.gameType === "crossword"
-      ? "/puzzle/crossword"
-      : loaded.gameType === "anagram"
-        ? "/puzzle/anagram"
-        : "/puzzle/wordsearch";
+    const route =
+      autoSave.gameType === "crossword"
+        ? "/puzzle/crossword"
+        : autoSave.gameType === "anagram"
+          ? "/puzzle/anagram"
+          : "/puzzle/wordsearch";
 
-    try {
-      // Clear stale state from any previous puzzle load
-      sessionStorage.removeItem("lexicon-game-state");
-
-      sessionStorage.setItem(storageKey, JSON.stringify(loaded.puzzleData));
-      sessionStorage.setItem("lexicon-saved-puzzle-id", puzzle.id);
-
-      if (loaded.gameState) {
-        sessionStorage.setItem("lexicon-game-state", JSON.stringify(loaded.gameState));
-      }
-    } catch {
-      setLoadingPuzzleId(null);
-      return;
-    }
+    sessionStorage.setItem(storageKey, JSON.stringify(autoSave.puzzleData));
+    sessionStorage.setItem("lexicon-game-state", JSON.stringify(autoSave.gameState));
     router.push(route);
   };
 
-  const handleDeletePuzzle = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    if (deletingId === id) {
-      const ok = await deleteSavedPuzzle(id);
-      if (ok) {
-        setSavedPuzzles((prev) => prev.filter((p) => p.id !== id));
-      }
-      setDeletingId(null);
-    } else {
-      setDeletingId(id);
-    }
+  const handleDismissResume = async () => {
+    await deleteAutoSave();
+    setAutoSave(null);
   };
 
   if (showConfig) {
@@ -175,6 +127,16 @@ export default function HomePage() {
     <main className="min-h-screen flex flex-col items-center justify-center px-5 pb-20 relative" style={{ paddingTop: "8vh" }}>
       {/* Top-right buttons */}
       <div className="absolute top-6 right-6 flex items-center gap-3">
+        <button
+          onClick={() => router.push("/saved")}
+          className="relative text-white/30 hover:text-white/60 transition-colors p-1.5 -m-1.5"
+          title="Saved puzzles"
+        >
+          <Bookmark className="w-4 h-4" />
+          {savedCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-gold-primary" />
+          )}
+        </button>
         <button
           onClick={() => setShowStats(true)}
           className="text-white/30 hover:text-white/60 transition-colors p-1.5 -m-1.5"
@@ -206,168 +168,74 @@ export default function HomePage() {
         Turn your interests into word puzzles
       </p>
 
-      {/* Tabs */}
-      <div className="flex gap-1 p-1 rounded-pill mb-8 w-full max-w-md"
-           style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}>
-        <button
-          onClick={() => setActiveTab("create")}
-          className="flex-1 py-2 rounded-pill font-heading text-sm font-bold transition-all"
+      {/* Resume Card */}
+      {autoSave && (
+        <ResumeCard
+          autoSave={autoSave}
+          onResume={handleResume}
+          onDismiss={handleDismissResume}
+        />
+      )}
+
+      {/* Topic Input */}
+      <div className="w-full max-w-md mb-6">
+        <input
+          type="text"
+          value={topic}
+          onChange={(e) => handleTopicChange(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+          placeholder="What are you into? Try '90s grunge' or 'classic jazz piano'"
+          className="w-full h-[52px] px-5 rounded-2xl text-base font-body text-white placeholder:text-white/40 outline-none transition-all"
           style={{
-            background: activeTab === "create" ? "rgba(255, 215, 0, 0.15)" : "transparent",
-            color: activeTab === "create" ? "#FFD700" : "var(--white-muted)",
+            background: "var(--glass-bg)",
+            border: "2px solid var(--glass-border)",
           }}
-        >
-          Create
-        </button>
-        <button
-          onClick={() => setActiveTab("puzzles")}
-          className="flex-1 py-2 rounded-pill font-heading text-sm font-bold transition-all"
-          style={{
-            background: activeTab === "puzzles" ? "rgba(255, 215, 0, 0.15)" : "transparent",
-            color: activeTab === "puzzles" ? "#FFD700" : "var(--white-muted)",
-          }}
-        >
-          My Puzzles
-        </button>
+          autoFocus
+        />
       </div>
 
-      {activeTab === "create" && (
-        <>
-          {/* Topic Input */}
-          <div className="w-full max-w-md mb-6">
-            <input
-              type="text"
-              value={topic}
-              onChange={(e) => handleTopicChange(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-              placeholder="What are you into? Try '90s grunge' or 'classic jazz piano'"
-              className="w-full h-[52px] px-5 rounded-2xl text-base font-body text-white placeholder:text-white/40 outline-none transition-all"
-              style={{
-                background: "var(--glass-bg)",
-                border: "2px solid var(--glass-border)",
-              }}
-              autoFocus
-            />
-          </div>
+      {/* Generate Button */}
+      <button
+        onClick={handleSubmit}
+        disabled={!topic.trim()}
+        className="flex items-center gap-2 h-12 px-8 rounded-pill font-heading text-sm font-bold uppercase tracking-wider text-purple-deep transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:-translate-y-0.5 active:enabled:scale-[0.97]"
+        style={{
+          background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
+          boxShadow: topic.trim()
+            ? "0 4px 15px rgba(255, 215, 0, 0.4)"
+            : "none",
+        }}
+      >
+        <Sparkles className="w-5 h-5" />
+        Generate Puzzle
+      </button>
 
-          {/* Generate Button */}
-          <button
-            onClick={handleSubmit}
-            disabled={!topic.trim()}
-            className="flex items-center gap-2 h-12 px-8 rounded-pill font-heading text-sm font-bold uppercase tracking-wider text-purple-deep transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:-translate-y-0.5 active:enabled:scale-[0.97]"
-            style={{
-              background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
-              boxShadow: topic.trim()
-                ? "0 4px 15px rgba(255, 215, 0, 0.4)"
-                : "none",
-            }}
-          >
-            <Sparkles className="w-5 h-5" />
-            Generate Puzzle
-          </button>
-
-          {/* Quick Starts */}
-          <div className="flex flex-col items-center mt-10 gap-4 w-full max-w-md">
-            <div className="flex items-center gap-3 w-full">
-              <div className="h-px flex-1 bg-white/10" />
-              <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold whitespace-nowrap">Quick Starts</span>
-              <div className="h-px flex-1 bg-white/10" />
-            </div>
-            <div className="flex flex-wrap justify-center gap-2.5">
-              {EXAMPLE_TOPICS.map((example) => (
-                <button
-                  key={example}
-                  onClick={() => {
-                    handleTopicChange(example);
-                  }}
-                  className="px-4 py-2 rounded-pill text-sm font-body font-semibold transition-all hover:border-gold-primary"
-                  style={{
-                    background: "rgba(255, 255, 255, 0.1)",
-                    border: "1px solid rgba(255, 255, 255, 0.2)",
-                    color: "var(--white-muted)",
-                  }}
-                >
-                  {example}
-                </button>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-
-      {activeTab === "puzzles" && (
-        <div className="w-full max-w-md" onClick={() => setDeletingId(null)}>
-          {loadingSaved ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-20 rounded-2xl animate-pulse"
-                     style={{ background: "var(--glass-bg)" }} />
-              ))}
-            </div>
-          ) : savedPuzzles.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-white/40 font-body mb-4">No saved puzzles yet</p>
-              <button
-                onClick={() => setActiveTab("create")}
-                className="font-heading text-sm font-bold"
-                style={{ color: "#FFD700" }}
-              >
-                Create your first puzzle
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {savedPuzzles.map((puzzle) => (
-                <button
-                  key={puzzle.id}
-                  onClick={() => handleLoadPuzzle(puzzle)}
-                  disabled={loadingPuzzleId === puzzle.id}
-                  className="w-full p-4 rounded-2xl text-left transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-60 flex items-center gap-4"
-                  style={{
-                    background: "var(--glass-bg)",
-                    border: "1px solid var(--glass-border)",
-                  }}
-                >
-                  <div className="flex-shrink-0">
-                    {puzzle.gameType === "crossword" ? (
-                      <Grid3X3 className="w-5 h-5 text-white/40" />
-                    ) : puzzle.gameType === "anagram" ? (
-                      <Shuffle className="w-5 h-5 text-white/40" />
-                    ) : (
-                      <Search className="w-5 h-5 text-white/40" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-heading text-sm font-bold text-white truncate">
-                      {puzzle.title}
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      {DIFFICULTY_ICON[puzzle.difficulty]}
-                      <span className="text-[11px] text-white/30 font-body">
-                        {puzzle.gameType} · {timeAgo(puzzle.createdAt)}
-                      </span>
-                    </div>
-                  </div>
-                  {puzzle.hasGameState && (
-                    <span className="text-[10px] uppercase tracking-wider font-heading font-bold px-2 py-1 rounded-pill flex-shrink-0"
-                          style={{ background: "rgba(255, 215, 0, 0.15)", color: "#FFD700" }}>
-                      In Progress
-                    </span>
-                  )}
-                  <button
-                    onClick={(e) => handleDeletePuzzle(e, puzzle.id)}
-                    className="flex-shrink-0 p-1.5 -m-1.5 transition-colors"
-                    style={{ color: deletingId === puzzle.id ? "var(--color-pink-accent)" : "var(--white-muted)" }}
-                    title={deletingId === puzzle.id ? "Click again to confirm" : "Delete puzzle"}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </button>
-              ))}
-            </div>
-          )}
+      {/* Quick Starts */}
+      <div className="flex flex-col items-center mt-10 gap-4 w-full max-w-md">
+        <div className="flex items-center gap-3 w-full">
+          <div className="h-px flex-1 bg-white/10" />
+          <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold whitespace-nowrap">Quick Starts</span>
+          <div className="h-px flex-1 bg-white/10" />
         </div>
-      )}
+        <div className="flex flex-wrap justify-center gap-2.5">
+          {EXAMPLE_TOPICS.map((example) => (
+            <button
+              key={example}
+              onClick={() => {
+                handleTopicChange(example);
+              }}
+              className="px-4 py-2 rounded-pill text-sm font-body font-semibold transition-all hover:border-gold-primary"
+              style={{
+                background: "rgba(255, 255, 255, 0.1)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                color: "var(--white-muted)",
+              }}
+            >
+              {example}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {showStats && <StatsModal onClose={() => setShowStats(false)} />}
     </main>

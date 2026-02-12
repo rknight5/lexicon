@@ -298,6 +298,8 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
           elapsedSeconds={state.elapsedSeconds}
           onTryAgain={handlePlayAgain}
           onNewTopic={handleNewTopic}
+          onSaveToLibrary={handleSave}
+          isSavedToLibrary={isSaved}
         />
       )}
 
@@ -311,6 +313,8 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
           funFact={puzzle.funFact}
           onPlayAgain={handlePlayAgain}
           onNewTopic={handleNewTopic}
+          onSaveToLibrary={handleSave}
+          isSavedToLibrary={isSaved}
         />
       )}
 
