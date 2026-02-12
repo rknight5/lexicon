@@ -12,6 +12,7 @@ interface GameBarProps {
   gameStatus: string;
   title?: string;
   onTitleChange?: (newTitle: string) => void;
+  onStats?: () => void;
 }
 
 const DIFFICULTY_BADGE: Record<
@@ -42,6 +43,7 @@ export function GameBar({
   gameStatus,
   title,
   onTitleChange,
+  onStats,
 }: GameBarProps) {
   const router = useRouter();
   const badge = DIFFICULTY_BADGE[difficulty];
@@ -141,6 +143,7 @@ export function GameBar({
       {/* Right: stats + help + settings + logout */}
       <div className="ml-auto flex items-center gap-5">
         <button
+          onClick={onStats}
           className="text-white/30 hover:text-white/60 transition-colors p-1.5 -m-1.5"
           title="Stats"
         >

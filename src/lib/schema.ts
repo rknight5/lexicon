@@ -23,3 +23,14 @@ export const puzzleResults = pgTable("puzzle_results", {
   outcome: text("outcome").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const savedPuzzles = pgTable("saved_puzzles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  username: text("username").notNull(),
+  gameType: text("game_type").notNull(),
+  title: text("title").notNull(),
+  topic: text("topic").notNull(),
+  difficulty: text("difficulty").notNull(),
+  puzzleData: text("puzzle_data").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});

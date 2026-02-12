@@ -1,4 +1,4 @@
-import type { PuzzleResult, GameType, Difficulty } from "./types";
+import type { PuzzleResult, PuzzleData, CrosswordPuzzleData, GameType, Difficulty } from "./types";
 
 export async function saveResult(result: PuzzleResult): Promise<void> {
   try {
@@ -48,5 +48,48 @@ export async function getStats(): Promise<PlayerStats> {
     return await res.json();
   } catch {
     return empty;
+  }
+}
+
+// --- Saved Puzzles ---
+
+export interface SavedPuzzleSummary {
+  id: string;
+  gameType: GameType;
+  title: string;
+  topic: string;
+  difficulty: Difficulty;
+  createdAt: string;
+}
+
+export async function getSavedPuzzles(): Promise<SavedPuzzleSummary[]> {
+  try {
+    const res = await fetch("/api/puzzles", { credentials: "include" });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
+
+export async function loadSavedPuzzle(
+  id: string
+): Promise<{ gameType: GameType; puzzleData: PuzzleData | CrosswordPuzzleData } | null> {
+  try {
+    const res = await fetch(`/api/puzzles/${id}`, { credentials: "include" });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return { gameType: data.gameType, puzzleData: data.puzzleData };
+  } catch {
+    return null;
+  }
+}
+
+export async function deleteSavedPuzzle(id: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/puzzles/${id}`, { method: "DELETE", credentials: "include" });
+    return res.ok;
+  } catch {
+    return false;
   }
 }

@@ -123,6 +123,25 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
       }
 
       const puzzle = await res.json();
+
+      // Save puzzle to DB (fire-and-forget)
+      try {
+        void fetch("/api/puzzles", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            gameType,
+            title: puzzle.title,
+            topic,
+            difficulty,
+            puzzleData: puzzle,
+          }),
+          credentials: "include",
+        });
+      } catch {
+        // Non-blocking — game still works via sessionStorage
+      }
+
       // Store puzzle in sessionStorage and navigate
       const storageKey = gameType === "crossword" ? "lexicon-puzzle-crossword" : "lexicon-puzzle";
       const route = gameType === "crossword" ? "/puzzle/crossword" : "/puzzle/wordsearch";

@@ -10,6 +10,7 @@ import { GameStatsBar } from "@/components/shared/GameStatsBar";
 import { PauseMenu } from "@/components/shared/PauseMenu";
 import { GameOverModal } from "@/components/shared/GameOverModal";
 import { CompletionModal } from "@/components/shared/CompletionModal";
+import { StatsModal } from "@/components/shared/StatsModal";
 import { useWordSearchGame } from "@/hooks/useWordSearchGame";
 import { calculateScore } from "@/lib/scoring";
 import { saveResult } from "@/lib/storage";
@@ -36,6 +37,7 @@ export default function WordSearchPage() {
 function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
   const router = useRouter();
   const [puzzleTitle, setPuzzleTitle] = useState(initialPuzzle.title);
+  const [showStats, setShowStats] = useState(false);
   const puzzle = initialPuzzle;
   const {
     state,
@@ -135,6 +137,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
         gameStatus={state.gameStatus}
         title={puzzleTitle}
         onTitleChange={setPuzzleTitle}
+        onStats={() => setShowStats(true)}
       />
 
       {/* Desktop: unified game panel */}
@@ -312,6 +315,8 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
           onNewTopic={handleNewTopic}
         />
       )}
+
+      {showStats && <StatsModal onClose={() => setShowStats(false)} />}
     </div>
   );
 }

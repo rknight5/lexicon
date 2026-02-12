@@ -9,6 +9,7 @@ import { GameStatsBar } from "@/components/shared/GameStatsBar";
 import { PauseMenu } from "@/components/shared/PauseMenu";
 import { GameOverModal } from "@/components/shared/GameOverModal";
 import { CompletionModal } from "@/components/shared/CompletionModal";
+import { StatsModal } from "@/components/shared/StatsModal";
 import { useCrosswordGame } from "@/hooks/useCrosswordGame";
 import { calculateScore } from "@/lib/scoring";
 import { saveResult } from "@/lib/storage";
@@ -35,6 +36,7 @@ export default function CrosswordPage() {
 function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData }) {
   const router = useRouter();
   const [puzzleTitle, setPuzzleTitle] = useState(initialPuzzle.title);
+  const [showStats, setShowStats] = useState(false);
   const puzzle = initialPuzzle;
   const {
     state,
@@ -114,6 +116,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
         gameStatus={state.gameStatus}
         title={puzzleTitle}
         onTitleChange={setPuzzleTitle}
+        onStats={() => setShowStats(true)}
       />
 
       {/* Desktop: unified game panel */}
@@ -263,6 +266,8 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
           onNewTopic={handleNewTopic}
         />
       )}
+
+      {showStats && <StatsModal onClose={() => setShowStats(false)} />}
     </div>
   );
 }
