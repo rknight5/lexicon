@@ -56,7 +56,7 @@ export function ResumeCard({ autoSave, onResume, onSave, onDismiss }: ResumeCard
 
   return (
     <div
-      className="w-full max-w-xl mb-6 p-4 rounded-2xl flex items-center gap-4"
+      className="w-full max-w-xl p-4 rounded-2xl flex items-center gap-4"
       style={{
         background: "var(--glass-bg)",
         border: "1px solid var(--glass-border)",

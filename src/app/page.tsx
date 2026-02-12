@@ -224,7 +224,7 @@ export default function HomePage() {
 
       {/* Resume Card (replaces Quick Starts when auto-save exists) */}
       {autoSave ? (
-        <div className="flex flex-col items-center mt-10 gap-4 w-full max-w-xl">
+        <div className="flex flex-col items-center mt-16 gap-4 w-full max-w-xl">
           <div className="flex items-center gap-3 w-full">
             <div className="h-px flex-1 bg-white/10" />
             <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold whitespace-nowrap">Resume Game</span>
