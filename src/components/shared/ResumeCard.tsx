@@ -56,32 +56,30 @@ export function ResumeCard({ autoSave, onResume, onSave, onDismiss }: ResumeCard
 
   return (
     <div
-      className="w-full max-w-md mb-6 p-4 rounded-2xl space-y-3"
+      className="w-full max-w-xl mb-6 p-4 rounded-2xl flex items-center gap-4"
       style={{
         background: "var(--glass-bg)",
         border: "1px solid var(--glass-border)",
         borderLeft: "3px solid #FFD700",
       }}
     >
-      <div className="flex items-center gap-4">
-        <div className="flex-shrink-0">
-          {GAME_TYPE_ICON[autoSave.gameType]}
+      <div className="flex-shrink-0">
+        {GAME_TYPE_ICON[autoSave.gameType]}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="font-heading text-sm font-bold text-white truncate">
+          {autoSave.title}
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="font-heading text-sm font-bold text-white truncate">
-            {autoSave.title}
-          </div>
-          <div className="flex items-center gap-2 mt-1">
-            {DIFFICULTY_ICON[autoSave.difficulty]}
-            <span className="text-[11px] text-white/30 font-body">{line}</span>
-            <span className="text-[11px] text-white/30 font-body flex items-center gap-0.5">
-              <Heart className="w-3 h-3 text-pink-accent" fill="currentColor" />
-              {livesRemaining}
-            </span>
-          </div>
+        <div className="flex items-center gap-2 mt-1">
+          {DIFFICULTY_ICON[autoSave.difficulty]}
+          <span className="text-[11px] text-white/30 font-body">{line}</span>
+          <span className="text-[11px] text-white/30 font-body flex items-center gap-0.5">
+            <Heart className="w-3 h-3 text-pink-accent" fill="currentColor" />
+            {livesRemaining}
+          </span>
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-shrink-0">
         <button
           onClick={onResume}
           className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-heading font-bold px-3 py-1.5 rounded-pill transition-all hover:brightness-125 active:scale-95"
@@ -95,7 +93,7 @@ export function ResumeCard({ autoSave, onResume, onSave, onDismiss }: ResumeCard
           onClick={handleSave}
           disabled={saved}
           className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-heading font-bold px-3 py-1.5 rounded-pill transition-all hover:brightness-125 active:scale-95 disabled:opacity-50"
-          style={{ background: "rgba(0, 229, 255, 0.12)", color: saved ? "#00E5FF" : "#00E5FF" }}
+          style={{ background: "rgba(0, 229, 255, 0.12)", color: "#00E5FF" }}
           title={saved ? "Saved to library" : "Save to library"}
         >
           <Bookmark className="w-3 h-3" fill={saved ? "currentColor" : "none"} />
