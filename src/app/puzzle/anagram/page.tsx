@@ -141,11 +141,23 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
     router.push("/");
   };
 
+  const [isSaving, setIsSaving] = useState(false);
+
   const handleSave = async () => {
-    const ok = await savePuzzle("anagram", puzzle.title, puzzle.difficulty, puzzle);
-    if (ok) {
-      setIsSaved(true);
-      setToastMessage("Saved to library");
+    if (isSaving) return;
+    setIsSaving(true);
+    try {
+      const ok = await savePuzzle("anagram", puzzle.title, puzzle.difficulty, puzzle);
+      if (ok) {
+        setIsSaved(true);
+        setToastMessage("Saved to library");
+      } else {
+        setToastMessage("Couldn't save — try again");
+      }
+    } catch {
+      setToastMessage("Couldn't save — try again");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -206,7 +218,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
         onTitleChange={setPuzzleTitle}
         onStats={() => setShowStats(true)}
         onSave={handleSave}
-        isSaved={isSaved}
+        isSaved={isSaved || isSaving}
       />
 
       {/* Desktop layout */}

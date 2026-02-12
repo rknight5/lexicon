@@ -13,8 +13,8 @@ Next.js 16 (App Router) + React 19 + TypeScript | Tailwind CSS 4 | PostgreSQL + 
 - Game state via `useReducer` action machines in `useWordSearchGame.ts` / `useCrosswordGame.ts` / `useAnagramGame.ts`
 - Status lifecycle: `idle` → `playing` → `won`/`lost` (with `paused` side state). Hints cost 1 life (disabled at 1 remaining)
 - Grid generators: `src/lib/games/wordsearch/gridGenerator.ts`, `src/lib/games/crossword/gridGenerator.ts`. Scoring: `src/lib/scoring.ts`
-- sessionStorage keys per game type: `lexicon-puzzle`, `lexicon-puzzle-crossword`, `lexicon-puzzle-anagram`, plus shared `lexicon-saved-puzzle-id`/`lexicon-game-state` — clean up ALL on navigation
-- Crossword `hintedCells` is a Set — serialize via `Array.from()` for JSON, reconstruct with `new Set()` on restore
+- sessionStorage keys: `lexicon-puzzle` / `lexicon-puzzle-crossword` / `lexicon-puzzle-anagram` + `lexicon-game-state` (for resume). Auto-save via `useAutoSave` hook (30s periodic, pause, visibilitychange, beforeunload with keepalive fetch). One slot per user, upsert on username
+- Crossword `hintedCells` is a Set — serialize via `Array.from()` for JSON, reconstruct with `new Set()` on restore. Auto-save `getGameState` must handle this conversion
 - All fetch to `/api/*` must include `credentials: "include"`
 - Puzzle history persisted in PostgreSQL, scoped by username. Stats derived server-side
 - Landing page debounces topic input (600ms) for category prefetch

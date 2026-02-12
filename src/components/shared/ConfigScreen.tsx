@@ -154,7 +154,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
   };
 
   if (generating) {
-    return <LoadingOverlay topic={topic} difficulty={difficulty} gameType={gameType} />;
+    return <LoadingOverlay />;
   }
 
   return (
