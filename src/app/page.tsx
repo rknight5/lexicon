@@ -178,15 +178,6 @@ export default function HomePage() {
         Turn your interests into word puzzles
       </p>
 
-      {/* Resume Card */}
-      {autoSave && (
-        <ResumeCard
-          autoSave={autoSave}
-          onResume={handleResume}
-          onDismiss={handleDismissResume}
-        />
-      )}
-
       {/* Topic Input */}
       <div className="w-full max-w-md mb-6">
         <input
@@ -220,32 +211,42 @@ export default function HomePage() {
         Generate Puzzle
       </button>
 
-      {/* Quick Starts */}
-      <div className="flex flex-col items-center mt-10 gap-4 w-full max-w-md">
-        <div className="flex items-center gap-3 w-full">
-          <div className="h-px flex-1 bg-white/10" />
-          <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold whitespace-nowrap">Quick Starts</span>
-          <div className="h-px flex-1 bg-white/10" />
+      {/* Resume Card (replaces Quick Starts when auto-save exists) */}
+      {autoSave ? (
+        <div className="w-full max-w-md mt-10">
+          <ResumeCard
+            autoSave={autoSave}
+            onResume={handleResume}
+            onDismiss={handleDismissResume}
+          />
         </div>
-        <div className="flex flex-wrap justify-center gap-2.5">
-          {EXAMPLE_TOPICS.map((example) => (
-            <button
-              key={example}
-              onClick={() => {
-                handleTopicChange(example);
-              }}
-              className="px-4 py-2 rounded-pill text-sm font-body font-semibold transition-all hover:border-gold-primary"
-              style={{
-                background: "rgba(255, 255, 255, 0.1)",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-                color: "var(--white-muted)",
-              }}
-            >
-              {example}
-            </button>
-          ))}
+      ) : (
+        <div className="flex flex-col items-center mt-10 gap-4 w-full max-w-md">
+          <div className="flex items-center gap-3 w-full">
+            <div className="h-px flex-1 bg-white/10" />
+            <span className="text-[11px] uppercase tracking-[2px] text-white/30 font-heading font-semibold whitespace-nowrap">Quick Starts</span>
+            <div className="h-px flex-1 bg-white/10" />
+          </div>
+          <div className="flex flex-wrap justify-center gap-2.5">
+            {EXAMPLE_TOPICS.map((example) => (
+              <button
+                key={example}
+                onClick={() => {
+                  handleTopicChange(example);
+                }}
+                className="px-4 py-2 rounded-pill text-sm font-body font-semibold transition-all hover:border-gold-primary"
+                style={{
+                  background: "rgba(255, 255, 255, 0.1)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  color: "var(--white-muted)",
+                }}
+              >
+                {example}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {showStats && <StatsModal onClose={() => setShowStats(false)} />}
     </main>
