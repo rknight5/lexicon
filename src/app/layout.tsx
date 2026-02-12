@@ -9,6 +9,13 @@ const jetbrains = JetBrains_Mono({ subsets: ["latin"], weight: ["500", "600"], v
 export const metadata: Metadata = {
   title: "Lexicon — AI Word Puzzles",
   description: "Turn your interests into word puzzles",
+  manifest: "/manifest.json",
+  themeColor: "#1A0A2E",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Lexicon",
+  },
 };
 
 export default function RootLayout({
@@ -18,6 +25,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="apple-touch-icon" href="/icon-192.png" />
+      </head>
       <body className={`${inter.variable} ${nunito.variable} ${jetbrains.variable} antialiased`}>
         {children}
       </body>

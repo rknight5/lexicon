@@ -43,6 +43,10 @@ next-env.d.ts
 # database migrations
 /migrations
 
+# PWA service worker (build artifact)
+public/sw.js
+public/swe-worker-*.js
+
 # local docs and plans (never committed)
 .claude/
 .interface-design/
