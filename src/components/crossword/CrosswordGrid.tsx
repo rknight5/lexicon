@@ -128,8 +128,8 @@ export function CrosswordGrid({
     );
   };
 
-  // Cell size based on grid size
-  const cellSize = gridSize <= 9 ? "w-9 h-9 md:w-10 md:h-10" : gridSize <= 11 ? "w-7 h-7 md:w-8 md:h-8" : "w-6 h-6 md:w-7 md:h-7";
+  // Cell size based on grid size — scale up at lg to match word search
+  const cellSize = gridSize <= 9 ? "w-9 h-9 md:w-10 md:h-10 lg:w-12 lg:h-12" : gridSize <= 11 ? "w-7 h-7 md:w-8 md:h-8 lg:w-10 lg:h-10" : "w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8";
 
   return (
     <div className="flex flex-col items-center gap-3">
@@ -214,7 +214,7 @@ export function CrosswordGrid({
                 )}
 
                 {/* Player's letter */}
-                <span className={`${gridSize <= 9 ? "text-base md:text-lg" : "text-sm md:text-base"} font-semibold`}>
+                <span className={`${gridSize <= 9 ? "text-base md:text-lg lg:text-xl" : "text-sm md:text-base lg:text-lg"} font-semibold`}>
                   {playerLetter || ""}
                 </span>
               </div>
