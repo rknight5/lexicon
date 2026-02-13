@@ -50,11 +50,22 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   }
 
-  const body = await request.json();
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
 
   if (!body.gameType || !body.title || !body.topic || !body.difficulty || !body.puzzleData) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
+
+  const gameType = body.gameType as string;
+  const title = body.title as string;
+  const topicVal = body.topic as string;
+  const difficultyVal = body.difficulty as string;
+  const puzzleDataStr = typeof body.puzzleData === "string" ? body.puzzleData : JSON.stringify(body.puzzleData);
 
   try {
     // Check for existing save with same user + gameType + title
@@ -64,8 +75,8 @@ export async function POST(request: NextRequest) {
       .where(
         and(
           eq(savedPuzzles.username, username),
-          eq(savedPuzzles.gameType, body.gameType),
-          eq(savedPuzzles.title, body.title)
+          eq(savedPuzzles.gameType, gameType),
+          eq(savedPuzzles.title, title)
         )
       );
 
@@ -75,11 +86,11 @@ export async function POST(request: NextRequest) {
 
     const [puzzle] = await db.insert(savedPuzzles).values({
       username,
-      gameType: body.gameType,
-      title: body.title,
-      topic: body.topic,
-      difficulty: body.difficulty,
-      puzzleData: typeof body.puzzleData === "string" ? body.puzzleData : JSON.stringify(body.puzzleData),
+      gameType,
+      title,
+      topic: topicVal,
+      difficulty: difficultyVal,
+      puzzleData: puzzleDataStr,
     }).returning({ id: savedPuzzles.id });
 
     return NextResponse.json({ id: puzzle.id });

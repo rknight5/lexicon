@@ -44,12 +44,20 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   }
 
-  const body = await request.json();
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
 
   if (!body.gameType || !body.title || !body.difficulty || !body.puzzleData || !body.gameState) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
+  const gameType = body.gameType as string;
+  const title = body.title as string;
+  const difficultyVal = body.difficulty as string;
   const puzzleData = typeof body.puzzleData === "string"
     ? body.puzzleData
     : JSON.stringify(body.puzzleData);
@@ -62,18 +70,18 @@ export async function PUT(request: NextRequest) {
       .insert(autoSaves)
       .values({
         username,
-        gameType: body.gameType,
-        title: body.title,
-        difficulty: body.difficulty,
+        gameType,
+        title,
+        difficulty: difficultyVal,
         puzzleData,
         gameState,
       })
       .onConflictDoUpdate({
         target: autoSaves.username,
         set: {
-          gameType: body.gameType,
-          title: body.title,
-          difficulty: body.difficulty,
+          gameType,
+          title,
+          difficulty: difficultyVal,
           puzzleData,
           gameState,
           updatedAt: new Date(),

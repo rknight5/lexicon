@@ -12,28 +12,33 @@ export async function GET() {
     return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   }
 
-  const results = await db
-    .select()
-    .from(puzzleResults)
-    .where(eq(puzzleResults.username, username))
-    .orderBy(desc(puzzleResults.timestamp));
+  try {
+    const results = await db
+      .select()
+      .from(puzzleResults)
+      .where(eq(puzzleResults.username, username))
+      .orderBy(desc(puzzleResults.timestamp));
 
-  return NextResponse.json(
-    results.map((r) => ({
-      id: r.id,
-      timestamp: r.timestamp,
-      topic: r.topic,
-      gameType: r.gameType,
-      difficulty: r.difficulty,
-      score: r.score,
-      wordsFound: r.wordsFound,
-      wordsTotal: r.wordsTotal,
-      elapsedSeconds: r.elapsedSeconds,
-      livesRemaining: r.livesRemaining,
-      hintsUsed: r.hintsUsed,
-      outcome: r.outcome,
-    }))
-  );
+    return NextResponse.json(
+      results.map((r) => ({
+        id: r.id,
+        timestamp: r.timestamp,
+        topic: r.topic,
+        gameType: r.gameType,
+        difficulty: r.difficulty,
+        score: r.score,
+        wordsFound: r.wordsFound,
+        wordsTotal: r.wordsTotal,
+        elapsedSeconds: r.elapsedSeconds,
+        livesRemaining: r.livesRemaining,
+        hintsUsed: r.hintsUsed,
+        outcome: r.outcome,
+      }))
+    );
+  } catch (err) {
+    console.error("Failed to fetch history:", err);
+    return NextResponse.json({ error: "Failed to load history" }, { status: 500 });
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -44,7 +49,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   }
 
-  const body = await request.json();
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
 
   if (!body.id || !body.topic || !body.gameType || !body.difficulty || !body.outcome) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -52,23 +62,27 @@ export async function POST(request: NextRequest) {
 
   try {
     await db.insert(puzzleResults).values({
-      id: body.id,
+      id: body.id as string,
       username,
-      timestamp: body.timestamp,
-      topic: body.topic,
-      gameType: body.gameType,
-      difficulty: body.difficulty,
-      score: body.score,
-      wordsFound: body.wordsFound,
-      wordsTotal: body.wordsTotal,
-      elapsedSeconds: body.elapsedSeconds,
-      livesRemaining: body.livesRemaining,
-      hintsUsed: body.hintsUsed,
-      outcome: body.outcome,
+      timestamp: body.timestamp as number,
+      topic: body.topic as string,
+      gameType: body.gameType as string,
+      difficulty: body.difficulty as string,
+      score: body.score as number,
+      wordsFound: body.wordsFound as number,
+      wordsTotal: body.wordsTotal as number,
+      elapsedSeconds: body.elapsedSeconds as number,
+      livesRemaining: body.livesRemaining as number,
+      hintsUsed: body.hintsUsed as number,
+      outcome: body.outcome as string,
     });
-  } catch {
-    // Duplicate key or other DB error — ignore silently (result already saved)
-    return NextResponse.json({ success: true });
+  } catch (err) {
+    // Duplicate key (code 23505) is expected — result already saved
+    const isDuplicate = err instanceof Error && "code" in err && (err as { code: string }).code === "23505";
+    if (!isDuplicate) {
+      console.error("Failed to save history:", err);
+      return NextResponse.json({ error: "Failed to save result" }, { status: 500 });
+    }
   }
 
   return NextResponse.json({ success: true });

@@ -148,7 +148,11 @@ export default function HomePage() {
   }
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+    } catch {
+      // Redirect to login regardless — session cookie will be cleared on next login
+    }
     router.push("/login");
     router.refresh();
   };

@@ -6,7 +6,7 @@ AI-powered word puzzle generator. Users describe a topic, Claude AI generates wo
 `npm run dev` (Next.js dev server) | `npm run build` | `npm run lint` | `npm run test` (Vitest watch) | `npm run test:run` (single run) | `npm run db:push` (Drizzle schema push) | `npx vitest run path/to/file.test.ts`
 
 ## Stack
-Next.js 16 (App Router) + React 19 + TypeScript | Tailwind CSS 4 | PostgreSQL + Drizzle ORM | iron-session (encrypted cookies) | Claude API (Haiku 4.5 categories, Sonnet 4.5 generation, 3-attempt retry) | Vitest + Testing Library (jsdom, globals)
+Next.js 16 (App Router) + React 19 + TypeScript | Tailwind CSS 4 | PostgreSQL + Drizzle ORM | iron-session (encrypted cookies) | Claude API (Haiku 4.5 categories, Sonnet 4.5 generation) | Vitest + Testing Library (jsdom, globals)
 
 ## Gotchas
 - Single API route `POST /api/generate` handles both category suggestions and full puzzle generation

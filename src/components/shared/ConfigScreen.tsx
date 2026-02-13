@@ -375,9 +375,16 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
 
         {/* Error */}
         {error && (
-          <p className="text-sm text-pink-accent bg-pink-accent/10 p-3 rounded-xl">
-            {error}
-          </p>
+          <div className="flex items-center justify-between gap-3 text-sm text-pink-accent bg-pink-accent/10 p-3 rounded-xl">
+            <p>{error}</p>
+            <button
+              onClick={handleGenerate}
+              className="shrink-0 font-heading font-bold underline"
+              style={{ color: "var(--color-gold-primary)" }}
+            >
+              Retry
+            </button>
+          </div>
         )}
 
         {/* Generate Button */}

@@ -18,12 +18,18 @@ function scrambleWord(word: string): string {
 }
 
 export async function POST(request: NextRequest) {
+  let body: Record<string, unknown>;
   try {
-    const body = await request.json();
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+
+  try {
 
     // Route 1: Category suggestion (topic only, no difficulty)
     if (body.topic && !body.difficulty) {
-      const categories = await suggestCategories(body.topic);
+      const categories = await suggestCategories(body.topic as string);
       return NextResponse.json({ categories });
     }
 

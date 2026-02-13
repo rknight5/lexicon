@@ -7,8 +7,14 @@ const USERNAME_MAX = 50;
 const USERNAME_REGEX = /^[a-zA-Z0-9 _-]+$/;
 
 export async function POST(request: NextRequest) {
-  const { username } = await request.json();
-  const name = (username || "").trim();
+  let body: { username?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+
+  const name = (body.username || "").trim();
 
   if (!name) {
     return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -22,12 +28,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Name can only contain letters, numbers, spaces, hyphens, and underscores" }, { status: 400 });
   }
 
-  await db.insert(users).values({ username: name }).onConflictDoNothing();
+  try {
+    await db.insert(users).values({ username: name }).onConflictDoNothing();
 
-  const session = await getSession();
-  session.authenticated = true;
-  session.username = name;
-  await session.save();
+    const session = await getSession();
+    session.authenticated = true;
+    session.username = name;
+    await session.save();
+  } catch (err) {
+    console.error("Login error:", err);
+    return NextResponse.json({ error: "Couldn't log in — please try again" }, { status: 500 });
+  }
 
   return NextResponse.json({ success: true, username: name });
 }
