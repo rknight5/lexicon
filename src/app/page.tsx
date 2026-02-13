@@ -254,7 +254,7 @@ export default function HomePage() {
             <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold whitespace-nowrap">Quick Starts</span>
             <div className="h-px flex-1 bg-white/15" />
           </div>
-          <div className="flex flex-wrap justify-center gap-2.5 w-full">
+          <div className="flex flex-wrap justify-start gap-2.5 w-full">
             {EXAMPLE_TOPICS.map((example) => (
               <button
                 key={example}
