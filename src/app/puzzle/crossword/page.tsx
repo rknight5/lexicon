@@ -274,6 +274,9 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
               />
             </div>
 
+            {/* Divider */}
+            <div className="w-px self-stretch my-4" style={{ background: "rgba(255, 255, 255, 0.1)" }} />
+
             {/* Clue list */}
             <div className="py-5 pr-8 pl-3 flex flex-col gap-3 max-h-[500px] overflow-y-auto">
               <span className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">
