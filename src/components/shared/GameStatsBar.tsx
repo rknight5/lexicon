@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Heart, Clock, Star, Lightbulb } from "lucide-react";
+import { Heart, Timer, Zap, Trophy } from "lucide-react";
 
 interface GameStatsBarProps {
   score: number;
@@ -46,7 +46,7 @@ export function GameStatsBar({
     >
       {/* Score */}
       <div className="inline-flex items-center gap-1.5 text-gold-primary">
-        <Star className="w-4 h-4" fill="currentColor" />
+        <Trophy className="w-4 h-4" fill="currentColor" />
         <span className="font-grid text-sm font-semibold">{score}</span>
       </div>
 
@@ -65,13 +65,13 @@ export function GameStatsBar({
 
       {/* Hints used */}
       <div className="inline-flex items-center gap-1.5 text-white/60">
-        <Lightbulb className="w-4 h-4" />
+        <Zap className="w-4 h-4" />
         <span className="font-grid text-sm">{hintsUsed}</span>
       </div>
 
       {/* Timer */}
       <div className="inline-flex items-center gap-1.5 text-white/60">
-        <Clock className="w-4 h-4" />
+        <Timer className="w-4 h-4" />
         <span
           className={`font-grid text-sm ${
             gameStatus === "paused" ? "animate-pulse" : ""
