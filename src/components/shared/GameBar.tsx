@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Shield, Flame, Skull, ArrowLeft, Pencil, Check, BarChart2, Bookmark, HelpCircle, Settings, LogOut } from "lucide-react";
+import { Shield, Flame, Skull, ArrowLeft, Pencil, Check, BarChart2, Bookmark, Settings, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Difficulty } from "@/lib/types";
 
@@ -162,12 +162,6 @@ export function GameBar({
           title="Stats"
         >
           <BarChart2 className="w-6 h-6" />
-        </button>
-        <button
-          className="text-white/50 hover:text-white/80 transition-colors p-2 -m-2"
-          title="Help"
-        >
-          <HelpCircle className="w-6 h-6" />
         </button>
         <button
           onClick={onPause}
