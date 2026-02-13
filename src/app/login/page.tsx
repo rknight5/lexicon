@@ -57,19 +57,13 @@ export default function LoginPage() {
       </p>
 
       <div
-        className="w-full max-w-xs rounded-card p-6 space-y-4"
+        className="w-full max-w-xs rounded-card p-6"
         style={{
           background: "var(--glass-bg)",
           border: "1px solid var(--glass-border)",
         }}
       >
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <label
-            className="block font-heading text-sm text-white/70 mb-1"
-            htmlFor="username"
-          >
-            Your name
-          </label>
+        <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4">
           <input
             id="username"
             type="text"
@@ -77,13 +71,20 @@ export default function LoginPage() {
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Enter a name"
             maxLength={50}
-            className="w-full h-[44px] px-4 rounded-xl text-base font-body text-white placeholder:text-white/50 outline-none"
+            className="w-full h-[44px] px-4 rounded-xl text-base font-body text-white placeholder:text-white/50 outline-none text-center"
             style={{
               background: "rgba(255, 255, 255, 0.05)",
               border: "1px solid var(--glass-border)",
             }}
             autoFocus
           />
+
+          <p
+            className="text-xs"
+            style={{ color: "var(--white-muted)" }}
+          >
+            Your puzzle history is saved under this name
+          </p>
 
           {error && (
             <p className="text-sm text-center" style={{ color: "var(--color-pink-accent)" }}>
@@ -94,7 +95,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading || !username.trim()}
-            className="w-full flex items-center justify-center gap-2 h-11 rounded-full font-heading text-sm font-bold uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-4/5 flex items-center justify-center gap-2 h-10 rounded-full font-heading text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
               color: "#1A0A2E",
@@ -110,13 +111,6 @@ export default function LoginPage() {
             )}
           </button>
         </form>
-
-        <p
-          className="text-xs text-center"
-          style={{ color: "var(--white-muted)" }}
-        >
-          Your puzzle history is saved under this name
-        </p>
       </div>
     </main>
   );
