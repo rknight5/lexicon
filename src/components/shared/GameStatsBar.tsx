@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Heart, Timer, Zap, Trophy } from "lucide-react";
+import { Heart, Timer, Zap, Star } from "lucide-react";
 
 interface GameStatsBarProps {
   score: number;
@@ -46,7 +46,7 @@ export function GameStatsBar({
     >
       {/* Score */}
       <div className="inline-flex items-center gap-1.5 text-gold-primary">
-        <Trophy className="w-4 h-4" fill="currentColor" />
+        <Star className="w-4 h-4" fill="currentColor" />
         <span className="font-grid text-sm font-semibold">{score}</span>
       </div>
 
