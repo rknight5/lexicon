@@ -203,6 +203,46 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
             <p>6. Solve all clues to win</p>
           </div>
 
+          {/* Hint & Check: positioned to the right */}
+          <div className="absolute left-full top-0 ml-38 flex flex-col items-center whitespace-nowrap">
+            <div className="flex flex-col items-center gap-3">
+              <div>
+                <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold">
+                  Actions
+                </span>
+                <div className="h-px bg-white/15 mt-2" />
+              </div>
+              <button
+                onClick={useHint}
+                disabled={state.gameStatus !== "playing" || state.livesRemaining <= 1}
+                className="w-16 h-16 rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-110 hover:shadow-lg active:scale-95 disabled:opacity-25 disabled:cursor-not-allowed"
+                style={{
+                  background: "rgba(255, 215, 0, 0.15)",
+                  border: "2px solid rgba(255, 215, 0, 0.4)",
+                  boxShadow: "0 0 20px rgba(255, 215, 0, 0.15)",
+                }}
+                title="Reveal a letter (costs 1 life)"
+              >
+                <span className="text-2xl pointer-events-none">💡</span>
+              </button>
+              <span className="text-xs text-white/50 font-body">Costs 1 life</span>
+              <button
+                onClick={checkWord}
+                disabled={state.gameStatus !== "playing"}
+                className="w-16 h-16 rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-110 hover:shadow-lg active:scale-95 disabled:opacity-25 disabled:cursor-not-allowed"
+                style={{
+                  background: "rgba(255, 255, 255, 0.08)",
+                  border: "2px solid rgba(255, 255, 255, 0.2)",
+                  boxShadow: "0 0 20px rgba(255, 255, 255, 0.05)",
+                }}
+                title="Check the current word"
+              >
+                <span className="text-xl pointer-events-none">✓</span>
+              </button>
+              <span className="text-xs text-white/50 font-body">Check Word</span>
+            </div>
+          </div>
+
           <div
             className="flex rounded-3xl overflow-hidden"
             style={{
@@ -222,7 +262,6 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
                 cursorCol={state.cursorCol}
                 cursorDirection={state.cursorDirection}
                 solvedClues={state.solvedClues}
-                livesRemaining={state.livesRemaining}
                 gameStatus={state.gameStatus}
                 onSelectCell={(r, c) => {
                   handleFirstInteraction();
@@ -232,7 +271,6 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
                 onDeleteLetter={deleteLetter}
                 onCheckWord={checkWord}
                 onToggleDirection={toggleDirection}
-                onHint={useHint}
               />
             </div>
 
@@ -279,7 +317,6 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
             cursorCol={state.cursorCol}
             cursorDirection={state.cursorDirection}
             solvedClues={state.solvedClues}
-            livesRemaining={state.livesRemaining}
             gameStatus={state.gameStatus}
             onSelectCell={(r, c) => {
               handleFirstInteraction();
@@ -289,7 +326,6 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
             onDeleteLetter={deleteLetter}
             onCheckWord={checkWord}
             onToggleDirection={toggleDirection}
-            onHint={useHint}
           />
         </div>
         <ClueList

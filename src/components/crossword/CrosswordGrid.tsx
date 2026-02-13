@@ -12,14 +12,12 @@ interface CrosswordGridProps {
   cursorCol: number;
   cursorDirection: "across" | "down";
   solvedClues: number[];
-  livesRemaining: number;
   gameStatus: string;
   onSelectCell: (row: number, col: number) => void;
   onTypeLetter: (letter: string) => void;
   onDeleteLetter: () => void;
   onCheckWord: () => void;
   onToggleDirection: () => void;
-  onHint: () => void;
 }
 
 export function CrosswordGrid({
@@ -31,14 +29,12 @@ export function CrosswordGrid({
   cursorCol,
   cursorDirection,
   solvedClues,
-  livesRemaining,
   gameStatus,
   onSelectCell,
   onTypeLetter,
   onDeleteLetter,
   onCheckWord,
   onToggleDirection,
-  onHint,
 }: CrosswordGridProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
@@ -221,35 +217,6 @@ export function CrosswordGrid({
         )}
       </div>
 
-      {/* Action buttons */}
-      {(gameStatus === "idle" || gameStatus === "playing") && (
-        <div className="flex gap-3">
-          <button
-            onClick={onHint}
-            disabled={gameStatus !== "playing" || livesRemaining <= 1}
-            className="px-5 py-2 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
-            style={{
-              background: "rgba(255, 215, 0, 0.12)",
-              border: "1px solid rgba(255, 215, 0, 0.3)",
-              color: "#FFD700",
-            }}
-          >
-            <span className="mr-1.5">💡</span>Hint
-          </button>
-          <button
-            onClick={onCheckWord}
-            disabled={gameStatus !== "playing"}
-            className="px-5 py-2 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
-            style={{
-              background: "rgba(255, 255, 255, 0.1)",
-              border: "1px solid rgba(255, 255, 255, 0.2)",
-              color: "rgba(255, 255, 255, 0.7)",
-            }}
-          >
-            Check Word
-          </button>
-        </div>
-      )}
     </div>
   );
 }
