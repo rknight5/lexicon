@@ -69,10 +69,10 @@ export function CompletionModal({
         </div>
 
         {/* Buttons */}
-        <div className="flex flex-col items-center w-full pt-4">
+        <div className="flex flex-col items-center gap-2.5 w-full pt-4">
           <button
             onClick={onPlayAgain}
-            className="w-full h-10 rounded-pill font-heading text-sm font-bold uppercase tracking-wider text-purple-deep transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+            className="w-full h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider text-purple-deep transition-all hover:-translate-y-0.5 active:scale-[0.97]"
             style={{
               background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
               boxShadow: "0 4px 15px rgba(255, 215, 0, 0.4)",
@@ -82,7 +82,12 @@ export function CompletionModal({
           </button>
           <button
             onClick={onNewTopic}
-            className="w-full h-10 rounded-pill font-body text-sm text-white/70 hover:text-white transition-colors text-center mt-2"
+            className="w-full h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+            style={{
+              background: "rgba(255, 255, 255, 0.08)",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              color: "rgba(255, 255, 255, 0.8)",
+            }}
           >
             Play a New Game
           </button>
@@ -90,8 +95,8 @@ export function CompletionModal({
             <button
               onClick={onSaveToLibrary}
               disabled={isSavedToLibrary}
-              className={`w-full h-10 rounded-pill font-body text-sm transition-colors text-center ${
-                isSavedToLibrary ? "text-gold-primary" : "text-white/70 hover:text-white"
+              className={`w-full h-9 rounded-pill font-body text-sm transition-colors text-center ${
+                isSavedToLibrary ? "text-gold-primary" : "text-white/50 hover:text-white/70"
               }`}
             >
               {isSavedToLibrary ? "Saved to Library" : "Save to Library"}
