@@ -69,7 +69,7 @@ export function CompletionModal({
         </div>
 
         {/* Buttons */}
-        <div className="flex flex-col items-center gap-2.5 w-full pt-4">
+        <div className="flex flex-col items-center gap-3 w-full pt-4">
           <button
             onClick={onPlayAgain}
             className="w-4/5 h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider text-purple-deep transition-all hover:-translate-y-0.5 active:scale-[0.97]"

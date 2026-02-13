@@ -31,9 +31,9 @@ export function GameOverModal({
         {/* Score + progress */}
         <div className="space-y-3 w-full">
           <p className="font-body text-center">
-            <span className="font-bold text-2xl">{wordsFound}</span>
-            <span className="font-bold text-2xl" style={{ color: "var(--white-muted)" }}> / </span>
-            <span className="font-bold text-2xl">{wordsTotal}</span>
+            <span className="font-bold text-lg">{wordsFound}</span>
+            <span className="font-bold text-lg" style={{ color: "var(--white-muted)" }}> / </span>
+            <span className="font-bold text-lg">{wordsTotal}</span>
             <span className="text-sm" style={{ color: "var(--white-muted)" }}>
               {" "}words found
             </span>
@@ -56,7 +56,7 @@ export function GameOverModal({
         </div>
 
         {/* Buttons */}
-        <div className="flex flex-col items-center gap-2.5 w-full pt-4">
+        <div className="flex flex-col items-center gap-3 w-full pt-4">
           <button
             onClick={onTryAgain}
             className="w-4/5 h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider text-purple-deep transition-all hover:-translate-y-0.5 active:scale-[0.97]"
