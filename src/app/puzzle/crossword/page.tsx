@@ -238,7 +238,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
             }}
           >
             {/* Grid */}
-            <div className="py-4 pl-1 pr-4 flex items-center" onClick={handleFirstInteraction}>
+            <div className="py-4 px-5 flex items-center justify-center" onClick={handleFirstInteraction}>
               <CrosswordGrid
                 grid={puzzle.grid}
                 gridSize={puzzle.gridSize}
