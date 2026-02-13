@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { CrosswordCell } from "@/lib/types";
 
 interface CrosswordGridProps {
@@ -124,11 +124,29 @@ export function CrosswordGrid({
     );
   };
 
-  // Cell size based on grid size
-  const cellSize = gridSize <= 9 ? "w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14" : gridSize <= 11 ? "w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" : "w-7 h-7 md:w-9 md:h-9 lg:w-10 lg:h-10";
+  // Dynamic cell sizing to fit viewport
+  const [cellPx, setCellPx] = useState(40);
+
+  useEffect(() => {
+    const measure = () => {
+      if (!containerRef.current?.parentElement) return;
+      const parentWidth = containerRef.current.parentElement.clientWidth;
+      const gapTotal = (gridSize - 1) * 2 + 4; // 2px gaps + 2px padding each side
+      const available = parentWidth - gapTotal;
+      const maxSize = gridSize <= 9 ? 56 : gridSize <= 11 ? 48 : 40; // desktop max
+      const computed = Math.floor(available / gridSize);
+      setCellPx(Math.max(20, Math.min(maxSize, computed)));
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [gridSize]);
+
+  const fontSize = Math.max(12, Math.floor(cellPx * 0.45));
+  const clueNumSize = Math.max(7, Math.floor(cellPx * 0.22));
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-3 w-full">
       {/* Hidden input for mobile keyboard */}
       <input
         ref={hiddenInputRef}
@@ -152,7 +170,7 @@ export function CrosswordGrid({
         ref={containerRef}
         className="inline-grid select-none"
         style={{
-          gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
+          gridTemplateColumns: `repeat(${gridSize}, ${cellPx}px)`,
           gap: "2px",
           padding: "2px",
         }}
@@ -171,8 +189,7 @@ export function CrosswordGrid({
               return (
                 <div
                   key={`${rowIdx}-${colIdx}`}
-                  className={`${cellSize}`}
-                  style={{ background: "transparent" }}
+                  style={{ width: cellPx, height: cellPx, background: "transparent" }}
                 />
               );
             }
@@ -180,8 +197,10 @@ export function CrosswordGrid({
             return (
               <div
                 key={`${rowIdx}-${colIdx}`}
-                className={`${cellSize} relative flex items-center justify-center font-grid cursor-pointer rounded-sm`}
+                className="relative flex items-center justify-center font-grid cursor-pointer rounded-sm"
                 style={{
+                  width: cellPx,
+                  height: cellPx,
                   background: isCursor
                     ? "#FFF9C4"
                     : inWord
@@ -201,14 +220,14 @@ export function CrosswordGrid({
                 {cell.number !== undefined && (
                   <span
                     className="absolute top-0.5 left-1 font-body font-semibold leading-none"
-                    style={{ fontSize: "9px", color: "#000000" }}
+                    style={{ fontSize: `${clueNumSize}px`, color: "#000000" }}
                   >
                     {cell.number}
                   </span>
                 )}
 
                 {/* Player's letter */}
-                <span className={`${gridSize <= 9 ? "text-lg md:text-xl lg:text-2xl" : "text-base md:text-lg lg:text-xl"} font-semibold`}>
+                <span className="font-semibold" style={{ fontSize }}>
                   {playerLetter || ""}
                 </span>
               </div>

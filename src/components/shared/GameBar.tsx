@@ -83,7 +83,7 @@ export function GameBar({
 
   return (
     <div
-      className="h-14 px-5 flex items-center border-b relative"
+      className="min-h-14 px-4 py-2 flex items-center gap-3 border-b"
       style={{
         background: "#1A0A2E",
         borderColor: "rgba(255, 255, 255, 0.08)",
@@ -92,17 +92,17 @@ export function GameBar({
       {/* Left: back button */}
       <button
         onClick={onBack}
-        className="relative z-10 flex items-center gap-1.5 text-white/70 hover:text-white transition-colors"
+        className="flex-shrink-0 flex items-center gap-1.5 text-white/70 hover:text-white transition-colors"
       >
         <Home className="w-6 h-6" />
       </button>
 
       {/* Center: title + difficulty badge */}
-      <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2.5">
+      <div className="flex-1 min-w-0 flex items-center justify-center gap-2">
         {editing ? (
           <form
             onSubmit={(e) => { e.preventDefault(); commitEdit(); }}
-            className="flex items-center gap-1.5"
+            className="flex items-center gap-1.5 min-w-0"
           >
             <input
               ref={inputRef}
@@ -111,71 +111,61 @@ export function GameBar({
               onChange={(e) => setEditValue(e.target.value)}
               onBlur={commitEdit}
               maxLength={60}
-              className="font-heading text-base font-bold bg-transparent border-b border-white/30 outline-none text-white text-center px-1 py-0.5"
-              style={{ minWidth: "120px", maxWidth: "280px", width: `${Math.max(120, editValue.length * 9)}px` }}
+              className="font-heading text-sm font-bold bg-transparent border-b border-white/30 outline-none text-white text-center px-1 py-0.5 min-w-0 w-full"
             />
             <button
               type="submit"
-              className="text-green-accent hover:text-green-accent/80 transition-colors p-0.5"
+              className="flex-shrink-0 text-green-accent hover:text-green-accent/80 transition-colors p-0.5"
             >
               <Check className="w-4 h-4" />
             </button>
           </form>
         ) : (
-          <div className="flex items-center gap-1">
-            <span className="font-heading text-base font-bold">{title}</span>
-            {onTitleChange && (
-              <button
-                onClick={startEditing}
-                className="text-white/50 hover:text-white/80 transition-colors p-0.5"
-                title="Edit title"
-              >
-                <Pencil className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
+          <span className="font-heading text-sm font-bold truncate">{title}</span>
+        )}
+        {!editing && onTitleChange && (
+          <button
+            onClick={startEditing}
+            className="flex-shrink-0 text-white/50 hover:text-white/80 transition-colors p-0.5"
+            title="Edit title"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+          </button>
         )}
         <div
-          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-pill border text-[11px] font-heading font-bold ${badge.className}`}
+          className={`flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-pill border text-[11px] font-heading font-bold ${badge.className}`}
         >
           {badge.icon}
           {badge.label}
         </div>
       </div>
 
-      {/* Right: save + stats + help + settings + logout */}
-      <div className="ml-auto flex items-center gap-5 relative z-10">
+      {/* Right: save + stats + settings + logout */}
+      <div className="flex-shrink-0 flex items-center gap-4">
         {onSave && (
           <button
             onClick={onSave}
             disabled={isSaved}
-            className={`transition-colors p-2 -m-2 cursor-pointer ${isSaved ? "text-gold-primary cursor-default" : "text-white/50 hover:text-white/80"}`}
+            className={`transition-colors p-1.5 -m-1.5 cursor-pointer ${isSaved ? "text-gold-primary cursor-default" : "text-white/50 hover:text-white/80"}`}
             title={isSaved ? "Saved" : "Save puzzle"}
           >
-            <Bookmark className="w-6 h-6" fill={isSaved ? "currentColor" : "none"} />
+            <Bookmark className="w-5 h-5" fill={isSaved ? "currentColor" : "none"} />
           </button>
         )}
         <button
-          onClick={onStats}
-          className="text-white/50 hover:text-white/80 transition-colors p-2 -m-2"
-          title="Stats"
-        >
-          <BarChart2 className="w-6 h-6" />
-        </button>
-        <button
           onClick={onPause}
-          className="text-white/50 hover:text-white/80 transition-colors p-2 -m-2"
+          className="text-white/50 hover:text-white/80 transition-colors p-1.5 -m-1.5"
           title="Settings"
           disabled={gameStatus !== "playing"}
         >
-          <Settings className="w-6 h-6" />
+          <Settings className="w-5 h-5" />
         </button>
         <button
           onClick={handleLogout}
-          className="text-white/50 hover:text-white/80 transition-colors p-2 -m-2"
+          className="text-white/50 hover:text-white/80 transition-colors p-1.5 -m-1.5"
           title="Log out"
         >
-          <LogOut className="w-6 h-6" />
+          <LogOut className="w-5 h-5" />
         </button>
       </div>
     </div>
