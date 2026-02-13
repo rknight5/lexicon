@@ -32,7 +32,10 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-5">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center px-5"
+      style={{ background: "linear-gradient(180deg, #2D1B69 0%, #1A0A2E 100%)" }}
+    >
       {/* Effects wrapper — gives pulse rings and sparkles room */}
       <div className="relative flex items-center justify-center mb-8" style={{ width: 192, height: 192 }}>
         {/* Pulse ring 1 */}
