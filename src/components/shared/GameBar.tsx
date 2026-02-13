@@ -20,24 +20,27 @@ interface GameBarProps {
   hintsUsed?: number;
 }
 
-const DIFFICULTY_BADGE: Record<
+const DIFFICULTY_CONFIG: Record<
   Difficulty,
-  { label: string; icon: React.ReactNode; className: string }
+  { label: string; icon: React.ReactNode; className: string; color: string }
 > = {
   easy: {
     label: "Easy",
     icon: <Shield className="w-4 h-4" />,
     className: "text-green-accent border-green-accent/30 bg-green-accent/10",
+    color: "var(--color-green-accent)",
   },
   medium: {
     label: "Medium",
     icon: <Flame className="w-4 h-4" />,
     className: "text-gold-primary border-gold-primary/30 bg-gold-primary/10",
+    color: "var(--color-gold-primary)",
   },
   hard: {
     label: "Hard",
     icon: <Skull className="w-4 h-4" />,
     className: "text-pink-accent border-pink-accent/30 bg-pink-accent/10",
+    color: "var(--color-pink-accent)",
   },
 };
 
@@ -56,7 +59,7 @@ export function GameBar({
   hintsUsed = 0,
 }: GameBarProps) {
   const router = useRouter();
-  const badge = DIFFICULTY_BADGE[difficulty];
+  const badge = DIFFICULTY_CONFIG[difficulty];
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(title || "");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -95,13 +98,19 @@ export function GameBar({
         borderColor: "rgba(255, 255, 255, 0.08)",
       }}
     >
-      {/* Left: back button */}
-      <button
-        onClick={onBack}
-        className="flex-shrink-0 flex items-center gap-1.5 text-white/70 hover:text-white transition-colors"
-      >
-        <Home className="w-6 h-6" />
-      </button>
+      {/* Left: back button + difficulty (mobile) */}
+      <div className="flex items-center gap-4">
+        <button
+          onClick={onBack}
+          className="flex-shrink-0 flex items-center gap-1.5 text-white/70 hover:text-white transition-colors"
+        >
+          <Home className="w-6 h-6" />
+        </button>
+        {/* Difficulty icon (mobile only) */}
+        <span className="lg:hidden p-1.5 -m-1.5" style={{ color: badge.color }}>
+          {badge.icon}
+        </span>
+      </div>
 
       {/* Center: title + difficulty badge (desktop only) */}
       <div className="hidden lg:flex flex-1 min-w-0 items-center justify-center gap-2">

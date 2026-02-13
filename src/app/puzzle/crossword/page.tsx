@@ -302,7 +302,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
 
       {/* Mobile: stacked layout */}
       <div className="lg:hidden flex-1 flex flex-col items-center px-3 py-3 gap-3">
-        {/* Title + difficulty below header */}
+        {/* Title + pencil */}
         <div className="flex items-center justify-center gap-2 w-full">
           <span className="font-heading font-bold truncate" style={{ fontSize: "1.05rem" }}>{puzzleTitle}</span>
           <button
@@ -314,21 +314,9 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
           >
             <Pencil className="w-3.5 h-3.5" />
           </button>
-          <div
-            className={`flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-pill border text-[10px] font-heading font-bold ${
-              puzzle.difficulty === "easy" ? "text-green-accent border-green-accent/30 bg-green-accent/10" :
-              puzzle.difficulty === "hard" ? "text-pink-accent border-pink-accent/30 bg-pink-accent/10" :
-              "text-gold-primary border-gold-primary/30 bg-gold-primary/10"
-            }`}
-          >
-            {puzzle.difficulty === "easy" ? <Shield className="w-3 h-3" /> :
-             puzzle.difficulty === "hard" ? <Skull className="w-3 h-3" /> :
-             <Flame className="w-3 h-3" />}
-            {puzzle.difficulty.charAt(0).toUpperCase() + puzzle.difficulty.slice(1)}
-          </div>
         </div>
 
-        {/* Lives + score */}
+        {/* Lives | score */}
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5">
             {[0, 1, 2].map((i) => (
