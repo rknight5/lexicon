@@ -100,7 +100,7 @@ export function PuzzleGrid({
     return () => window.removeEventListener("resize", measure);
   }, [gridSize]);
 
-  const fontSize = Math.max(11, Math.floor(cellSize * 0.55));
+  const fontSize = Math.max(12, Math.floor(cellSize * 0.7));
 
   useEffect(() => {
     if (lastMissTimestamp > 0) {

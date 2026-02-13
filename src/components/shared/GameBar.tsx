@@ -106,9 +106,10 @@ export function GameBar({
         >
           <Home className="w-6 h-6" />
         </button>
-        {/* Difficulty icon (mobile only) */}
-        <span className="lg:hidden p-1.5 -m-1.5" style={{ color: badge.color }}>
+        {/* Difficulty label (mobile only) */}
+        <span className="lg:hidden flex items-center gap-1 text-xs font-heading font-bold p-1.5 -m-1.5" style={{ color: badge.color }}>
           {badge.icon}
+          {badge.label}
         </span>
       </div>
 

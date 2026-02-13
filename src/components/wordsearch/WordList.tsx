@@ -21,7 +21,7 @@ interface WordListProps {
 
 export function WordList({ words, foundWords, hintedWords }: WordListProps) {
   return (
-    <div className="grid grid-cols-2 gap-x-6 gap-y-1">
+    <div className="grid grid-cols-3 gap-x-4 gap-y-1">
       {words.map((word) => {
         const isFound = foundWords.includes(word.word);
         const hintDirection = hintedWords[word.word];
