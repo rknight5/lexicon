@@ -128,8 +128,8 @@ export function CrosswordGrid({
     );
   };
 
-  // Cell size based on grid size — scale up at lg to match word search
-  const cellSize = gridSize <= 9 ? "w-9 h-9 md:w-10 md:h-10 lg:w-12 lg:h-12" : gridSize <= 11 ? "w-7 h-7 md:w-8 md:h-8 lg:w-10 lg:h-10" : "w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8";
+  // Cell size based on grid size
+  const cellSize = gridSize <= 9 ? "w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14" : gridSize <= 11 ? "w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12" : "w-7 h-7 md:w-9 md:h-9 lg:w-10 lg:h-10";
 
   return (
     <div className="flex flex-col items-center gap-3">
@@ -157,10 +157,8 @@ export function CrosswordGrid({
         className="inline-grid select-none"
         style={{
           gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-          gap: "1px",
+          gap: "2px",
           padding: "2px",
-          background: "#000000",
-          borderRadius: "4px",
         }}
         onClick={focusInput}
       >
@@ -178,7 +176,7 @@ export function CrosswordGrid({
                 <div
                   key={`${rowIdx}-${colIdx}`}
                   className={`${cellSize}`}
-                  style={{ background: "#000000" }}
+                  style={{ background: "transparent" }}
                 />
               );
             }
@@ -186,7 +184,7 @@ export function CrosswordGrid({
             return (
               <div
                 key={`${rowIdx}-${colIdx}`}
-                className={`${cellSize} relative flex items-center justify-center font-grid cursor-pointer`}
+                className={`${cellSize} relative flex items-center justify-center font-grid cursor-pointer rounded-sm`}
                 style={{
                   background: isCursor
                     ? "#FFF9C4"
@@ -206,15 +204,15 @@ export function CrosswordGrid({
                 {/* Clue number */}
                 {cell.number !== undefined && (
                   <span
-                    className="absolute top-px left-0.5 font-body font-semibold leading-none"
-                    style={{ fontSize: "8px", color: "#000000" }}
+                    className="absolute top-0.5 left-1 font-body font-semibold leading-none"
+                    style={{ fontSize: "9px", color: "#000000" }}
                   >
                     {cell.number}
                   </span>
                 )}
 
                 {/* Player's letter */}
-                <span className={`${gridSize <= 9 ? "text-base md:text-lg lg:text-xl" : "text-sm md:text-base lg:text-lg"} font-semibold`}>
+                <span className={`${gridSize <= 9 ? "text-lg md:text-xl lg:text-2xl" : "text-base md:text-lg lg:text-xl"} font-semibold`}>
                   {playerLetter || ""}
                 </span>
               </div>
@@ -224,11 +222,11 @@ export function CrosswordGrid({
       </div>
 
       {/* Action buttons */}
-      {gameStatus === "playing" && (
+      {(gameStatus === "idle" || gameStatus === "playing") && (
         <div className="flex gap-3">
           <button
             onClick={onHint}
-            disabled={livesRemaining <= 1}
+            disabled={gameStatus !== "playing" || livesRemaining <= 1}
             className="px-5 py-2 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
             style={{
               background: "rgba(255, 215, 0, 0.12)",
@@ -240,7 +238,8 @@ export function CrosswordGrid({
           </button>
           <button
             onClick={onCheckWord}
-            className="px-5 py-2 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+            disabled={gameStatus !== "playing"}
+            className="px-5 py-2 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
             style={{
               background: "rgba(255, 255, 255, 0.1)",
               border: "1px solid rgba(255, 255, 255, 0.2)",
