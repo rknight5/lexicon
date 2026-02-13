@@ -96,7 +96,7 @@ export function CompletionModal({
             onClick={onNewTopic}
             className="w-full h-10 rounded-pill font-body text-sm text-white/70 hover:text-white transition-colors"
           >
-            Change Topic
+            Play a New Game
           </button>
         </div>
     </ModalShell>
