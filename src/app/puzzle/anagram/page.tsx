@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { GameBar } from "@/components/shared/GameBar";
 import { GameStatsBar } from "@/components/shared/GameStatsBar";
@@ -202,6 +202,32 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
 
   const revealedForCurrent =
     state.revealedPositions[state.currentWordIndex] ?? [];
+
+  // Dynamic tile sizing for mobile
+  const mobileContainerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(375);
+
+  useEffect(() => {
+    const measure = () => {
+      if (mobileContainerRef.current) {
+        setContainerWidth(mobileContainerRef.current.clientWidth);
+      }
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  const mobileTileSize = useMemo(() => {
+    if (!currentWord) return 40;
+    const wordLen = currentWord.word.length;
+    const gap = 6; // gap-1.5 = 6px
+    const available = containerWidth - 24; // px-3 padding
+    const computed = Math.floor((available - (wordLen - 1) * gap) / wordLen);
+    return Math.max(28, Math.min(44, computed));
+  }, [currentWord, containerWidth]);
+
+  const mobileFontSize = Math.max(12, Math.floor(mobileTileSize * 0.4));
 
   const handleHint = () => {
     handleFirstInteraction();
@@ -431,7 +457,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
       </div>
 
       {/* Mobile layout */}
-      <div className="lg:hidden flex-1 flex flex-col items-center px-3 py-4 gap-4">
+      <div ref={mobileContainerRef} className="lg:hidden flex-1 flex flex-col items-center px-3 py-4 gap-4">
         {/* Word progress */}
         <div className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">
           Word {state.currentWordIndex + 1} of {puzzle.words.length}
@@ -463,8 +489,11 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
                     if (letter && !isRevealed) handleDeselectLetter(i);
                   }}
                   disabled={!letter || isRevealed}
-                  className="w-10 h-10 rounded-xl flex items-center justify-center font-grid text-base font-bold uppercase transition-all"
+                  className="rounded-xl flex items-center justify-center font-grid font-bold uppercase transition-all"
                   style={{
+                    width: mobileTileSize,
+                    height: mobileTileSize,
+                    fontSize: mobileFontSize,
                     background: letter
                       ? "rgba(255, 215, 0, 0.15)"
                       : "rgba(255, 255, 255, 0.03)",
@@ -495,8 +524,11 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
                     if (!isSelected) handleSelectLetter(i);
                   }}
                   disabled={isSelected}
-                  className="w-10 h-10 rounded-xl flex items-center justify-center font-grid text-base font-bold uppercase transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+                  className="rounded-xl flex items-center justify-center font-grid font-bold uppercase transition-all hover:-translate-y-0.5 active:scale-[0.97]"
                   style={{
+                    width: mobileTileSize,
+                    height: mobileTileSize,
+                    fontSize: mobileFontSize,
                     background: isSelected
                       ? "rgba(255, 255, 255, 0.02)"
                       : "rgba(255, 255, 255, 0.95)",
