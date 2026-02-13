@@ -1,4 +1,3 @@
-import { Bookmark } from "lucide-react";
 import { formatTime } from "@/lib/format";
 import { ModalShell } from "@/components/shared/ModalShell";
 
@@ -25,16 +24,18 @@ export function GameOverModal({
 
   return (
     <ModalShell centered>
-        <h2 className="font-heading text-3xl font-bold text-pink-accent">
+        <h2 className="font-heading text-3xl font-bold text-pink-accent text-center">
           Game Over
         </h2>
 
         {/* Score + progress */}
         <div className="space-y-3 w-full">
-          <p className="font-body text-lg text-center">
+          <p className="font-body text-center">
             <span className="font-bold text-2xl">{wordsFound}</span>
-            <span style={{ color: "var(--white-muted)" }}>
-              {" "}/ {wordsTotal} words found
+            <span className="font-bold text-2xl" style={{ color: "var(--white-muted)" }}> / </span>
+            <span className="font-bold text-2xl">{wordsTotal}</span>
+            <span className="text-sm" style={{ color: "var(--white-muted)" }}>
+              {" "}words found
             </span>
           </p>
 
@@ -55,7 +56,7 @@ export function GameOverModal({
         </div>
 
         {/* Buttons */}
-        <div className="space-y-3 w-full pt-2">
+        <div className="flex flex-col items-center gap-3 w-full pt-2">
           <button
             onClick={onTryAgain}
             className="w-full h-11 rounded-pill font-heading text-sm font-bold uppercase tracking-wider text-purple-deep transition-all hover:-translate-y-0.5 active:scale-[0.97]"
@@ -68,7 +69,7 @@ export function GameOverModal({
           </button>
           <button
             onClick={onNewTopic}
-            className="w-full h-10 rounded-pill font-body text-sm text-white/70 hover:text-white transition-colors"
+            className="w-full h-10 rounded-pill font-body text-sm text-white/70 hover:text-white transition-colors text-center"
           >
             Play a New Game
           </button>
@@ -76,11 +77,10 @@ export function GameOverModal({
             <button
               onClick={onSaveToLibrary}
               disabled={isSavedToLibrary}
-              className={`flex items-center justify-center gap-2 w-full py-2 rounded-pill font-body text-xs transition-colors ${
-                isSavedToLibrary ? "text-gold-primary" : "text-white/40 hover:text-white/60"
+              className={`w-full h-10 rounded-pill font-body text-sm transition-colors text-center ${
+                isSavedToLibrary ? "text-gold-primary" : "text-white/70 hover:text-white"
               }`}
             >
-              <Bookmark className="w-3.5 h-3.5" fill={isSavedToLibrary ? "currentColor" : "none"} />
               {isSavedToLibrary ? "Saved to Library" : "Save to Library"}
             </button>
           )}
