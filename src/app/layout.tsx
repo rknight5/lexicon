@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Nunito, JetBrains_Mono } from "next/font/google";
+import { OfflineBanner } from "@/components/shared/OfflineBanner";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -29,6 +30,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
       <body className={`${inter.variable} ${nunito.variable} ${jetbrains.variable} antialiased`}>
+        <OfflineBanner />
         {children}
       </body>
     </html>

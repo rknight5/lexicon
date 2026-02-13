@@ -29,6 +29,19 @@ export default function HomePage() {
 
   const [autoSave, setAutoSave] = useState<AutoSaveSummary | null>(null);
   const [savedCount, setSavedCount] = useState(0);
+  const [isOffline, setIsOffline] = useState(false);
+
+  useEffect(() => {
+    setIsOffline(!navigator.onLine);
+    const goOffline = () => setIsOffline(true);
+    const goOnline = () => setIsOffline(false);
+    window.addEventListener("offline", goOffline);
+    window.addEventListener("online", goOnline);
+    return () => {
+      window.removeEventListener("offline", goOffline);
+      window.removeEventListener("online", goOnline);
+    };
+  }, []);
 
   useEffect(() => {
     // Check sessionStorage first for instant resume after SPA navigation
@@ -209,7 +222,7 @@ export default function HomePage() {
       {/* Generate Button */}
       <button
         onClick={handleSubmit}
-        disabled={!topic.trim()}
+        disabled={!topic.trim() || isOffline}
         className="flex items-center gap-2 h-12 px-8 rounded-pill font-heading text-sm font-bold uppercase tracking-wider text-purple-deep transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:-translate-y-0.5 active:enabled:scale-[0.97]"
         style={{
           background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
