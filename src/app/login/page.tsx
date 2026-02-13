@@ -44,6 +44,7 @@ export default function LoginPage() {
         style={{
           color: "#F5D07A",
           textShadow: "0 0 30px rgba(245, 208, 122, 0.3)",
+          WebkitTextStroke: "1px #F5D07A",
         }}
       >
         LEXICON

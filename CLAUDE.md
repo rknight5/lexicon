@@ -13,12 +13,12 @@ Next.js 16 (App Router) + React 19 + TypeScript | Tailwind CSS 4 | PostgreSQL + 
 - Game state via `useReducer` action machines in `useWordSearchGame.ts` / `useCrosswordGame.ts` / `useAnagramGame.ts`
 - Status lifecycle: `idle` → `playing` → `won`/`lost` (with `paused` side state). Hints cost 1 life (disabled at 1 remaining)
 - Grid generators: `src/lib/games/wordsearch/gridGenerator.ts`, `src/lib/games/crossword/gridGenerator.ts`. Scoring: `src/lib/scoring.ts`
-- sessionStorage keys: `lexicon-puzzle` / `lexicon-puzzle-crossword` / `lexicon-puzzle-anagram` + `lexicon-game-state` (for resume). Auto-save via `useAutoSave` hook (30s periodic, pause, visibilitychange, beforeunload with keepalive fetch). One slot per user, upsert on username
+- sessionStorage keys centralized in `src/lib/storage-keys.ts` (`STORAGE_KEYS` + `puzzleKeyForGameType()`). Auto-save via `useAutoSave` hook (30s periodic, pause, visibilitychange, beforeunload with keepalive fetch). One slot per user, upsert on username
 - Crossword `hintedCells` is a Set — serialize via `Array.from()` for JSON, reconstruct with `new Set()` on restore. Auto-save `getGameState` must handle this conversion
 - All fetch to `/api/*` must include `credentials: "include"`
 - Puzzle history persisted in PostgreSQL, scoped by username. Stats derived server-side
 - Landing page debounces topic input (600ms) for category prefetch
-- All shared types/config constants in `src/lib/types.ts`
+- All shared types/config constants in `src/lib/types.ts`. Shared utilities: `src/lib/format.ts` (formatTime), `src/components/shared/ModalShell.tsx` (modal wrapper)
 - Tests in `__tests__/` dirs alongside source. Setup at `src/test/setup.ts`. Path alias `@/` → `src/`
 - `drizzle-kit push` won't load `.env.local` — source env vars first: `source <(grep -v '^#' .env.local | sed 's/^/export /')`
 
