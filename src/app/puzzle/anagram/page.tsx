@@ -234,7 +234,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
       />
 
       {/* Desktop layout */}
-      <div className="hidden lg:flex flex-1 min-h-0 items-start justify-center pt-16 pb-6">
+      <div className="hidden lg:flex flex-1 min-h-0 items-start justify-center pt-[12vh] pb-6">
         <div className="relative">
           {/* Instructions: positioned to the left */}
           <div className="absolute right-full top-0 mr-40 flex flex-col gap-2.5 text-white/45 text-xs font-body whitespace-nowrap">
