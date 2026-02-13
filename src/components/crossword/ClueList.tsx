@@ -29,7 +29,7 @@ export function ClueList({
       <button
         key={`${clue.direction}-${clue.number}`}
         onClick={() => onClueClick(clue)}
-        className="w-full text-left px-3 py-1.5 rounded-lg transition-colors"
+        className="w-full text-left px-3 py-0.5 rounded-lg transition-colors"
         style={{
           background: isActive
             ? "rgba(0, 229, 255, 0.1)"
@@ -54,7 +54,7 @@ export function ClueList({
   };
 
   return (
-    <div className="flex flex-col gap-2 w-full">
+    <div className="flex flex-col gap-3 w-full">
       {/* Across */}
       <div>
         <h3
@@ -63,7 +63,7 @@ export function ClueList({
         >
           Across
         </h3>
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col">
           {acrossClues.map(renderClue)}
         </div>
       </div>
@@ -76,7 +76,7 @@ export function ClueList({
         >
           Down
         </h3>
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col">
           {downClues.map(renderClue)}
         </div>
       </div>
