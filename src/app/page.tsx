@@ -192,12 +192,13 @@ export default function HomePage() {
           style={{
             color: "#F5D07A",
             textShadow: "0 0 30px rgba(245, 208, 122, 0.3)",
+            WebkitTextStroke: "1px #F5D07A",
           }}>
         LEXICON
       </h1>
 
       {/* Tagline */}
-      <p className="font-heading text-lg md:text-xl mb-8"
+      <p className="font-heading text-lg md:text-xl mb-16"
          style={{ color: "var(--white-muted)" }}>
         Turn your interests into word puzzles
       </p>
