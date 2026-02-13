@@ -1,4 +1,5 @@
 import type { PuzzleResult, PuzzleData, CrosswordPuzzleData, AnagramPuzzleData, GameType, Difficulty } from "./types";
+import { saveOfflinePuzzle, deleteOfflinePuzzle, getAllOfflinePuzzles, getOfflinePuzzle } from "./offline-storage";
 
 export type SaveError = "session-expired" | "network" | "server";
 
@@ -87,6 +88,15 @@ export async function savePuzzle(
     if (res.status === 401) return { id: null, error: "session-expired" };
     if (!res.ok) return { id: null, error: "server" };
     const data = await res.json();
+    // Cache offline
+    await saveOfflinePuzzle({
+      id: data.id,
+      gameType,
+      title: puzzleData.title,
+      difficulty,
+      puzzleData,
+      savedAt: new Date().toISOString(),
+    }).catch(() => {}); // best-effort
     return { id: data.id };
   } catch {
     return { id: null, error: "network" };
@@ -96,8 +106,23 @@ export async function savePuzzle(
 export async function getSavedPuzzles(): Promise<SavedPuzzleSummary[]> {
   try {
     const res = await fetch("/api/puzzles", { credentials: "include" });
-    if (!res.ok) return [];
-    return await res.json();
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch {
+    // Network failure — try offline
+  }
+  // Fall back to IndexedDB
+  try {
+    const offline = await getAllOfflinePuzzles();
+    return offline.map((p) => ({
+      id: p.id,
+      gameType: p.gameType,
+      title: p.title,
+      topic: p.title,
+      difficulty: p.difficulty,
+      createdAt: p.savedAt,
+    }));
   } catch {
     return [];
   }
@@ -106,17 +131,30 @@ export async function getSavedPuzzles(): Promise<SavedPuzzleSummary[]> {
 export async function loadSavedPuzzle(
   id: string
 ): Promise<{ gameType: GameType; puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData } | null> {
+  // Try server first
   try {
     const res = await fetch(`/api/puzzles/${id}`, { credentials: "include" });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return { gameType: data.gameType, puzzleData: data.puzzleData };
+    if (res.ok) {
+      const data = await res.json();
+      return { gameType: data.gameType, puzzleData: data.puzzleData };
+    }
   } catch {
-    return null;
+    // Network failure — try offline
   }
+  // Fall back to IndexedDB
+  try {
+    const offline = await getOfflinePuzzle(id);
+    if (offline) {
+      return { gameType: offline.gameType, puzzleData: offline.puzzleData };
+    }
+  } catch {
+    // IndexedDB failure
+  }
+  return null;
 }
 
 export async function deleteSavedPuzzle(id: string): Promise<boolean> {
+  deleteOfflinePuzzle(id).catch(() => {});
   try {
     const res = await fetch(`/api/puzzles/${id}`, { method: "DELETE", credentials: "include" });
     return res.ok;
