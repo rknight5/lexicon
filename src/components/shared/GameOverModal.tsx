@@ -40,7 +40,7 @@ export function GameOverModal({
           </p>
 
           {/* Progress bar */}
-          <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "rgba(255, 255, 255, 0.1)" }}>
+          <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255, 255, 255, 0.1)" }}>
             <div
               className="h-full rounded-full transition-all"
               style={{
@@ -56,10 +56,10 @@ export function GameOverModal({
         </div>
 
         {/* Buttons */}
-        <div className="flex flex-col items-center gap-3 w-full pt-2">
+        <div className="flex flex-col items-center w-full pt-4">
           <button
             onClick={onTryAgain}
-            className="w-full h-11 rounded-pill font-heading text-sm font-bold uppercase tracking-wider text-purple-deep transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+            className="w-full h-10 rounded-pill font-heading text-sm font-bold uppercase tracking-wider text-purple-deep transition-all hover:-translate-y-0.5 active:scale-[0.97]"
             style={{
               background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
               boxShadow: "0 4px 15px rgba(255, 215, 0, 0.4)",
@@ -69,7 +69,7 @@ export function GameOverModal({
           </button>
           <button
             onClick={onNewTopic}
-            className="w-full h-10 rounded-pill font-body text-sm text-white/70 hover:text-white transition-colors text-center"
+            className="w-full h-10 rounded-pill font-body text-sm text-white/70 hover:text-white transition-colors text-center mt-2"
           >
             Play a New Game
           </button>
