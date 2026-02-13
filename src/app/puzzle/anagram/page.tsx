@@ -316,7 +316,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
                         if (letter && !isRevealed) handleDeselectLetter(i);
                       }}
                       disabled={!letter || isRevealed}
-                      className="w-14 h-14 rounded-xl flex items-center justify-center font-grid text-xl font-bold uppercase transition-all"
+                      className="w-14 h-14 rounded-xl flex items-center justify-center font-grid text-2xl font-bold uppercase transition-all"
                       style={{
                         background: letter
                           ? "rgba(255, 215, 0, 0.15)"
@@ -349,7 +349,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
                         if (!isSelected) handleSelectLetter(i);
                       }}
                       disabled={isSelected}
-                      className="w-14 h-14 rounded-xl flex items-center justify-center font-grid text-xl font-bold uppercase transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+                      className="w-14 h-14 rounded-xl flex items-center justify-center font-grid text-2xl font-bold uppercase transition-all hover:-translate-y-0.5 active:scale-[0.97]"
                       style={{
                         background: isSelected
                           ? "rgba(255, 255, 255, 0.02)"
