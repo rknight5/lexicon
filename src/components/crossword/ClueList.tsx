@@ -69,7 +69,7 @@ export function ClueList({
       </div>
 
       {/* Down */}
-      <div>
+      <div className="mt-2">
         <h3
           className="font-heading text-[11px] uppercase tracking-widest mb-1"
           style={{ color: "rgba(255, 255, 255, 0.5)" }}
