@@ -14,7 +14,7 @@ import { saveResult, savePuzzle } from "@/lib/storage";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { Toast } from "@/components/shared/Toast";
 import { SessionExpiredModal } from "@/components/shared/SessionExpiredModal";
-import { Bookmark, Shield, Flame, Skull, Heart } from "lucide-react";
+import { Bookmark, Shield, Flame, Skull, Heart, Pencil } from "lucide-react";
 import { ANAGRAM_DIFFICULTY_CONFIG } from "@/lib/types";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
 import type { AnagramPuzzleData } from "@/lib/types";
@@ -266,6 +266,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
         isSaved={isSaved || isSaving}
         onHint={handleHint}
         canHint={canHint}
+        hintsUsed={state.hintsUsed}
       />
 
       {/* Desktop layout */}
@@ -462,7 +463,16 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
       <div ref={mobileContainerRef} className="lg:hidden flex-1 flex flex-col items-center px-3 py-3 gap-3">
         {/* Title + difficulty below header */}
         <div className="flex items-center justify-center gap-2 w-full">
-          <span className="font-heading text-sm font-bold truncate">{puzzleTitle}</span>
+          <span className="font-heading font-bold truncate" style={{ fontSize: "1.05rem" }}>{puzzleTitle}</span>
+          <button
+            onClick={() => {
+              const newTitle = prompt("Edit title", puzzleTitle);
+              if (newTitle?.trim()) setPuzzleTitle(newTitle.trim());
+            }}
+            className="flex-shrink-0 text-white/50 hover:text-white/80 transition-colors p-0.5"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+          </button>
           <div
             className={`flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-pill border text-[10px] font-heading font-bold ${
               puzzle.difficulty === "easy" ? "text-green-accent border-green-accent/30 bg-green-accent/10" :
@@ -477,17 +487,21 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
           </div>
         </div>
 
-        {/* Lives / hearts */}
-        <div className="flex items-center gap-1.5">
-          {[0, 1, 2].map((i) => (
-            <Heart
-              key={i}
-              className={`w-4 h-4 transition-all ${
-                i < state.livesRemaining ? "text-red-400" : "text-gray-600"
-              }`}
-              fill={i < state.livesRemaining ? "currentColor" : "none"}
-            />
-          ))}
+        {/* Lives + score */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            {[0, 1, 2].map((i) => (
+              <Heart
+                key={i}
+                className={`w-4 h-4 transition-all ${
+                  i < state.livesRemaining ? "text-red-400" : "text-gray-600"
+                }`}
+                fill={i < state.livesRemaining ? "currentColor" : "none"}
+              />
+            ))}
+          </div>
+          <span className="text-white/25">|</span>
+          <span className="text-xs font-heading font-bold text-gold-primary">{score} pts</span>
         </div>
 
         {/* Word progress */}

@@ -21,7 +21,7 @@ interface WordListProps {
 
 export function WordList({ words, foundWords, hintedWords }: WordListProps) {
   return (
-    <div className="grid grid-cols-2 gap-x-10 gap-y-1.5">
+    <div className="grid grid-cols-2 gap-x-6 gap-y-1">
       {words.map((word) => {
         const isFound = foundWords.includes(word.word);
         const hintDirection = hintedWords[word.word];
@@ -29,7 +29,7 @@ export function WordList({ words, foundWords, hintedWords }: WordListProps) {
         return (
           <span
             key={word.word}
-            className={`font-bold text-sm tracking-wide font-body flex items-center gap-2 ${isFound ? "text-green-accent line-through opacity-50" : "text-white"}`}
+            className={`font-bold text-xs tracking-wide font-body flex items-center gap-1.5 ${isFound ? "text-green-accent line-through opacity-50" : "text-white"}`}
           >
             {word.word}
             {isFound && <span className="text-green-accent text-xs no-underline inline-block" style={{ textDecoration: "none" }}>{"\u2713"}</span>}

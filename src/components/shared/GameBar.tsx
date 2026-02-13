@@ -17,6 +17,7 @@ interface GameBarProps {
   isSaved?: boolean;
   onHint?: () => void;
   canHint?: boolean;
+  hintsUsed?: number;
 }
 
 const DIFFICULTY_BADGE: Record<
@@ -52,6 +53,7 @@ export function GameBar({
   isSaved,
   onHint,
   canHint,
+  hintsUsed = 0,
 }: GameBarProps) {
   const router = useRouter();
   const badge = DIFFICULTY_BADGE[difficulty];
@@ -153,10 +155,15 @@ export function GameBar({
           <button
             onClick={onHint}
             disabled={!canHint}
-            className="lg:hidden text-gold-primary/70 hover:text-gold-primary transition-colors p-1.5 -m-1.5 disabled:opacity-30"
+            className="lg:hidden relative text-gold-primary/70 hover:text-gold-primary transition-colors p-1.5 -m-1.5 disabled:opacity-30"
             title="Hint (costs 1 life)"
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+            {hintsUsed > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-gold-primary text-purple-deep text-[10px] font-bold flex items-center justify-center">
+                {hintsUsed}
+              </span>
+            )}
           </button>
         )}
         {onSave && (
@@ -166,7 +173,7 @@ export function GameBar({
             className={`transition-colors p-1.5 -m-1.5 cursor-pointer ${isSaved ? "text-gold-primary cursor-default" : "text-white/50 hover:text-white/80"}`}
             title={isSaved ? "Saved" : "Save puzzle"}
           >
-            <Bookmark className="w-5 h-5" fill={isSaved ? "currentColor" : "none"} />
+            <Bookmark className="w-6 h-6" fill={isSaved ? "currentColor" : "none"} />
           </button>
         )}
         <button
@@ -175,14 +182,14 @@ export function GameBar({
           title="Settings"
           disabled={gameStatus !== "playing"}
         >
-          <Settings className="w-5 h-5" />
+          <Settings className="w-6 h-6" />
         </button>
         <button
           onClick={handleLogout}
           className="text-white/50 hover:text-white/80 transition-colors p-1.5 -m-1.5"
           title="Log out"
         >
-          <LogOut className="w-5 h-5" />
+          <LogOut className="w-6 h-6" />
         </button>
       </div>
     </div>
