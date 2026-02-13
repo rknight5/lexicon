@@ -54,11 +54,11 @@ export function ClueList({
   };
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-2 w-full">
       {/* Across */}
       <div>
         <h3
-          className="font-heading text-[11px] uppercase tracking-widest mb-2"
+          className="font-heading text-[11px] uppercase tracking-widest mb-1"
           style={{ color: "rgba(255, 255, 255, 0.5)" }}
         >
           Across
@@ -71,7 +71,7 @@ export function ClueList({
       {/* Down */}
       <div>
         <h3
-          className="font-heading text-[11px] uppercase tracking-widest mb-2"
+          className="font-heading text-[11px] uppercase tracking-widest mb-1"
           style={{ color: "rgba(255, 255, 255, 0.5)" }}
         >
           Down
