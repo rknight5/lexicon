@@ -237,7 +237,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
       <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-0 pb-6">
         <div className="relative">
           {/* Instructions: positioned to the left */}
-          <div className="absolute right-full top-0 mr-23 flex flex-col gap-2.5 text-white/45 text-xs font-body whitespace-nowrap">
+          <div className="absolute right-full top-0 mr-32 flex flex-col gap-2.5 text-white/45 text-xs font-body whitespace-nowrap">
             <div>
               <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold">
                 How to Play
@@ -281,7 +281,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
 
           {/* Main game panel */}
           <div
-            className="flex flex-col items-center gap-6 rounded-3xl p-8 min-w-[420px]"
+            className="flex flex-col items-center gap-7 rounded-3xl p-10 min-w-[480px]"
             style={{
               background: "rgba(255, 255, 255, 0.05)",
               border: "1px solid rgba(255, 255, 255, 0.1)",
@@ -304,7 +304,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
             )}
 
             {/* Answer slots */}
-            <div className="flex gap-2 justify-center flex-wrap">
+            <div className="flex gap-2.5 justify-center flex-wrap">
               {currentWord &&
                 Array.from({ length: currentWord.word.length }).map((_, i) => {
                   const letter = answerLetters[i] ?? null;
@@ -316,7 +316,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
                         if (letter && !isRevealed) handleDeselectLetter(i);
                       }}
                       disabled={!letter || isRevealed}
-                      className="w-12 h-12 rounded-xl flex items-center justify-center font-grid text-lg font-bold uppercase transition-all"
+                      className="w-14 h-14 rounded-xl flex items-center justify-center font-grid text-xl font-bold uppercase transition-all"
                       style={{
                         background: letter
                           ? "rgba(255, 215, 0, 0.15)"
@@ -338,7 +338,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
             </div>
 
             {/* Scrambled letter tiles */}
-            <div className="flex gap-2 justify-center flex-wrap">
+            <div className="flex gap-2.5 justify-center flex-wrap">
               {currentWord &&
                 currentWord.scrambled.split("").map((letter, i) => {
                   const isSelected = state.selectedIndices.includes(i);
@@ -349,17 +349,17 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
                         if (!isSelected) handleSelectLetter(i);
                       }}
                       disabled={isSelected}
-                      className="w-12 h-12 rounded-xl flex items-center justify-center font-grid text-lg font-bold uppercase transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+                      className="w-14 h-14 rounded-xl flex items-center justify-center font-grid text-xl font-bold uppercase transition-all hover:-translate-y-0.5 active:scale-[0.97]"
                       style={{
                         background: isSelected
                           ? "rgba(255, 255, 255, 0.02)"
-                          : "var(--glass-bg)",
+                          : "rgba(255, 255, 255, 0.95)",
                         border: isSelected
                           ? "1px solid rgba(255, 255, 255, 0.05)"
-                          : "1px solid var(--glass-border)",
+                          : "1px solid rgba(255, 255, 255, 0.3)",
                         color: isSelected
                           ? "rgba(255, 255, 255, 0.15)"
-                          : "white",
+                          : "#1a1a2e",
                         opacity: isSelected ? 0.3 : 1,
                         cursor: isSelected ? "default" : "pointer",
                       }}
@@ -371,14 +371,14 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-3 items-center">
+            <div className="flex gap-4 items-center">
               <button
                 onClick={handleSkip}
                 disabled={
                   state.gameStatus !== "playing" &&
                   state.gameStatus !== "idle"
                 }
-                className="px-4 py-2 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
+                className="px-5 py-2.5 rounded-pill font-heading text-sm font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
                 style={{
                   background: "rgba(255, 255, 255, 0.06)",
                   border: "1px solid rgba(255, 255, 255, 0.12)",
@@ -390,7 +390,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
               <button
                 onClick={handleSubmit}
                 disabled={!allSlotsFilled}
-                className="px-6 py-2.5 rounded-pill font-heading text-sm font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
+                className="px-7 py-2.5 rounded-pill font-heading text-sm font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
                 style={{
                   background: allSlotsFilled
                     ? "rgba(255, 215, 0, 0.2)"
@@ -486,13 +486,13 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
                   style={{
                     background: isSelected
                       ? "rgba(255, 255, 255, 0.02)"
-                      : "var(--glass-bg)",
+                      : "rgba(255, 255, 255, 0.95)",
                     border: isSelected
                       ? "1px solid rgba(255, 255, 255, 0.05)"
-                      : "1px solid var(--glass-border)",
+                      : "1px solid rgba(255, 255, 255, 0.3)",
                     color: isSelected
                       ? "rgba(255, 255, 255, 0.15)"
-                      : "white",
+                      : "#1a1a2e",
                     opacity: isSelected ? 0.3 : 1,
                     cursor: isSelected ? "default" : "pointer",
                   }}
