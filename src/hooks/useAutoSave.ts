@@ -57,6 +57,15 @@ export function useAutoSave({
     }
   }, []);
 
+  // ── Initial save on mount so the puzzle is resumable immediately ──
+  const didInitialSave = useRef(false);
+  useEffect(() => {
+    if (!didInitialSave.current) {
+      didInitialSave.current = true;
+      doSave();
+    }
+  }, [doSave]);
+
   // ── Periodic save every 30s while playing ──
   useEffect(() => {
     if (gameStatus !== "playing") return;
@@ -77,7 +86,7 @@ export function useAutoSave({
       if (
         document.hidden &&
         (optionsRef.current.getGameState !== undefined) &&
-        (gameStatus === "playing" || gameStatus === "paused")
+        (gameStatus === "idle" || gameStatus === "playing" || gameStatus === "paused")
       ) {
         doSave();
       }
@@ -89,7 +98,7 @@ export function useAutoSave({
   // ── Save on beforeunload with keepalive fetch ──
   useEffect(() => {
     function handleBeforeUnload() {
-      if (gameStatus !== "playing" && gameStatus !== "paused") return;
+      if (gameStatus !== "idle" && gameStatus !== "playing" && gameStatus !== "paused") return;
       const { gameType: gt, title: t, difficulty: d, puzzleData: pd, getGameState: gs } =
         optionsRef.current;
       try {
@@ -117,7 +126,7 @@ export function useAutoSave({
   // ── Save on component unmount (SPA navigation) ──
   useEffect(() => {
     return () => {
-      if (gameStatusRef.current !== "playing" && gameStatusRef.current !== "paused") return;
+      if (gameStatusRef.current !== "idle" && gameStatusRef.current !== "playing" && gameStatusRef.current !== "paused") return;
       if (deletedRef.current) return;
       const { gameType: gt, title: t, difficulty: d, puzzleData: pd, getGameState: gs } =
         optionsRef.current;
