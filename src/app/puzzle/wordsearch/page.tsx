@@ -273,7 +273,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
             </div>
 
             {/* Word list to the right of grid */}
-            <div className="py-5 pr-8 pl-3 flex flex-col gap-3">
+            <div className="py-5 pr-8 pl-3 flex flex-col gap-5">
               <div className="flex items-center gap-3">
                 <span className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">Progress</span>
                 <WordProgress
