@@ -118,6 +118,10 @@ export function StatsModal({ onClose }: StatsModalProps) {
                 title="Crossword"
                 scores={stats.bestScores.crossword}
               />
+              <BestScoreSection
+                title="Anagram"
+                scores={stats.bestScores.anagram}
+              />
             </div>
           </>
         ) : (

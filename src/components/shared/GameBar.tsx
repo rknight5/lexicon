@@ -94,7 +94,7 @@ export function GameBar({
         onClick={onBack}
         className="relative z-10 flex items-center gap-1.5 text-white/70 hover:text-white transition-colors"
       >
-        <Home className="w-5 h-5" />
+        <Home className="w-6 h-6" />
       </button>
 
       {/* Center: title + difficulty badge */}
