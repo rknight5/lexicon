@@ -288,7 +288,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
 
           {/* Main game panel */}
           <div
-            className="flex flex-col items-center gap-7 rounded-3xl p-10 min-w-[480px]"
+            className="flex flex-col items-center gap-8 rounded-3xl p-10 min-w-[480px]"
             style={{
               background: "rgba(255, 255, 255, 0.05)",
               border: "1px solid rgba(255, 255, 255, 0.1)",
@@ -302,15 +302,18 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
 
             {/* Clue */}
             {showClues && currentWord?.clue && (
-              <p
-                className="text-sm font-body text-center max-w-xs"
-                style={{ color: "var(--white-muted)" }}
-              >
-                {currentWord.clue}
-              </p>
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-[10px] uppercase tracking-[2px] text-white/40 font-heading font-semibold">Clue</span>
+                <p
+                  className="text-sm font-body text-center max-w-xs italic"
+                  style={{ color: "var(--white-muted)" }}
+                >
+                  &ldquo;{currentWord.clue}&rdquo;
+                </p>
+              </div>
             )}
 
-            {/* Answer slots */}
+            {/* Answer slots — extra top margin for breathing room */}
             <div className="flex gap-2.5 justify-center flex-wrap">
               {currentWord &&
                 Array.from({ length: currentWord.word.length }).map((_, i) => {
@@ -436,12 +439,15 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
 
         {/* Clue */}
         {showClues && currentWord?.clue && (
-          <p
-            className="text-sm font-body text-center max-w-xs"
-            style={{ color: "var(--white-muted)" }}
-          >
-            {currentWord.clue}
-          </p>
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-[10px] uppercase tracking-[2px] text-white/40 font-heading font-semibold">Clue</span>
+            <p
+              className="text-sm font-body text-center max-w-xs italic"
+              style={{ color: "var(--white-muted)" }}
+            >
+              &ldquo;{currentWord.clue}&rdquo;
+            </p>
+          </div>
         )}
 
         {/* Answer slots */}
