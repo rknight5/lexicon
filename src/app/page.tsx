@@ -68,7 +68,6 @@ export default function HomePage() {
     }
     debounceRef.current = setTimeout(async () => {
       if (prefetchTopicRef.current === value.trim()) return; // already fetched
-      prefetchTopicRef.current = value.trim();
       try {
         const res = await fetch("/api/generate", {
           method: "POST",
@@ -78,7 +77,8 @@ export default function HomePage() {
         });
         if (!res.ok) return;
         const data = await res.json();
-        if (data.categories?.length > 0 && prefetchTopicRef.current === value.trim()) {
+        if (data.categories?.length > 0) {
+          prefetchTopicRef.current = value.trim();
           setPrefetchedCategories(data.categories);
         }
       } catch {
