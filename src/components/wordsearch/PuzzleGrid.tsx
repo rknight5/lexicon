@@ -81,6 +81,26 @@ export function PuzzleGrid({
   const [flashingGreen, setFlashingGreen] = useState(false);
   const isDragging = useRef(false);
   const startCell = useRef<CellPosition | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [cellSize, setCellSize] = useState(28);
+
+  // Dynamically compute cell size to fit within the container
+  useEffect(() => {
+    const measure = () => {
+      if (!containerRef.current?.parentElement) return;
+      const parentWidth = containerRef.current.parentElement.clientWidth;
+      const padding = 24; // p-3 = 12px each side
+      const available = parentWidth - padding;
+      const maxSize = gridSize <= 15 ? 40 : 32; // desktop max
+      const computed = Math.floor(available / gridSize);
+      setCellSize(Math.max(16, Math.min(maxSize, computed)));
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [gridSize]);
+
+  const fontSize = Math.max(10, Math.floor(cellSize * 0.45));
 
   useEffect(() => {
     if (lastMissTimestamp > 0) {
@@ -131,23 +151,12 @@ export function PuzzleGrid({
     }
   }, [onPointerLeave]);
 
-  // Cell sizes: 28px mobile, 32px tablet, 40px desktop (smaller for 18x18)
-  const cellSizeClass =
-    gridSize <= 15
-      ? "w-7 h-7 md:w-8 md:h-8 lg:w-10 lg:h-10"
-      : "w-5 h-5 md:w-7 md:h-7 lg:w-8 lg:h-8";
-
-  // Font at ~45% of cell size for visual ~60% letter coverage
-  const fontSizeClass =
-    gridSize <= 15
-      ? "text-sm md:text-base lg:text-lg"
-      : "text-[11px] md:text-sm lg:text-base";
-
   return (
     <div
+      ref={containerRef}
       className={`inline-grid gap-0 p-3 rounded-xl select-none ${shaking ? "animate-shake" : ""}`}
       style={{
-        gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
+        gridTemplateColumns: `repeat(${gridSize}, ${cellSize}px)`,
         background: "#FFFFFF",
         borderRadius: "12px",
         touchAction: "none",
@@ -168,10 +177,10 @@ export function PuzzleGrid({
                 grid-cell
                 ${isSelected ? "grid-cell--selecting" : ""}
                 ${isFound ? "grid-cell--found" : ""}
-                ${cellSizeClass} ${fontSizeClass}
                 flex items-center justify-center
                 font-grid cursor-pointer
               `}
+              style={{ width: cellSize, height: cellSize, fontSize }}
               onPointerDown={() => handlePointerDown(rowIdx, colIdx)}
               onPointerEnter={() => handlePointerEnter(rowIdx, colIdx)}
             >
