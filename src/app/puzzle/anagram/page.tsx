@@ -14,7 +14,7 @@ import { saveResult, savePuzzle } from "@/lib/storage";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { Toast } from "@/components/shared/Toast";
 import { SessionExpiredModal } from "@/components/shared/SessionExpiredModal";
-import { Bookmark } from "lucide-react";
+import { Bookmark, Shield, Flame, Skull, Heart } from "lucide-react";
 import { ANAGRAM_DIFFICULTY_CONFIG } from "@/lib/types";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
 import type { AnagramPuzzleData } from "@/lib/types";
@@ -264,6 +264,8 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
         onStats={() => setShowStats(true)}
         onSave={handleSave}
         isSaved={isSaved || isSaving}
+        onHint={handleHint}
+        canHint={canHint}
       />
 
       {/* Desktop layout */}
@@ -457,7 +459,37 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
       </div>
 
       {/* Mobile layout */}
-      <div ref={mobileContainerRef} className="lg:hidden flex-1 flex flex-col items-center px-3 py-4 gap-4">
+      <div ref={mobileContainerRef} className="lg:hidden flex-1 flex flex-col items-center px-3 py-3 gap-3">
+        {/* Title + difficulty below header */}
+        <div className="flex items-center justify-center gap-2 w-full">
+          <span className="font-heading text-sm font-bold truncate">{puzzleTitle}</span>
+          <div
+            className={`flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-pill border text-[10px] font-heading font-bold ${
+              puzzle.difficulty === "easy" ? "text-green-accent border-green-accent/30 bg-green-accent/10" :
+              puzzle.difficulty === "hard" ? "text-pink-accent border-pink-accent/30 bg-pink-accent/10" :
+              "text-gold-primary border-gold-primary/30 bg-gold-primary/10"
+            }`}
+          >
+            {puzzle.difficulty === "easy" ? <Shield className="w-3 h-3" /> :
+             puzzle.difficulty === "hard" ? <Skull className="w-3 h-3" /> :
+             <Flame className="w-3 h-3" />}
+            {puzzle.difficulty.charAt(0).toUpperCase() + puzzle.difficulty.slice(1)}
+          </div>
+        </div>
+
+        {/* Lives / hearts */}
+        <div className="flex items-center gap-1.5">
+          {[0, 1, 2].map((i) => (
+            <Heart
+              key={i}
+              className={`w-4 h-4 transition-all ${
+                i < state.livesRemaining ? "text-red-400" : "text-gray-600"
+              }`}
+              fill={i < state.livesRemaining ? "currentColor" : "none"}
+            />
+          ))}
+        </div>
+
         {/* Word progress */}
         <div className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">
           Word {state.currentWordIndex + 1} of {puzzle.words.length}
@@ -581,42 +613,6 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
             Submit
           </button>
         </div>
-
-        {/* Hint button (mobile) */}
-        <button
-          onClick={handleHint}
-          disabled={!canHint}
-          className="px-5 py-2 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
-          style={{
-            background: "rgba(255, 215, 0, 0.12)",
-            border: "1px solid rgba(255, 215, 0, 0.3)",
-            color: "#FFD700",
-          }}
-        >
-          <span className="mr-1.5">
-            <svg
-              className="inline w-3.5 h-3.5 -mt-0.5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-            </svg>
-          </span>
-          Hint
-        </button>
-
-        <GameStatsBar
-          score={score}
-          livesRemaining={state.livesRemaining}
-          hintsUsed={state.hintsUsed}
-          elapsedSeconds={state.elapsedSeconds}
-          gameStatus={state.gameStatus}
-          lastMissTimestamp={lastMissTimestamp}
-        />
       </div>
 
       {/* Modals */}
