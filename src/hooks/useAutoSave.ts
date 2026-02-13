@@ -80,6 +80,15 @@ export function useAutoSave({
     }
   }, [gameStatus, doSave]);
 
+  // ── Save when title changes (user rename) ──
+  const prevTitleRef = useRef(title);
+  useEffect(() => {
+    if (title !== prevTitleRef.current) {
+      prevTitleRef.current = title;
+      doSave();
+    }
+  }, [title, doSave]);
+
   // ── Save on visibility change (tab hidden / app backgrounded) ──
   useEffect(() => {
     function handleVisibility() {
