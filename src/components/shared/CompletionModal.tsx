@@ -1,4 +1,4 @@
-import { Trophy, Star, Bookmark } from "lucide-react";
+import { Trophy, Star } from "lucide-react";
 import { formatTime } from "@/lib/format";
 import { ModalShell } from "@/components/shared/ModalShell";
 
@@ -33,7 +33,7 @@ export function CompletionModal({
           <Trophy className="w-10 h-10 text-gold-primary" />
         </div>
 
-        <h2 className="font-heading text-3xl font-bold text-gold-primary">
+        <h2 className="font-heading text-3xl font-bold text-gold-primary text-center">
           Puzzle Complete!
         </h2>
 
@@ -42,11 +42,11 @@ export function CompletionModal({
             <Star className="w-5 h-5" fill="currentColor" />
             <span className="font-grid text-3xl font-bold">{score}</span>
           </div>
-          <p className="font-body text-sm" style={{ color: "var(--white-muted)" }}>
+          <p className="font-body text-sm text-center" style={{ color: "var(--white-muted)" }}>
             {wordsFound}/{wordsTotal} words · {formatTime(elapsedSeconds)} · {livesRemaining}/3 lives
           </p>
           {livesRemaining === 3 && (
-            <p className="font-heading text-xs text-gold-primary">
+            <p className="font-heading text-xs text-gold-primary text-center">
               Perfect Game!
             </p>
           )}
@@ -68,23 +68,11 @@ export function CompletionModal({
           </p>
         </div>
 
-        {onSaveToLibrary && (
-          <button
-            onClick={onSaveToLibrary}
-            disabled={isSavedToLibrary}
-            className={`flex items-center justify-center gap-2 w-full py-2 rounded-pill font-body text-sm transition-colors ${
-              isSavedToLibrary ? "text-gold-primary" : "text-white/60 hover:text-white/80"
-            }`}
-          >
-            <Bookmark className="w-4 h-4" fill={isSavedToLibrary ? "currentColor" : "none"} />
-            {isSavedToLibrary ? "Saved to Library" : "Save to Library"}
-          </button>
-        )}
-
-        <div className="space-y-3 pt-2">
+        {/* Buttons */}
+        <div className="flex flex-col items-center w-full pt-4">
           <button
             onClick={onPlayAgain}
-            className="w-full h-11 rounded-pill font-heading text-sm font-bold uppercase tracking-wider text-purple-deep transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+            className="w-full h-10 rounded-pill font-heading text-sm font-bold uppercase tracking-wider text-purple-deep transition-all hover:-translate-y-0.5 active:scale-[0.97]"
             style={{
               background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
               boxShadow: "0 4px 15px rgba(255, 215, 0, 0.4)",
@@ -94,10 +82,21 @@ export function CompletionModal({
           </button>
           <button
             onClick={onNewTopic}
-            className="w-full h-10 rounded-pill font-body text-sm text-white/70 hover:text-white transition-colors"
+            className="w-full h-10 rounded-pill font-body text-sm text-white/70 hover:text-white transition-colors text-center mt-2"
           >
             Play a New Game
           </button>
+          {onSaveToLibrary && (
+            <button
+              onClick={onSaveToLibrary}
+              disabled={isSavedToLibrary}
+              className={`w-full h-10 rounded-pill font-body text-sm transition-colors text-center ${
+                isSavedToLibrary ? "text-gold-primary" : "text-white/70 hover:text-white"
+              }`}
+            >
+              {isSavedToLibrary ? "Saved to Library" : "Save to Library"}
+            </button>
+          )}
         </div>
     </ModalShell>
   );
