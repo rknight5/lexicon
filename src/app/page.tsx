@@ -254,14 +254,14 @@ export default function HomePage() {
             <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold whitespace-nowrap">Quick Starts</span>
             <div className="h-px flex-1 bg-white/15" />
           </div>
-          <div className="grid grid-cols-3 gap-2.5 w-full">
+          <div className="flex flex-wrap justify-center gap-2.5 w-full">
             {EXAMPLE_TOPICS.map((example) => (
               <button
                 key={example}
                 onClick={() => {
                   handleTopicChange(example);
                 }}
-                className="px-4 py-2 rounded-pill text-sm font-body font-semibold transition-all hover:border-gold-primary text-center"
+                className="px-4 py-2 rounded-pill text-sm font-body font-semibold transition-all hover:border-gold-primary"
                 style={{
                   background: "rgba(255, 255, 255, 0.1)",
                   border: "1px solid rgba(255, 255, 255, 0.2)",
