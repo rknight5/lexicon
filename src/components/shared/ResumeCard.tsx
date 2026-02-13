@@ -56,35 +56,37 @@ export function ResumeCard({ autoSave, onResume, onSave, onDismiss }: ResumeCard
 
   return (
     <div
-      className="w-full max-w-xl p-4 rounded-2xl flex items-center gap-4"
+      className="w-full max-w-xl p-4 rounded-2xl flex flex-col gap-3"
       style={{
         background: "var(--glass-bg)",
         border: "1px solid var(--glass-border)",
         borderLeft: "3px solid #FFD700",
       }}
     >
-      <div className="flex-shrink-0">
-        {GAME_TYPE_ICON[autoSave.gameType]}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="font-heading text-sm font-bold text-white truncate">
-            {autoSave.title}
-          </span>
-          {DIFFICULTY_ICON[autoSave.difficulty]}
+      <div className="flex items-center gap-3">
+        <div className="flex-shrink-0">
+          {GAME_TYPE_ICON[autoSave.gameType]}
         </div>
-        <div className="flex items-center gap-3 mt-1">
-          <span className="text-[11px] font-body">
-            <span className="text-white font-bold">{count}</span>
-            <span className="text-white/50"> {label}</span>
-          </span>
-          <span className="text-[11px] text-white/50 font-body flex items-center gap-1">
-            <Heart className="w-3 h-3 text-pink-accent" fill="currentColor" />
-            {livesRemaining}
-          </span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-heading text-sm font-bold text-white truncate">
+              {autoSave.title}
+            </span>
+            {DIFFICULTY_ICON[autoSave.difficulty]}
+          </div>
+          <div className="flex items-center gap-3 mt-1">
+            <span className="text-[11px] font-body">
+              <span className="text-white font-bold">{count}</span>
+              <span className="text-white/50"> {label}</span>
+            </span>
+            <span className="text-[11px] text-white/50 font-body flex items-center gap-1">
+              <Heart className="w-3 h-3 text-pink-accent" fill="currentColor" />
+              {livesRemaining}
+            </span>
+          </div>
         </div>
       </div>
-      <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="flex items-center gap-2">
         <button
           onClick={onResume}
           className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-heading font-bold px-3 py-1.5 rounded-pill transition-all hover:brightness-125 active:scale-95"
