@@ -284,12 +284,12 @@ Rules:
 - Words must be within the specified length range
 - All words must be real, verifiable names, terms, or references
 - Only include words from the requested focus categories
-- Each word needs a clue that hints at the answer without giving it away
+- Each word needs a clue — the clue style varies by difficulty level
 - Assign each word a difficulty: 1 (well-known), 2 (moderate), 3 (deep cut)
-- Distribute difficulty based on the requested level:
-  - Easy: mostly difficulty 1, a few 2s
-  - Medium: mix of 1s, 2s, and a few 3s
-  - Hard: heavy on 2s and 3s, fewer 1s
+- Distribute word difficulty and clue style based on the requested level:
+  - Easy: mostly difficulty 1, a few 2s. Clues should be clear and direct — obvious hints that help the player (e.g., "A stringed instrument played with a bow" for VIOLIN)
+  - Medium: mix of 1s, 2s, and a few 3s. Clues should be slightly vague and indirect — they relate to the answer but require some thought (e.g., "Found in an orchestra pit" for VIOLIN)
+  - Hard: heavy on 2s and 3s, fewer 1s. No clues will be shown to the player, but still include a clue in the JSON for consistency
 - Include a brief, interesting fun fact related to the topic
 - Vary your selections: prioritize surprising, lesser-known, and creative word choices over the most obvious ones. Each generation should feel fresh, not formulaic.
 

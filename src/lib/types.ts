@@ -320,10 +320,10 @@ export const ANAGRAM_DIFFICULTY_CONFIG = {
     maxWords: 14,
     minWordLength: 5,
     maxWordLength: 8,
-    showClues: false,
+    showClues: true,
     lives: 3,
     label: "Medium",
-    description: "12-14 words, clues cost a hint",
+    description: "12-14 words, vague clues",
   },
   hard: {
     minWords: 14,
