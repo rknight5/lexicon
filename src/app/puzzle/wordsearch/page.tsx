@@ -238,7 +238,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
                 }}
                 title="Get a random hint (costs 1 life)"
               >
-                <span className="text-2xl pointer-events-none">💡</span>
+                <svg className="w-6 h-6 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
               </button>
               <span className="text-xs text-white/50 font-body">Costs 1 life</span>
             </div>
@@ -342,7 +342,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
             color: "#FFD700",
           }}
         >
-          <span className="mr-1.5">💡</span>Hint
+          <span className="mr-1.5"><svg className="inline w-3.5 h-3.5 -mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg></span>Hint
         </button>
         <GameStatsBar
           score={score}

@@ -223,7 +223,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
                 }}
                 title="Reveal a letter (costs 1 life)"
               >
-                <span className="text-2xl pointer-events-none">💡</span>
+                <svg className="w-6 h-6 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
               </button>
               <span className="text-xs text-white/50 font-body">Costs 1 life</span>
             </div>
