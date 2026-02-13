@@ -56,10 +56,10 @@ export function GameOverModal({
         </div>
 
         {/* Buttons */}
-        <div className="flex flex-col items-center gap-2 w-full pt-4">
+        <div className="flex flex-col items-center gap-2.5 w-full pt-4">
           <button
             onClick={onTryAgain}
-            className="w-full h-8 rounded-pill font-heading text-xs font-bold uppercase tracking-wider text-purple-deep transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+            className="w-full h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider text-purple-deep transition-all hover:-translate-y-0.5 active:scale-[0.97]"
             style={{
               background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
               boxShadow: "0 4px 15px rgba(255, 215, 0, 0.4)",
@@ -69,7 +69,7 @@ export function GameOverModal({
           </button>
           <button
             onClick={onNewTopic}
-            className="w-full h-8 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+            className="w-full h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97]"
             style={{
               background: "rgba(255, 255, 255, 0.08)",
               border: "1px solid rgba(255, 255, 255, 0.15)",
@@ -82,7 +82,7 @@ export function GameOverModal({
             <button
               onClick={onSaveToLibrary}
               disabled={isSavedToLibrary}
-              className={`w-full h-8 rounded-pill font-body text-sm transition-colors text-center ${
+              className={`w-full h-9 rounded-pill font-body text-sm transition-colors text-center ${
                 isSavedToLibrary ? "text-gold-primary" : "text-white/50 hover:text-white/70"
               }`}
             >
