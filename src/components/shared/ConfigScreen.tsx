@@ -79,10 +79,13 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
         body: JSON.stringify({ topic }),
         credentials: "include",
       });
+      if (!res.ok) throw new Error("API error");
       const data = await res.json();
-      if (data.categories) {
+      if (data.categories && data.categories.length > 0) {
         setCategories(data.categories);
         setSelectedCategories(data.categories.map((c: CategorySuggestion) => c.name));
+      } else {
+        setCategoryError(true);
       }
     } catch {
       setCategories([]);

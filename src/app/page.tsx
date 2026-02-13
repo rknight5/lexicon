@@ -76,8 +76,9 @@ export default function HomePage() {
           body: JSON.stringify({ topic: value.trim() }),
           credentials: "include",
         });
+        if (!res.ok) return;
         const data = await res.json();
-        if (data.categories && prefetchTopicRef.current === value.trim()) {
+        if (data.categories?.length > 0 && prefetchTopicRef.current === value.trim()) {
           setPrefetchedCategories(data.categories);
         }
       } catch {
