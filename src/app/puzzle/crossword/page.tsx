@@ -244,7 +244,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
             }}
           >
             {/* Grid */}
-            <div className="py-4 pl-2 pr-5 flex items-center justify-center" onClick={handleFirstInteraction}>
+            <div className="py-6 pl-4 pr-5 flex items-center justify-center" onClick={handleFirstInteraction}>
               <CrosswordGrid
                 grid={puzzle.grid}
                 gridSize={puzzle.gridSize}
@@ -270,7 +270,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
             <div className="w-px self-stretch" style={{ background: "rgba(255, 255, 255, 0.1)" }} />
 
             {/* Clue list */}
-            <div className="py-4 pr-6 pl-4 flex flex-col gap-5 max-h-[500px] overflow-y-auto">
+            <div className="py-6 pr-6 pl-4 flex flex-col gap-5 max-h-[560px] overflow-y-auto">
               <span className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">
                 Clues — {state.solvedClues.length}/{puzzle.clues.length}
               </span>
