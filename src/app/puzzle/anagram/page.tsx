@@ -237,7 +237,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
       <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-0 pb-6">
         <div className="relative">
           {/* Instructions: positioned to the left */}
-          <div className="absolute right-full top-0 mr-32 flex flex-col gap-2.5 text-white/45 text-xs font-body whitespace-nowrap">
+          <div className="absolute right-full top-0 mr-40 flex flex-col gap-2.5 text-white/45 text-xs font-body whitespace-nowrap">
             <div>
               <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold">
                 How to Play

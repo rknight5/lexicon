@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Shield, Flame, Skull, Sparkles, Tag, Search, Grid3X3, Shuffle } from "lucide-react";
+import { Home, Shield, Flame, Skull, Sparkles, Tag, Search, Grid3X3, Shuffle } from "lucide-react";
 import type { Difficulty, GameType, CategorySuggestion } from "@/lib/types";
 import { LoadingOverlay } from "@/components/shared/LoadingOverlay";
 
@@ -182,8 +182,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
         className="fixed top-6 left-6 z-50 flex items-center gap-2 font-body text-sm"
         style={{ color: "var(--white-muted)" }}
       >
-        <ArrowLeft className="w-4 h-4" />
-        Back
+        <Home className="w-4 h-4" />
       </button>
 
       <div className="w-full max-w-md space-y-6">

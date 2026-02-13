@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Shield, Flame, Skull, ArrowLeft, Pencil, Check, BarChart2, Bookmark, Settings, LogOut } from "lucide-react";
+import { Shield, Flame, Skull, Home, Pencil, Check, BarChart2, Bookmark, Settings, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { Difficulty } from "@/lib/types";
 
@@ -94,8 +94,7 @@ export function GameBar({
         onClick={onBack}
         className="relative z-10 flex items-center gap-1.5 text-white/70 hover:text-white transition-colors"
       >
-        <ArrowLeft className="w-6 h-6" />
-        <span className="font-body text-sm">Back</span>
+        <Home className="w-5 h-5" />
       </button>
 
       {/* Center: title + difficulty badge */}
