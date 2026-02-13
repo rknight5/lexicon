@@ -150,7 +150,7 @@ export function CrosswordGrid({
 
       <div
         ref={containerRef}
-        className="inline-grid select-none -ml-8 -mt-10"
+        className="inline-grid select-none"
         style={{
           gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
           gap: "2px",
