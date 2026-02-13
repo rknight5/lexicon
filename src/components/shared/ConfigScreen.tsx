@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Home, Shield, Flame, Skull, Sparkles, Tag, Search, Grid3X3, Shuffle } from "lucide-react";
 import type { Difficulty, GameType, CategorySuggestion } from "@/lib/types";
 import { LoadingOverlay } from "@/components/shared/LoadingOverlay";
+import { STORAGE_KEYS, puzzleKeyForGameType } from "@/lib/storage-keys";
 
 interface ConfigScreenProps {
   topic: string;
@@ -129,11 +130,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
 
       const puzzle = await res.json();
       // Store puzzle in sessionStorage and navigate
-      const storageKey = gameType === "crossword"
-        ? "lexicon-puzzle-crossword"
-        : gameType === "anagram"
-          ? "lexicon-puzzle-anagram"
-          : "lexicon-puzzle";
+      const storageKey = puzzleKeyForGameType(gameType);
 
       const route = gameType === "crossword"
         ? "/puzzle/crossword"

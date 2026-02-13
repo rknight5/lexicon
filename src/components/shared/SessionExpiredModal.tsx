@@ -1,23 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { ModalShell } from "@/components/shared/ModalShell";
 
 export function SessionExpiredModal() {
   const router = useRouter();
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-5"
-      style={{ background: "var(--overlay-dark)", backdropFilter: "blur(8px)" }}
-    >
-      <div
-        className="w-full max-w-sm rounded-card p-6 space-y-4 text-center"
-        style={{
-          background: "linear-gradient(135deg, #2D1B69 0%, #5B2D8E 100%)",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
-        }}
-      >
+    <ModalShell zClass="z-[60]" centered>
         <h2 className="font-heading text-xl font-bold">Session Expired</h2>
         <p className="font-body text-sm" style={{ color: "var(--white-muted)" }}>
           Your session has ended. Log in again to keep saving your progress.
@@ -32,7 +22,6 @@ export function SessionExpiredModal() {
         >
           Log In
         </button>
-      </div>
-    </div>
+    </ModalShell>
   );
 }

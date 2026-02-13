@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import { upsertAutoSave, deleteAutoSave } from "@/lib/storage";
+import { STORAGE_KEYS } from "@/lib/storage-keys";
 import type {
   GameType,
   Difficulty,
@@ -151,7 +152,7 @@ export function useAutoSave({
       // page's getAutoSave() call hits the server.
       try {
         sessionStorage.setItem(
-          "lexicon-pending-autosave",
+          STORAGE_KEYS.PENDING_AUTOSAVE,
           JSON.stringify({ ...payload, updatedAt: new Date().toISOString() })
         );
       } catch {

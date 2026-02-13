@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { BarChart2, Trophy, Flame, X } from "lucide-react";
 import { getStats, type PlayerStats } from "@/lib/storage";
+import { ModalShell } from "@/components/shared/ModalShell";
 
 interface StatsModalProps {
   onClose: () => void;
@@ -31,21 +32,7 @@ export function StatsModal({ onClose }: StatsModalProps) {
       : 0;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-5"
-      style={{ background: "var(--overlay-dark)", backdropFilter: "blur(8px)" }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div
-        className="w-full max-w-sm rounded-card p-6 space-y-5 relative"
-        style={{
-          background: "linear-gradient(135deg, #2D1B69 0%, #5B2D8E 100%)",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
-        }}
-      >
+    <ModalShell spaceY="space-y-5" onClickOutside={onClose} cardClassName="relative">
         {/* Close */}
         <button
           onClick={onClose}
@@ -146,8 +133,7 @@ export function StatsModal({ onClose }: StatsModalProps) {
         >
           Done
         </button>
-      </div>
-    </div>
+    </ModalShell>
   );
 }
 

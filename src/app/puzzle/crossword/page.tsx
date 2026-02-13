@@ -17,6 +17,7 @@ import { useAutoSave } from "@/hooks/useAutoSave";
 import { Toast } from "@/components/shared/Toast";
 import { SessionExpiredModal } from "@/components/shared/SessionExpiredModal";
 import { Bookmark } from "lucide-react";
+import { STORAGE_KEYS } from "@/lib/storage-keys";
 import type { CrosswordPuzzleData, CrosswordClue } from "@/lib/types";
 
 export default function CrosswordPage() {
@@ -24,7 +25,7 @@ export default function CrosswordPage() {
   const [puzzle, setPuzzle] = useState<CrosswordPuzzleData | null>(null);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem("lexicon-puzzle-crossword");
+    const stored = sessionStorage.getItem(STORAGE_KEYS.PUZZLE_CROSSWORD);
     if (!stored) {
       router.push("/");
       return;
@@ -32,7 +33,7 @@ export default function CrosswordPage() {
     try {
       setPuzzle(JSON.parse(stored));
     } catch {
-      sessionStorage.removeItem("lexicon-puzzle-crossword");
+      sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_CROSSWORD);
       router.push("/");
     }
   }, [router]);
@@ -66,11 +67,14 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
 
   // Restore saved game state if present
   useEffect(() => {
-    const savedState = sessionStorage.getItem("lexicon-game-state");
+    const savedState = sessionStorage.getItem(STORAGE_KEYS.GAME_STATE);
     if (savedState) {
-      const parsed = JSON.parse(savedState);
-      restoreGame(parsed);
-      sessionStorage.removeItem("lexicon-game-state");
+      try {
+        restoreGame(JSON.parse(savedState));
+      } catch {
+        console.error("Failed to restore game state — starting fresh");
+      }
+      sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
     }
   }, [restoreGame]);
 
@@ -98,14 +102,14 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
   };
 
   const handleNewTopic = () => {
-    sessionStorage.removeItem("lexicon-puzzle-crossword");
-    sessionStorage.removeItem("lexicon-game-state");
+    sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_CROSSWORD);
+    sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
     router.push("/");
   };
 
   const handlePlayAgain = () => {
-    sessionStorage.removeItem("lexicon-puzzle-crossword");
-    sessionStorage.removeItem("lexicon-game-state");
+    sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_CROSSWORD);
+    sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
     router.push("/");
   };
 
@@ -155,7 +159,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
   useEffect(() => {
     if ((state.gameStatus === "won" || state.gameStatus === "lost") && !savedRef.current) {
       savedRef.current = true;
-      void saveResult({
+      saveResult({
         id: crypto.randomUUID(),
         timestamp: Date.now(),
         topic: puzzle.title,
@@ -168,6 +172,8 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
         livesRemaining: state.livesRemaining,
         hintsUsed: state.hintsUsed,
         outcome: state.gameStatus as "won" | "lost",
+      }).then((ok) => {
+        if (!ok) setToastMessage("Couldn't save stats — check your connection");
       });
     }
   }, [state.gameStatus, state.solvedClues.length, state.livesRemaining, state.elapsedSeconds, state.hintsUsed, score, puzzle]);

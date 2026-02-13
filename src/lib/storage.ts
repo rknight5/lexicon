@@ -3,16 +3,18 @@ import { saveOfflinePuzzle, deleteOfflinePuzzle, getAllOfflinePuzzles, getOfflin
 
 export type SaveError = "session-expired" | "network" | "server";
 
-export async function saveResult(result: PuzzleResult): Promise<void> {
+export async function saveResult(result: PuzzleResult): Promise<boolean> {
   try {
-    await fetch("/api/history", {
+    const res = await fetch("/api/history", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(result),
       credentials: "include",
     });
+    return res.ok;
   } catch (err) {
     console.error("Failed to save puzzle result:", err);
+    return false;
   }
 }
 

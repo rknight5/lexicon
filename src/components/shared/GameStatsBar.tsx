@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Heart, Timer, Zap, Star } from "lucide-react";
+import { formatTime } from "@/lib/format";
 
 interface GameStatsBarProps {
   score: number;
@@ -10,12 +11,6 @@ interface GameStatsBarProps {
   elapsedSeconds: number;
   gameStatus: string;
   lastMissTimestamp?: number;
-}
-
-function formatTime(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
 }
 
 export function GameStatsBar({
@@ -77,7 +72,7 @@ export function GameStatsBar({
             gameStatus === "paused" ? "animate-pulse" : ""
           }`}
         >
-          {formatTime(elapsedSeconds)}
+          {formatTime(elapsedSeconds, true)}
         </span>
       </div>
     </div>

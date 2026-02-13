@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ModalShell } from "@/components/shared/ModalShell";
 
 interface PauseMenuProps {
   onResume: () => void;
@@ -11,18 +12,7 @@ export function PauseMenu({ onResume, onQuit }: PauseMenuProps) {
   const [confirmQuit, setConfirmQuit] = useState(false);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-5"
-      style={{ background: "var(--overlay-dark)", backdropFilter: "blur(8px)" }}
-    >
-      <div
-        className="w-full max-w-sm rounded-card p-6 space-y-4"
-        style={{
-          background: "linear-gradient(135deg, #2D1B69 0%, #5B2D8E 100%)",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
-        }}
-      >
+    <ModalShell>
         <h2 className="font-heading text-2xl font-bold text-center">Paused</h2>
 
         {confirmQuit ? (
@@ -73,7 +63,6 @@ export function PauseMenu({ onResume, onQuit }: PauseMenuProps) {
             </button>
           </div>
         )}
-      </div>
-    </div>
+    </ModalShell>
   );
 }

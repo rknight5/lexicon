@@ -1,4 +1,6 @@
 import { Trophy, Star, Bookmark } from "lucide-react";
+import { formatTime } from "@/lib/format";
+import { ModalShell } from "@/components/shared/ModalShell";
 
 interface CompletionModalProps {
   wordsFound: number;
@@ -11,12 +13,6 @@ interface CompletionModalProps {
   onNewTopic: () => void;
   onSaveToLibrary?: () => void;
   isSavedToLibrary?: boolean;
-}
-
-function formatTime(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
 export function CompletionModal({
@@ -32,18 +28,7 @@ export function CompletionModal({
   isSavedToLibrary,
 }: CompletionModalProps) {
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-5"
-      style={{ background: "var(--overlay-dark)", backdropFilter: "blur(8px)" }}
-    >
-      <div
-        className="w-full max-w-sm rounded-card p-6 space-y-4 text-center"
-        style={{
-          background: "linear-gradient(135deg, #2D1B69 0%, #5B2D8E 100%)",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
-        }}
-      >
+    <ModalShell centered>
         <div className="flex justify-center">
           <Trophy className="w-10 h-10 text-gold-primary" />
         </div>
@@ -114,7 +99,6 @@ export function CompletionModal({
             Change Topic
           </button>
         </div>
-      </div>
-    </div>
+    </ModalShell>
   );
 }

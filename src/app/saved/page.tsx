@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Search, Grid3X3, Shuffle, Shield, Flame, Skull, Trash2, Play } from "lucide-react";
 import { getSavedPuzzles, loadSavedPuzzle, deleteSavedPuzzle, type SavedPuzzleSummary } from "@/lib/storage";
 import { Toast } from "@/components/shared/Toast";
+import { STORAGE_KEYS, puzzleKeyForGameType } from "@/lib/storage-keys";
 
 const GAME_TYPE_ICON: Record<string, React.ReactNode> = {
   wordsearch: <Search className="w-5 h-5 text-white/60" />,
@@ -49,12 +50,7 @@ export default function SavedPage() {
       return;
     }
 
-    const storageKey =
-      loaded.gameType === "crossword"
-        ? "lexicon-puzzle-crossword"
-        : loaded.gameType === "anagram"
-          ? "lexicon-puzzle-anagram"
-          : "lexicon-puzzle";
+    const storageKey = puzzleKeyForGameType(loaded.gameType);
 
     const route =
       loaded.gameType === "crossword"
@@ -64,7 +60,7 @@ export default function SavedPage() {
           : "/puzzle/wordsearch";
 
     try {
-      sessionStorage.removeItem("lexicon-game-state");
+      sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
       sessionStorage.setItem(storageKey, JSON.stringify(loaded.puzzleData));
     } catch {
       setLoadingPuzzleId(null);

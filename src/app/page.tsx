@@ -8,6 +8,7 @@ import { StatsModal } from "@/components/shared/StatsModal";
 import { ResumeCard } from "@/components/shared/ResumeCard";
 import { getAutoSave, deleteAutoSave, getSavedPuzzles, savePuzzle, type AutoSaveSummary } from "@/lib/storage";
 import type { CategorySuggestion } from "@/lib/types";
+import { STORAGE_KEYS, puzzleKeyForGameType } from "@/lib/storage-keys";
 
 const EXAMPLE_TOPICS = [
   "80s Rock",
@@ -46,12 +47,12 @@ export default function HomePage() {
   useEffect(() => {
     // Check sessionStorage first for instant resume after SPA navigation
     // (the async server save may still be in-flight)
-    const pending = sessionStorage.getItem("lexicon-pending-autosave");
+    const pending = sessionStorage.getItem(STORAGE_KEYS.PENDING_AUTOSAVE);
     if (pending) {
       try {
         setAutoSave(JSON.parse(pending));
       } catch { /* ignore corrupt data */ }
-      sessionStorage.removeItem("lexicon-pending-autosave");
+      sessionStorage.removeItem(STORAGE_KEYS.PENDING_AUTOSAVE);
     }
     // Also fetch from server (authoritative, covers tab-close saves)
     getAutoSave().then(setAutoSave).catch(() => {});
@@ -105,12 +106,7 @@ export default function HomePage() {
   const handleResume = () => {
     if (!autoSave) return;
 
-    const storageKey =
-      autoSave.gameType === "crossword"
-        ? "lexicon-puzzle-crossword"
-        : autoSave.gameType === "anagram"
-          ? "lexicon-puzzle-anagram"
-          : "lexicon-puzzle";
+    const storageKey = puzzleKeyForGameType(autoSave.gameType);
 
     const route =
       autoSave.gameType === "crossword"
@@ -120,7 +116,7 @@ export default function HomePage() {
           : "/puzzle/wordsearch";
 
     sessionStorage.setItem(storageKey, JSON.stringify(autoSave.puzzleData));
-    sessionStorage.setItem("lexicon-game-state", JSON.stringify(autoSave.gameState));
+    sessionStorage.setItem(STORAGE_KEYS.GAME_STATE, JSON.stringify(autoSave.gameState));
     router.push(route);
   };
 

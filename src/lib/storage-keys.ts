@@ -1,0 +1,18 @@
+import type { GameType } from "./types";
+
+export const STORAGE_KEYS = {
+  PUZZLE_WORDSEARCH: "lexicon-puzzle",
+  PUZZLE_CROSSWORD: "lexicon-puzzle-crossword",
+  PUZZLE_ANAGRAM: "lexicon-puzzle-anagram",
+  GAME_STATE: "lexicon-game-state",
+  PENDING_AUTOSAVE: "lexicon-pending-autosave",
+} as const;
+
+/** Map a GameType to its puzzle sessionStorage key */
+export function puzzleKeyForGameType(gameType: GameType): string {
+  switch (gameType) {
+    case "crossword": return STORAGE_KEYS.PUZZLE_CROSSWORD;
+    case "anagram": return STORAGE_KEYS.PUZZLE_ANAGRAM;
+    default: return STORAGE_KEYS.PUZZLE_WORDSEARCH;
+  }
+}

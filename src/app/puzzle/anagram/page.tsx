@@ -16,6 +16,7 @@ import { Toast } from "@/components/shared/Toast";
 import { SessionExpiredModal } from "@/components/shared/SessionExpiredModal";
 import { Bookmark } from "lucide-react";
 import { ANAGRAM_DIFFICULTY_CONFIG } from "@/lib/types";
+import { STORAGE_KEYS } from "@/lib/storage-keys";
 import type { AnagramPuzzleData } from "@/lib/types";
 
 export default function AnagramPage() {
@@ -23,7 +24,7 @@ export default function AnagramPage() {
   const [puzzle, setPuzzle] = useState<AnagramPuzzleData | null>(null);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem("lexicon-puzzle-anagram");
+    const stored = sessionStorage.getItem(STORAGE_KEYS.PUZZLE_ANAGRAM);
     if (!stored) {
       router.push("/");
       return;
@@ -31,7 +32,7 @@ export default function AnagramPage() {
     try {
       setPuzzle(JSON.parse(stored));
     } catch {
-      sessionStorage.removeItem("lexicon-puzzle-anagram");
+      sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_ANAGRAM);
       router.push("/");
     }
   }, [router]);
@@ -64,10 +65,14 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
 
   // Restore saved game state if present
   useEffect(() => {
-    const savedState = sessionStorage.getItem("lexicon-game-state");
+    const savedState = sessionStorage.getItem(STORAGE_KEYS.GAME_STATE);
     if (savedState) {
-      restoreGame(JSON.parse(savedState));
-      sessionStorage.removeItem("lexicon-game-state");
+      try {
+        restoreGame(JSON.parse(savedState));
+      } catch {
+        console.error("Failed to restore game state — starting fresh");
+      }
+      sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
     }
   }, [restoreGame]);
 
@@ -103,7 +108,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
       !savedRef.current
     ) {
       savedRef.current = true;
-      void saveResult({
+      saveResult({
         id: crypto.randomUUID(),
         timestamp: Date.now(),
         topic: puzzle.title,
@@ -120,6 +125,8 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
         livesRemaining: state.livesRemaining,
         hintsUsed: state.hintsUsed,
         outcome: state.gameStatus,
+      }).then((ok) => {
+        if (!ok) setToastMessage("Couldn't save stats — check your connection");
       });
     }
   }, [
@@ -138,14 +145,14 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
   };
 
   const handleNewTopic = () => {
-    sessionStorage.removeItem("lexicon-puzzle-anagram");
-    sessionStorage.removeItem("lexicon-game-state");
+    sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_ANAGRAM);
+    sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
     router.push("/");
   };
 
   const handlePlayAgain = () => {
-    sessionStorage.removeItem("lexicon-puzzle-anagram");
-    sessionStorage.removeItem("lexicon-game-state");
+    sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_ANAGRAM);
+    sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
     router.push("/");
   };
 
