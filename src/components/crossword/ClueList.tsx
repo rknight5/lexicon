@@ -8,6 +8,7 @@ interface ClueListProps {
   activeClueNum?: number;
   activeDirection: "across" | "down";
   onClueClick: (clue: CrosswordClue) => void;
+  horizontal?: boolean;
 }
 
 export function ClueList({
@@ -16,6 +17,7 @@ export function ClueList({
   activeClueNum,
   activeDirection,
   onClueClick,
+  horizontal,
 }: ClueListProps) {
   const acrossClues = clues.filter((c) => c.direction === "across");
   const downClues = clues.filter((c) => c.direction === "down");
@@ -54,7 +56,7 @@ export function ClueList({
   };
 
   return (
-    <div className="flex flex-col gap-3 w-full">
+    <div className={`${horizontal ? "grid grid-cols-2 gap-4" : "flex flex-col gap-3"} w-full`}>
       {/* Across */}
       <div>
         <h3
@@ -69,7 +71,7 @@ export function ClueList({
       </div>
 
       {/* Down */}
-      <div className="mt-2">
+      <div className={horizontal ? "" : "mt-2"}>
         <h3
           className="font-heading text-[11px] uppercase tracking-widest mb-1"
           style={{ color: "rgba(255, 255, 255, 0.5)" }}

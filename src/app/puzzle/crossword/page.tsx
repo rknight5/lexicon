@@ -16,7 +16,7 @@ import { saveResult, savePuzzle } from "@/lib/storage";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { Toast } from "@/components/shared/Toast";
 import { SessionExpiredModal } from "@/components/shared/SessionExpiredModal";
-import { Bookmark } from "lucide-react";
+import { Bookmark, Shield, Flame, Skull, Heart } from "lucide-react";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
 import type { CrosswordPuzzleData, CrosswordClue } from "@/lib/types";
 
@@ -190,6 +190,8 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
         onStats={() => setShowStats(true)}
         onSave={handleSave}
         isSaved={isSaved || isSaving}
+        onHint={useHint}
+        canHint={state.gameStatus === "playing" && state.livesRemaining > 1}
       />
 
       {/* Desktop: unified game panel */}
@@ -298,11 +300,39 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
       </div>
 
       {/* Mobile: stacked layout */}
-      <div className="lg:hidden flex-1 flex flex-col items-center px-3 py-4 gap-4">
-        <div className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">
-          {state.solvedClues.length}/{puzzle.clues.length} Clues
+      <div className="lg:hidden flex-1 flex flex-col items-center px-3 py-3 gap-3">
+        {/* Title + difficulty below header */}
+        <div className="flex items-center justify-center gap-2 w-full">
+          <span className="font-heading text-sm font-bold truncate">{puzzleTitle}</span>
+          <div
+            className={`flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-pill border text-[10px] font-heading font-bold ${
+              puzzle.difficulty === "easy" ? "text-green-accent border-green-accent/30 bg-green-accent/10" :
+              puzzle.difficulty === "hard" ? "text-pink-accent border-pink-accent/30 bg-pink-accent/10" :
+              "text-gold-primary border-gold-primary/30 bg-gold-primary/10"
+            }`}
+          >
+            {puzzle.difficulty === "easy" ? <Shield className="w-3 h-3" /> :
+             puzzle.difficulty === "hard" ? <Skull className="w-3 h-3" /> :
+             <Flame className="w-3 h-3" />}
+            {puzzle.difficulty.charAt(0).toUpperCase() + puzzle.difficulty.slice(1)}
+          </div>
         </div>
-        <div onClick={handleFirstInteraction}>
+
+        {/* Lives / hearts */}
+        <div className="flex items-center gap-1.5">
+          {[0, 1, 2].map((i) => (
+            <Heart
+              key={i}
+              className={`w-4 h-4 transition-all ${
+                i < state.livesRemaining ? "text-red-400" : "text-gray-600"
+              }`}
+              fill={i < state.livesRemaining ? "currentColor" : "none"}
+            />
+          ))}
+        </div>
+
+        {/* Grid */}
+        <div className="w-full flex justify-center" onClick={handleFirstInteraction}>
           <CrosswordGrid
             grid={puzzle.grid}
             gridSize={puzzle.gridSize}
@@ -323,19 +353,20 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
             onToggleDirection={toggleDirection}
           />
         </div>
+
+        {/* Progress below grid */}
+        <div className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">
+          {state.solvedClues.length}/{puzzle.clues.length} Clues
+        </div>
+
+        {/* Clues — horizontal layout */}
         <ClueList
           clues={puzzle.clues}
           solvedClues={state.solvedClues}
           activeClueNum={activeClueNum}
           activeDirection={state.cursorDirection}
           onClueClick={handleClueClick}
-        />
-        <GameStatsBar
-          score={score}
-          livesRemaining={state.livesRemaining}
-          hintsUsed={state.hintsUsed}
-          elapsedSeconds={state.elapsedSeconds}
-          gameStatus={state.gameStatus}
+          horizontal
         />
       </div>
 
