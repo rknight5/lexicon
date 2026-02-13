@@ -225,7 +225,7 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
       {onCancel && (
         <button
           onClick={onCancel}
-          className="mt-6 px-5 py-2 rounded-pill font-body text-sm text-white/70 hover:text-white transition-colors"
+          className="mt-12 px-5 py-2 rounded-pill font-body text-sm text-white/70 hover:text-white transition-colors"
           style={{
             background: "var(--glass-bg)",
             border: "1px solid var(--glass-border)",
