@@ -15,6 +15,8 @@ interface GameBarProps {
   onStats?: () => void;
   onSave?: () => void;
   isSaved?: boolean;
+  onHint?: () => void;
+  canHint?: boolean;
 }
 
 const DIFFICULTY_BADGE: Record<
@@ -48,6 +50,8 @@ export function GameBar({
   onStats,
   onSave,
   isSaved,
+  onHint,
+  canHint,
 }: GameBarProps) {
   const router = useRouter();
   const badge = DIFFICULTY_BADGE[difficulty];
@@ -97,8 +101,8 @@ export function GameBar({
         <Home className="w-6 h-6" />
       </button>
 
-      {/* Center: title + difficulty badge */}
-      <div className="flex-1 min-w-0 flex items-center justify-center gap-2">
+      {/* Center: title + difficulty badge (desktop only) */}
+      <div className="hidden lg:flex flex-1 min-w-0 items-center justify-center gap-2">
         {editing ? (
           <form
             onSubmit={(e) => { e.preventDefault(); commitEdit(); }}
@@ -140,8 +144,21 @@ export function GameBar({
         </div>
       </div>
 
-      {/* Right: save + stats + settings + logout */}
+      {/* Spacer on mobile (pushes icons right) */}
+      <div className="flex-1 lg:hidden" />
+
+      {/* Right: hint (mobile) + save + settings + logout */}
       <div className="flex-shrink-0 flex items-center gap-4">
+        {onHint && (
+          <button
+            onClick={onHint}
+            disabled={!canHint}
+            className="lg:hidden text-gold-primary/70 hover:text-gold-primary transition-colors p-1.5 -m-1.5 disabled:opacity-30"
+            title="Hint (costs 1 life)"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+          </button>
+        )}
         {onSave && (
           <button
             onClick={onSave}
