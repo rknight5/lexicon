@@ -51,7 +51,7 @@ export default function LoginPage() {
       </h1>
 
       <p
-        className="font-heading text-lg mb-8"
+        className="font-heading text-lg md:text-xl mb-16"
         style={{ color: "var(--white-muted)" }}
       >
         Turn your interests into word puzzles
