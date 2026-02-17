@@ -492,19 +492,21 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
           lastMissTimestamp={lastMissTimestamp}
         />
 
-        {/* Progress bar */}
-        <WordProgress
-          found={state.solvedWords.length}
-          total={puzzle.words.length}
-        />
-
-        {/* Centered play area */}
+        {/* Top-anchored play area */}
         <div
           ref={mobileContainerRef}
-          className="flex-1 flex flex-col items-center justify-center px-5"
-          style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 34px) + 12px)" }}
+          className="flex-1 flex flex-col items-center px-5"
+          style={{ paddingTop: 40, paddingBottom: "calc(env(safe-area-inset-bottom, 34px) + 12px)" }}
         >
-          {/* Clue — no label, just italic text */}
+          {/* Word count */}
+          <div
+            className="text-[11px] uppercase tracking-[2px] font-heading font-semibold"
+            style={{ color: "rgba(255, 255, 255, 0.45)", marginBottom: 16 }}
+          >
+            Word {state.currentWordIndex + 1} of {puzzle.words.length}
+          </div>
+
+          {/* Clue — just italic text in quotes */}
           {showClues && currentWord?.clue && (
             <p
               className="font-body text-center max-w-xs italic"
@@ -518,7 +520,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
             </p>
           )}
 
-          {/* Empty letter slots */}
+          {/* Answer slots */}
           <div className="flex gap-1.5 justify-center flex-wrap">
             {currentWord &&
               Array.from({ length: currentWord.word.length }).map((_, i) => {
@@ -546,7 +548,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
                       border: isRevealed
                         ? "2px solid #f7c948"
                         : letter
-                          ? "1px solid rgba(255, 255, 255, 0.2)"
+                          ? "1px solid rgba(255, 255, 255, 0.18)"
                           : "1px solid rgba(255, 255, 255, 0.12)",
                       color: isRevealed
                         ? "#f7c948"
@@ -612,7 +614,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
               className="flex-1 py-3 font-heading text-[13px] font-bold uppercase tracking-wider transition-all active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
               style={{
                 background: "transparent",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
+                border: "1px solid rgba(255, 255, 255, 0.10)",
                 borderRadius: 14,
                 color: "var(--ws-text-muted)",
               }}
@@ -625,17 +627,28 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
               className="flex-1 py-3 font-heading text-[13px] font-bold uppercase tracking-wider transition-all active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
               style={{
                 background: allSlotsFilled
-                  ? "linear-gradient(135deg, #f7c948, #e5b52e)"
+                  ? "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)"
                   : "rgba(255, 215, 0, 0.08)",
                 border: allSlotsFilled
                   ? "none"
                   : "1px solid rgba(255, 215, 0, 0.12)",
                 borderRadius: 14,
-                color: allSlotsFilled ? "#1a1430" : "rgba(255, 215, 0, 0.4)",
+                color: allSlotsFilled ? "#1a0a2e" : "rgba(255, 215, 0, 0.4)",
+                boxShadow: allSlotsFilled
+                  ? "0 4px 15px rgba(255, 215, 0, 0.4)"
+                  : "none",
               }}
             >
               Submit
             </button>
+          </div>
+
+          {/* Progress bar — quiet footer below buttons */}
+          <div style={{ marginTop: 32, width: "100%", maxWidth: 280 }}>
+            <WordProgress
+              found={state.solvedWords.length}
+              total={puzzle.words.length}
+            />
           </div>
         </div>
       </div>
