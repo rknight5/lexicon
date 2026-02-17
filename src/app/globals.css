@@ -108,9 +108,10 @@ body {
   background: transparent;
   color: rgba(255, 255, 255, 0.5);
   border: none;
-  border-radius: 2px;
-  transition: all 0.12s ease;
+  border-radius: 3px;
+  transition: all 0.15s ease;
   font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .ws-grid-cell:hover {
