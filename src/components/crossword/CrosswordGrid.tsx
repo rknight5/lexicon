@@ -253,13 +253,9 @@ export function CrosswordGrid({
               ? "#FFFFFF"
               : "rgba(255, 255, 255, 0.08)";
 
-            const cellColor = isCursor
-              ? "#FFFFFF"
-              : isHinted
-              ? "#D4A800"
-              : solved
-              ? mobile ? "#2E7D32" : "#4ade80"
-              : mobile ? "#1A1A2E" : "rgba(255, 255, 255, 0.9)";
+            const cellColor = mobile
+              ? (isCursor ? "#FFFFFF" : isHinted ? "#D4A800" : solved ? "#2E7D32" : "#1A1A2E")
+              : (isCursor ? "#FFFFFF" : isHinted ? "#FFD700" : solved ? "#4ade80" : "#FFFFFF");
 
             const cellShadow = isCursor
               ? "0 0 10px rgba(167, 139, 250, 0.5)"
