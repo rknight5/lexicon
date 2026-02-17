@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Info, Share2, BarChart2, Settings, LogOut } from "lucide-react";
+import { Info, PlusCircle, Share2, BarChart2, Settings, LogOut } from "lucide-react";
 import { HowToPlayModal } from "@/components/shared/HowToPlayModal";
 import type { GameType } from "@/lib/types";
 
@@ -10,6 +10,7 @@ interface GameDrawerProps {
   gameType: GameType;
   open: boolean;
   onClose: () => void;
+  onNewPuzzle: () => void;
   onStats: () => void;
   onShare: () => void;
   onSettings: () => void;
@@ -35,6 +36,7 @@ export function GameDrawer({
   gameType,
   open,
   onClose,
+  onNewPuzzle,
   onStats,
   onShare,
   onSettings,
@@ -66,6 +68,14 @@ export function GameDrawer({
       onStats();
     }, 200);
   }, [onClose, onStats]);
+
+  const handleNewPuzzle = useCallback(() => {
+    setVisible(false);
+    setTimeout(() => {
+      onClose();
+      onNewPuzzle();
+    }, 200);
+  }, [onClose, onNewPuzzle]);
 
   const handleShare = useCallback(() => {
     onShare();
@@ -140,6 +150,24 @@ export function GameDrawer({
             </span>
           </button>
 
+          {/* New Puzzle */}
+          <button
+            onClick={handleNewPuzzle}
+            className="w-full flex items-center gap-2.5 transition-colors cursor-pointer"
+            style={{ padding: "11px 14px" }}
+            onMouseEnter={(e) => applyHover(e.currentTarget)}
+            onMouseLeave={(e) => clearHover(e.currentTarget)}
+          >
+            <PlusCircle data-menu-icon="" style={{ width: 18, height: 18, color: "rgba(255, 255, 255, 0.45)" }} />
+            <span
+              data-menu-label=""
+              className="font-body text-[13px] font-medium"
+              style={{ color: "rgba(255, 255, 255, 0.8)" }}
+            >
+              New Puzzle
+            </span>
+          </button>
+
           {/* Divider */}
           <div style={{ height: 1, background: "rgba(255, 255, 255, 0.06)", margin: "2px 12px" }} />
 
@@ -160,6 +188,9 @@ export function GameDrawer({
               Share Puzzle
             </span>
           </button>
+
+          {/* Divider */}
+          <div style={{ height: 1, background: "rgba(255, 255, 255, 0.06)", margin: "2px 12px" }} />
 
           {/* Stats */}
           <button

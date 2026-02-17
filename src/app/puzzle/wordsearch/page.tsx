@@ -150,6 +150,8 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
     }
   };
 
+  const handleHome = () => router.push("/");
+
   const handleNewTopic = () => {
     sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_WORDSEARCH);
     sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
@@ -227,7 +229,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
         <GameBar
           difficulty={puzzle.difficulty}
           onPause={pause}
-          onBack={handleNewTopic}
+          onBack={handleHome}
           gameStatus={state.gameStatus}
           title={puzzleTitle}
           onTitleChange={setPuzzleTitle}
@@ -351,7 +353,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
         <WordSearchHeader
           title={puzzleTitle}
           onTitleChange={setPuzzleTitle}
-          onBack={handleNewTopic}
+          onBack={handleHome}
           onHint={handleRandomHint}
           canHint={canHint}
           hintsRemaining={Math.max(0, hintsRemaining)}
@@ -433,6 +435,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
         gameType="wordsearch"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
+        onNewPuzzle={handleNewTopic}
         onStats={() => { setDrawerOpen(false); setShowStats(true); }}
         onShare={handleShare}
         onSettings={() => { setDrawerOpen(false); setToastMessage("Coming soon"); }}

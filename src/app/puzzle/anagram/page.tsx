@@ -151,6 +151,8 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
     }
   };
 
+  const handleHome = () => router.push("/");
+
   const handleNewTopic = () => {
     sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_ANAGRAM);
     sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
@@ -291,7 +293,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
         <GameBar
           difficulty={puzzle.difficulty}
           onPause={pause}
-          onBack={handleNewTopic}
+          onBack={handleHome}
           gameStatus={state.gameStatus}
           title={puzzleTitle}
           onTitleChange={setPuzzleTitle}
@@ -503,7 +505,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
         <WordSearchHeader
           title={puzzleTitle}
           onTitleChange={setPuzzleTitle}
-          onBack={handleNewTopic}
+          onBack={handleHome}
           onHint={handleHint}
           canHint={canHint}
           hintsRemaining={Math.max(0, 3 - state.hintsUsed)}
@@ -695,6 +697,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
         gameType="anagram"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
+        onNewPuzzle={handleNewTopic}
         onStats={() => { setDrawerOpen(false); setShowStats(true); }}
         onShare={handleShare}
         onSettings={() => { setDrawerOpen(false); setToastMessage("Coming soon"); }}

@@ -52,6 +52,26 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showShareSheet, setShowShareSheet] = useState(false);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editTitleValue, setEditTitleValue] = useState(puzzleTitle);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editingTitle && titleInputRef.current) {
+      titleInputRef.current.focus();
+      titleInputRef.current.select();
+    }
+  }, [editingTitle]);
+
+  const commitTitleEdit = () => {
+    const trimmed = editTitleValue.trim();
+    if (trimmed && trimmed !== puzzleTitle) {
+      setPuzzleTitle(trimmed);
+    } else {
+      setEditTitleValue(puzzleTitle);
+    }
+    setEditingTitle(false);
+  };
 
   // Feedback state
   const [feedbackIndex, setFeedbackIndex] = useState<number | null>(null);
@@ -176,6 +196,8 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
     nextQuestion();
   };
 
+  const handleHome = () => router.push("/");
+
   const handleNewTopic = () => {
     sessionStorage.removeItem(puzzleKeyForGameType("trivia"));
     sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
@@ -258,7 +280,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
           {/* Left — Home */}
           <div className="flex justify-start">
             <button
-              onClick={handleNewTopic}
+              onClick={handleHome}
               className="flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80 active:scale-95"
               style={{
                 width: 36,
@@ -271,18 +293,66 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
             </button>
           </div>
 
-          {/* Center — Title */}
+          {/* Center — Title + pencil */}
           <div className="flex items-center justify-center min-w-0">
-            <span
-              className="text-white truncate"
-              style={{
-                fontFamily: "var(--font-ws-body)",
-                fontSize: 14,
-                fontWeight: 600,
-              }}
-            >
-              {puzzleTitle}
-            </span>
+            {editingTitle ? (
+              <input
+                ref={titleInputRef}
+                value={editTitleValue}
+                onChange={(e) => setEditTitleValue(e.target.value)}
+                onBlur={commitTitleEdit}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") commitTitleEdit();
+                  if (e.key === "Escape") {
+                    setEditTitleValue(puzzleTitle);
+                    setEditingTitle(false);
+                  }
+                }}
+                className="bg-transparent border-b text-center text-white outline-none w-full max-w-[200px]"
+                style={{
+                  fontFamily: "var(--font-ws-body)",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  borderColor: "rgba(255, 255, 255, 0.3)",
+                }}
+              />
+            ) : (
+              <button
+                onClick={() => { setEditTitleValue(puzzleTitle); setEditingTitle(true); }}
+                className="flex items-center min-w-0 cursor-pointer"
+                style={{ gap: 4 }}
+              >
+                <span
+                  className="text-white"
+                  style={{
+                    fontFamily: "var(--font-ws-body)",
+                    fontSize: 14,
+                    fontWeight: 600,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    minWidth: 0,
+                  }}
+                >
+                  {puzzleTitle}
+                </span>
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="rgba(255, 255, 255, 0.35)"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="flex-shrink-0"
+                  style={{ alignSelf: "flex-start", marginTop: 1 }}
+                >
+                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                  <path d="m15 5 4 4" />
+                </svg>
+              </button>
+            )}
           </div>
 
           {/* Right — Hint + Menu */}
@@ -579,6 +649,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
         gameType="trivia"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
+        onNewPuzzle={handleNewTopic}
         onStats={() => { setDrawerOpen(false); setShowStats(true); }}
         onShare={handleShare}
         onSettings={() => { setDrawerOpen(false); setToastMessage("Coming soon"); }}

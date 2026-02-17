@@ -108,6 +108,8 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
     }
   };
 
+  const handleHome = () => router.push("/");
+
   const handleNewTopic = () => {
     sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_CROSSWORD);
     sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
@@ -204,7 +206,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
         <GameBar
           difficulty={puzzle.difficulty}
           onPause={pause}
-          onBack={handleNewTopic}
+          onBack={handleHome}
           gameStatus={state.gameStatus}
           title={puzzleTitle}
           onTitleChange={setPuzzleTitle}
@@ -331,7 +333,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
         <WordSearchHeader
           title={puzzleTitle}
           onTitleChange={setPuzzleTitle}
-          onBack={handleNewTopic}
+          onBack={handleHome}
           onHint={useHint}
           canHint={state.gameStatus === "playing" && state.livesRemaining > 1}
           hintsRemaining={Math.max(0, 3 - state.hintsUsed)}
@@ -416,6 +418,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
         gameType="crossword"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
+        onNewPuzzle={handleNewTopic}
         onStats={() => { setDrawerOpen(false); setShowStats(true); }}
         onShare={handleShare}
         onSettings={() => { setDrawerOpen(false); setToastMessage("Coming soon"); }}
