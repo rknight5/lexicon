@@ -16,7 +16,9 @@ import { saveResult, savePuzzle } from "@/lib/storage";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { Toast } from "@/components/shared/Toast";
 import { SessionExpiredModal } from "@/components/shared/SessionExpiredModal";
-import { Bookmark, Shield, Flame, Skull, Heart, Pencil } from "lucide-react";
+import { WordSearchHeader } from "@/components/wordsearch/WordSearchHeader";
+import { WordSearchStatsRow } from "@/components/wordsearch/WordSearchStatsRow";
+import { Bookmark } from "lucide-react";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
 import type { CrosswordPuzzleData, CrosswordClue } from "@/lib/types";
 
@@ -180,20 +182,23 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
 
   return (
     <div className="min-h-screen lg:h-screen flex flex-col lg:overflow-hidden">
-      <GameBar
-        difficulty={puzzle.difficulty}
-        onPause={pause}
-        onBack={handleNewTopic}
-        gameStatus={state.gameStatus}
-        title={puzzleTitle}
-        onTitleChange={setPuzzleTitle}
-        onStats={() => setShowStats(true)}
-        onSave={handleSave}
-        isSaved={isSaved || isSaving}
-        onHint={useHint}
-        canHint={state.gameStatus === "playing" && state.livesRemaining > 1}
-        hintsUsed={state.hintsUsed}
-      />
+      {/* Desktop: GameBar header */}
+      <div className="hidden lg:block">
+        <GameBar
+          difficulty={puzzle.difficulty}
+          onPause={pause}
+          onBack={handleNewTopic}
+          gameStatus={state.gameStatus}
+          title={puzzleTitle}
+          onTitleChange={setPuzzleTitle}
+          onStats={() => setShowStats(true)}
+          onSave={handleSave}
+          isSaved={isSaved || isSaving}
+          onHint={useHint}
+          canHint={state.gameStatus === "playing" && state.livesRemaining > 1}
+          hintsUsed={state.hintsUsed}
+        />
+      </div>
 
       {/* Desktop: unified game panel */}
       <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-0 pb-6">
@@ -300,77 +305,82 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
         </div>
       </div>
 
-      {/* Mobile: stacked layout */}
-      <div className="lg:hidden flex-1 flex flex-col items-center px-3 py-3 gap-3">
-        {/* Title + pencil */}
-        <div className="flex items-center justify-center gap-2 w-full">
-          <span className="font-heading font-bold truncate" style={{ fontSize: "1.05rem" }}>{puzzleTitle}</span>
-          <button
-            onClick={() => {
-              const newTitle = prompt("Edit title", puzzleTitle);
-              if (newTitle?.trim()) setPuzzleTitle(newTitle.trim());
-            }}
-            className="flex-shrink-0 text-white/50 hover:text-white/80 transition-colors p-0.5"
-          >
-            <Pencil className="w-3.5 h-3.5" />
-          </button>
-        </div>
+      {/* ═══ Mobile: dark layout matching word search ═══ */}
+      <div
+        className="lg:hidden flex-1 flex flex-col"
+        style={{ background: "var(--ws-bg)" }}
+      >
+        {/* Fixed header */}
+        <WordSearchHeader
+          title={puzzleTitle}
+          onTitleChange={setPuzzleTitle}
+          onBack={handleNewTopic}
+          onHint={useHint}
+          canHint={state.gameStatus === "playing" && state.livesRemaining > 1}
+          hintsRemaining={Math.max(0, 3 - state.hintsUsed)}
+          onPause={pause}
+          gameStatus={state.gameStatus}
+        />
 
-        {/* Lives | score */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5">
-            {[0, 1, 2].map((i) => (
-              <Heart
-                key={i}
-                className={`w-4 h-4 transition-all ${
-                  i < state.livesRemaining ? "text-red-400" : "text-gray-600"
-                }`}
-                fill={i < state.livesRemaining ? "currentColor" : "none"}
-              />
-            ))}
-          </div>
-          <span className="text-white/25">|</span>
-          <span className="text-xs font-heading font-bold text-gold-primary">{score} pts</span>
-        </div>
+        {/* Spacer for fixed header */}
+        <div style={{ paddingTop: "calc(env(safe-area-inset-top, 40px) + 50px + 36px)" }} />
+
+        {/* Stats row: hearts + score */}
+        <WordSearchStatsRow
+          livesRemaining={state.livesRemaining}
+          score={score}
+        />
 
         {/* Grid */}
-        <div className="w-full flex justify-center" style={{ padding: "0 14px" }} onClick={handleFirstInteraction}>
-          <CrosswordGrid
-            grid={puzzle.grid}
-            gridSize={puzzle.gridSize}
-            cellValues={state.cellValues}
-            hintedCells={state.hintedCells}
-            cursorRow={state.cursorRow}
-            cursorCol={state.cursorCol}
-            cursorDirection={state.cursorDirection}
+        <div style={{ padding: "4px 4px" }}>
+          <div className="w-full flex justify-center" onClick={handleFirstInteraction}>
+            <CrosswordGrid
+              grid={puzzle.grid}
+              gridSize={puzzle.gridSize}
+              cellValues={state.cellValues}
+              hintedCells={state.hintedCells}
+              cursorRow={state.cursorRow}
+              cursorCol={state.cursorCol}
+              cursorDirection={state.cursorDirection}
+              solvedClues={state.solvedClues}
+              gameStatus={state.gameStatus}
+              onSelectCell={(r, c) => {
+                handleFirstInteraction();
+                selectCell(r, c);
+              }}
+              onTypeLetter={typeLetter}
+              onDeleteLetter={deleteLetter}
+              onCheckWord={checkWord}
+              onToggleDirection={toggleDirection}
+              variant="mobile"
+            />
+          </div>
+        </div>
+
+        {/* Progress */}
+        <div className="text-center py-2">
+          <span className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">
+            {state.solvedClues.length}/{puzzle.clues.length} Clues
+          </span>
+        </div>
+
+        {/* Clues — scrollable */}
+        <div
+          className="flex-1 overflow-y-auto ws-pills-scroll"
+          style={{
+            padding: "4px 18px 12px",
+            paddingBottom: "calc(env(safe-area-inset-bottom, 34px) + 12px)",
+          }}
+        >
+          <ClueList
+            clues={puzzle.clues}
             solvedClues={state.solvedClues}
-            gameStatus={state.gameStatus}
-            onSelectCell={(r, c) => {
-              handleFirstInteraction();
-              selectCell(r, c);
-            }}
-            onTypeLetter={typeLetter}
-            onDeleteLetter={deleteLetter}
-            onCheckWord={checkWord}
-            onToggleDirection={toggleDirection}
-            variant="mobile"
+            activeClueNum={activeClueNum}
+            activeDirection={state.cursorDirection}
+            onClueClick={handleClueClick}
+            horizontal
           />
         </div>
-
-        {/* Progress below grid */}
-        <div className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">
-          {state.solvedClues.length}/{puzzle.clues.length} Clues
-        </div>
-
-        {/* Clues — horizontal layout */}
-        <ClueList
-          clues={puzzle.clues}
-          solvedClues={state.solvedClues}
-          activeClueNum={activeClueNum}
-          activeDirection={state.cursorDirection}
-          onClueClick={handleClueClick}
-          horizontal
-        />
       </div>
 
       {/* Modals */}

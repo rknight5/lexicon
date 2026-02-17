@@ -31,7 +31,7 @@ export function ClueList({
       <button
         key={`${clue.direction}-${clue.number}`}
         onClick={() => onClueClick(clue)}
-        className="w-full text-left px-3 py-0.5 rounded-lg transition-colors"
+        className="w-full text-left py-0.5 rounded-lg transition-colors"
         style={{
           background: isActive
             ? "rgba(0, 229, 255, 0.1)"
