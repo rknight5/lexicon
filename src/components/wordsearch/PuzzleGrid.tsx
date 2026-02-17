@@ -94,6 +94,7 @@ export function PuzzleGrid({
   const [flashingGreen, setFlashingGreen] = useState(false);
   const isDragging = useRef(false);
   const startCell = useRef<CellPosition | null>(null);
+  const lastCell = useRef<CellPosition | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [cellSize, setCellSize] = useState(28);
 
@@ -143,19 +144,33 @@ export function PuzzleGrid({
     }
   }, [lastFoundTimestamp]);
 
-  const handlePointerDown = useCallback(
-    (row: number, col: number) => {
+  // Grid-level pointer handlers — elementFromPoint enables touch drag
+  const handleGridPointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      const target = (e.target as HTMLElement).closest("[data-row]") as HTMLElement | null;
+      if (!target) return;
+      const row = parseInt(target.dataset.row!, 10);
+      const col = parseInt(target.dataset.col!, 10);
       if (gameStatus !== "playing" && gameStatus !== "idle") return;
       isDragging.current = true;
       startCell.current = { row, col };
+      lastCell.current = null;
       onCellPointerDown({ row, col });
+      // Capture pointer so pointermove fires reliably on touch
+      containerRef.current?.setPointerCapture(e.pointerId);
     },
     [gameStatus, onCellPointerDown]
   );
 
-  const handlePointerEnter = useCallback(
-    (row: number, col: number) => {
+  const handleGridPointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
       if (!isDragging.current || !startCell.current) return;
+      const target = (document.elementFromPoint(e.clientX, e.clientY) as HTMLElement)?.closest("[data-row]") as HTMLElement | null;
+      if (!target) return;
+      const row = parseInt(target.dataset.row!, 10);
+      const col = parseInt(target.dataset.col!, 10);
+      if (lastCell.current?.row === row && lastCell.current?.col === col) return;
+      lastCell.current = { row, col };
       const snapped = getSnappedCells(startCell.current, { row, col }, gridSize, cols, rows);
       onSelectionChange(snapped);
     },
@@ -165,6 +180,7 @@ export function PuzzleGrid({
   const handlePointerUp = useCallback(() => {
     isDragging.current = false;
     startCell.current = null;
+    lastCell.current = null;
     onPointerUp();
   }, [onPointerUp]);
 
@@ -172,6 +188,7 @@ export function PuzzleGrid({
     if (isDragging.current) {
       isDragging.current = false;
       startCell.current = null;
+      lastCell.current = null;
       onPointerLeave();
     }
   }, [onPointerLeave]);
@@ -192,6 +209,8 @@ export function PuzzleGrid({
         borderRadius: mobile ? "10px" : "12px",
         touchAction: "none",
       }}
+      onPointerDown={handleGridPointerDown}
+      onPointerMove={handleGridPointerMove}
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerLeaveGrid}
       onPointerCancel={handlePointerLeaveGrid}
@@ -204,6 +223,8 @@ export function PuzzleGrid({
           return (
             <div
               key={`${rowIdx}-${colIdx}`}
+              data-row={rowIdx}
+              data-col={colIdx}
               className={`
                 ${cellClass}
                 ${isSelected ? selectingClass : ""}
@@ -218,8 +239,6 @@ export function PuzzleGrid({
                 fontFamily: mobile ? "var(--font-ws-mono)" : "var(--font-grid)",
                 aspectRatio: "1",
               }}
-              onPointerDown={() => handlePointerDown(rowIdx, colIdx)}
-              onPointerEnter={() => handlePointerEnter(rowIdx, colIdx)}
             >
               {letter}
             </div>
