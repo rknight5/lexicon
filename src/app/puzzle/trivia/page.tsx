@@ -56,7 +56,6 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
   // Feedback state
   const [feedbackIndex, setFeedbackIndex] = useState<number | null>(null);
   const [feedbackResult, setFeedbackResult] = useState<"correct" | "wrong" | "skipped" | null>(null);
-  const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const {
     state,
@@ -131,7 +130,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
     }
   }, [state.gameStatus, state.answers, state.score, state.elapsedSeconds, state.livesRemaining, state.hintsUsed, puzzle]);
 
-  // Handle answer feedback + auto-advance
+  // Handle answer selection — show feedback, wait for player to tap Next
   const handleAnswer = useCallback((index: number) => {
     if (state.gameStatus !== "playing") return;
     if (state.answers.length > state.currentIndex) return; // already answered
@@ -142,36 +141,24 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
     selectAnswer(index, timeRemaining);
     setFeedbackIndex(index);
     setFeedbackResult(isCorrect ? "correct" : "wrong");
+  }, [state.gameStatus, state.currentIndex, state.answers.length, puzzle.questions, selectAnswer, timeRemaining]);
 
-    // Auto-advance after feedback delay
-    feedbackTimerRef.current = setTimeout(() => {
-      setFeedbackIndex(null);
-      setFeedbackResult(null);
-      // Don't advance if game ended (lost)
-      if (isCorrect || state.livesRemaining > 1) {
-        nextQuestion();
+  // Handle time up feedback — show result, wait for player to tap Next
+  const prevAnswersLenRef = useRef(state.answers.length);
+  useEffect(() => {
+    if (state.answers.length > prevAnswersLenRef.current) {
+      prevAnswersLenRef.current = state.answers.length;
+      if (state.answers[state.answers.length - 1] === "skipped") {
+        setFeedbackResult("skipped");
       }
-    }, 1200);
-  }, [state.gameStatus, state.currentIndex, state.answers.length, state.livesRemaining, puzzle.questions, selectAnswer, timeRemaining, nextQuestion]);
-
-  // Handle time up feedback
-  useEffect(() => {
-    if (state.answers.length > 0 && state.answers[state.answers.length - 1] === "skipped" && feedbackResult === null) {
-      setFeedbackResult("skipped");
-      feedbackTimerRef.current = setTimeout(() => {
-        setFeedbackResult(null);
-        setFeedbackIndex(null);
-        nextQuestion();
-      }, 1200);
     }
-  }, [state.answers, feedbackResult, nextQuestion]);
+  }, [state.answers]);
 
-  // Cleanup feedback timer
-  useEffect(() => {
-    return () => {
-      if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
-    };
-  }, []);
+  const handleNext = () => {
+    setFeedbackIndex(null);
+    setFeedbackResult(null);
+    nextQuestion();
+  };
 
   const handleNewTopic = () => {
     sessionStorage.removeItem(puzzleKeyForGameType("trivia"));
@@ -529,7 +516,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
               </div>
             </div>
 
-            {/* Feedback message */}
+            {/* Feedback message + Next button */}
             {hasAnswered && (
               <div className="w-full max-w-md mt-5 flex flex-col items-center gap-3">
                 {feedbackResult === "correct" && (
@@ -547,6 +534,17 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
                     Time&apos;s up! The answer was: {currentQuestion.options[currentQuestion.correctIndex]}
                   </span>
                 )}
+                <button
+                  onClick={handleNext}
+                  className="px-8 h-10 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.97]"
+                  style={{
+                    background: "rgba(255, 255, 255, 0.08)",
+                    border: "1px solid rgba(255, 255, 255, 0.15)",
+                    color: "rgba(255, 255, 255, 0.7)",
+                  }}
+                >
+                  Next
+                </button>
               </div>
             )}
           </>

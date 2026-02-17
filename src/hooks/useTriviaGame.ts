@@ -98,9 +98,22 @@ export function triviaReducer(state: TriviaGameState, action: TriviaAction): Tri
       if (state.answers.length > state.currentIndex) return state;
 
       const newAnswers = [...state.answers, "skipped" as const];
+      const newLives = state.livesRemaining - 1;
+
+      if (newLives <= 0) {
+        return {
+          ...state,
+          answers: newAnswers,
+          livesRemaining: 0,
+          timerRunning: false,
+          gameStatus: "lost",
+        };
+      }
+
       return {
         ...state,
         answers: newAnswers,
+        livesRemaining: newLives,
         timerRunning: false,
       };
     }
