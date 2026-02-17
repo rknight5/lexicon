@@ -16,6 +16,7 @@ import { Toast } from "@/components/shared/Toast";
 import { SessionExpiredModal } from "@/components/shared/SessionExpiredModal";
 import { WordSearchHeader } from "@/components/wordsearch/WordSearchHeader";
 import { WordSearchStatsRow } from "@/components/wordsearch/WordSearchStatsRow";
+import { WordProgress } from "@/components/wordsearch/WordProgress";
 import { Bookmark } from "lucide-react";
 import { ANAGRAM_DIFFICULTY_CONFIG } from "@/lib/types";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
@@ -491,27 +492,33 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
           lastMissTimestamp={lastMissTimestamp}
         />
 
-        {/* Game content */}
-        <div ref={mobileContainerRef} className="flex-1 flex flex-col items-center px-3 gap-3">
-          {/* Word progress */}
-          <div className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">
-            Word {state.currentWordIndex + 1} of {puzzle.words.length}
-          </div>
+        {/* Progress bar */}
+        <WordProgress
+          found={state.solvedWords.length}
+          total={puzzle.words.length}
+        />
 
-          {/* Clue */}
+        {/* Centered play area */}
+        <div
+          ref={mobileContainerRef}
+          className="flex-1 flex flex-col items-center justify-center px-5"
+          style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 34px) + 12px)" }}
+        >
+          {/* Clue — no label, just italic text */}
           {showClues && currentWord?.clue && (
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-[10px] uppercase tracking-[2px] text-white/40 font-heading font-semibold">Clue</span>
-              <p
-                className="text-sm font-body text-center max-w-xs italic"
-                style={{ color: "var(--white-muted)" }}
-              >
-                &ldquo;{currentWord.clue}&rdquo;
-              </p>
-            </div>
+            <p
+              className="font-body text-center max-w-xs italic"
+              style={{
+                fontSize: 15,
+                color: "var(--ws-text-muted)",
+                marginBottom: 20,
+              }}
+            >
+              &ldquo;{currentWord.clue}&rdquo;
+            </p>
           )}
 
-          {/* Answer slots */}
+          {/* Empty letter slots */}
           <div className="flex gap-1.5 justify-center flex-wrap">
             {currentWord &&
               Array.from({ length: currentWord.word.length }).map((_, i) => {
@@ -524,20 +531,28 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
                       if (letter && !isRevealed) handleDeselectLetter(i);
                     }}
                     disabled={!letter || isRevealed}
-                    className="rounded-xl flex items-center justify-center font-grid font-bold uppercase transition-all"
+                    className="flex items-center justify-center uppercase transition-all"
                     style={{
                       width: mobileTileSize,
                       height: mobileTileSize,
-                      fontSize: mobileFontSize,
+                      fontSize: 20,
+                      fontFamily: "var(--font-ws-mono)",
+                      fontWeight: 700,
+                      aspectRatio: "1",
+                      borderRadius: 8,
                       background: letter
-                        ? "rgba(255, 215, 0, 0.15)"
+                        ? "rgba(255, 255, 255, 0.08)"
                         : "rgba(255, 255, 255, 0.03)",
                       border: isRevealed
-                        ? "2px solid #FFD700"
+                        ? "2px solid #f7c948"
                         : letter
-                          ? "2px solid rgba(255, 215, 0, 0.4)"
-                          : "2px dashed rgba(255, 255, 255, 0.15)",
-                      color: letter ? "#FFD700" : "transparent",
+                          ? "1px solid rgba(255, 255, 255, 0.2)"
+                          : "1px solid rgba(255, 255, 255, 0.12)",
+                      color: isRevealed
+                        ? "#f7c948"
+                        : letter
+                          ? "rgba(255, 255, 255, 0.9)"
+                          : "transparent",
                       cursor: letter && !isRevealed ? "pointer" : "default",
                     }}
                   >
@@ -548,7 +563,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
           </div>
 
           {/* Scrambled letter tiles */}
-          <div className="flex gap-1.5 justify-center flex-wrap">
+          <div className="flex gap-1.5 justify-center flex-wrap" style={{ marginTop: 16 }}>
             {currentWord &&
               currentWord.scrambled.split("").map((letter, i) => {
                 const isSelected = state.selectedIndices.includes(i);
@@ -559,20 +574,24 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
                       if (!isSelected) handleSelectLetter(i);
                     }}
                     disabled={isSelected}
-                    className="rounded-xl flex items-center justify-center font-grid font-bold uppercase transition-all active:scale-[0.97]"
+                    className="flex items-center justify-center uppercase transition-all active:scale-[0.97]"
                     style={{
                       width: mobileTileSize,
                       height: mobileTileSize,
-                      fontSize: mobileFontSize,
+                      fontSize: 20,
+                      fontFamily: "var(--font-ws-mono)",
+                      fontWeight: 700,
+                      aspectRatio: "1",
+                      borderRadius: 8,
                       background: isSelected
                         ? "rgba(255, 255, 255, 0.02)"
-                        : "rgba(255, 255, 255, 0.95)",
+                        : "rgba(255, 255, 255, 0.08)",
                       border: isSelected
-                        ? "1px solid rgba(255, 255, 255, 0.05)"
-                        : "1px solid rgba(255, 255, 255, 0.3)",
+                        ? "1px solid rgba(255, 255, 255, 0.04)"
+                        : "1px solid rgba(255, 255, 255, 0.12)",
                       color: isSelected
-                        ? "rgba(255, 255, 255, 0.15)"
-                        : "#1a1a2e",
+                        ? "rgba(255, 255, 255, 0.08)"
+                        : "rgba(255, 255, 255, 0.9)",
                       opacity: isSelected ? 0.3 : 1,
                       cursor: isSelected ? "default" : "pointer",
                     }}
@@ -583,18 +602,19 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
               })}
           </div>
 
-          {/* Action buttons */}
-          <div className="flex gap-3 items-center">
+          {/* Skip / Submit buttons */}
+          <div className="flex items-center w-full" style={{ marginTop: 24, gap: 10, maxWidth: 280 }}>
             <button
               onClick={handleSkip}
               disabled={
                 state.gameStatus !== "playing" && state.gameStatus !== "idle"
               }
-              className="px-4 py-2 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
+              className="flex-1 py-3 font-heading text-[13px] font-bold uppercase tracking-wider transition-all active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
               style={{
-                background: "rgba(255, 255, 255, 0.06)",
-                border: "1px solid rgba(255, 255, 255, 0.12)",
-                color: "var(--white-muted)",
+                background: "transparent",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+                borderRadius: 14,
+                color: "var(--ws-text-muted)",
               }}
             >
               Skip
@@ -602,15 +622,16 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
             <button
               onClick={handleSubmit}
               disabled={!allSlotsFilled}
-              className="px-6 py-2.5 rounded-pill font-heading text-sm font-bold uppercase tracking-wider transition-all active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
+              className="flex-1 py-3 font-heading text-[13px] font-bold uppercase tracking-wider transition-all active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
               style={{
                 background: allSlotsFilled
-                  ? "rgba(255, 215, 0, 0.2)"
+                  ? "linear-gradient(135deg, #f7c948, #e5b52e)"
                   : "rgba(255, 215, 0, 0.08)",
                 border: allSlotsFilled
-                  ? "1px solid rgba(255, 215, 0, 0.5)"
-                  : "1px solid rgba(255, 215, 0, 0.15)",
-                color: "#FFD700",
+                  ? "none"
+                  : "1px solid rgba(255, 215, 0, 0.12)",
+                borderRadius: 14,
+                color: allSlotsFilled ? "#1a1430" : "rgba(255, 215, 0, 0.4)",
               }}
             >
               Submit
