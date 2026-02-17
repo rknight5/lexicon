@@ -136,7 +136,7 @@ export function CrosswordGrid({
       const parentWidth = containerRef.current.parentElement.clientWidth;
 
       if (mobile) {
-        const containerPadding = 10; // 5px each side
+        const containerPadding = 48; // 24px each side
         const gapTotal = (gridSize - 1) * 2;
         const available = parentWidth - containerPadding - gapTotal;
         const computed = Math.floor(available / gridSize);
@@ -184,9 +184,8 @@ export function CrosswordGrid({
         style={{
           gridTemplateColumns: `repeat(${gridSize}, ${cellPx}px)`,
           gap: "2px",
-          padding: mobile ? "5px" : "2px",
-          background: mobile ? "rgba(255, 255, 255, 0.015)" : "transparent",
-          borderRadius: mobile ? "10px" : undefined,
+          padding: "2px",
+          background: "transparent",
         }}
         onClick={focusInput}
       >
@@ -212,9 +211,9 @@ export function CrosswordGrid({
               ? isCursor
                 ? "#a78bfa"
                 : inWord
-                ? "rgba(167, 139, 250, 0.2)"
+                ? "rgba(167, 139, 250, 0.15)"
                 : solved
-                ? "rgba(52, 211, 153, 0.2)"
+                ? "rgba(52, 211, 153, 0.15)"
                 : "#FFFFFF"
               : isCursor
               ? "#FFF9C4"
@@ -239,7 +238,15 @@ export function CrosswordGrid({
               : "#1A1A2E";
 
             const cellShadow = mobile && isCursor
-              ? "0 0 8px rgba(167, 139, 250, 0.4)"
+              ? "0 0 10px rgba(167, 139, 250, 0.5)"
+              : undefined;
+
+            const cellBorder = mobile
+              ? isCursor
+                ? "2px solid #a78bfa"
+                : inWord
+                ? "1px solid rgba(167, 139, 250, 0.30)"
+                : undefined
               : undefined;
 
             return (
@@ -251,7 +258,8 @@ export function CrosswordGrid({
                   height: cellPx,
                   background: cellBg,
                   color: cellColor,
-                  borderRadius: mobile ? "5px" : "4px",
+                  borderRadius: "4px",
+                  border: cellBorder,
                   boxShadow: cellShadow,
                   fontFamily: mobile ? "var(--font-ws-mono)" : "var(--font-grid)",
                   transition: "all 0.15s ease",

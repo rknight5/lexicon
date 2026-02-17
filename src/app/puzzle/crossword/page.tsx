@@ -18,6 +18,7 @@ import { Toast } from "@/components/shared/Toast";
 import { SessionExpiredModal } from "@/components/shared/SessionExpiredModal";
 import { WordSearchHeader } from "@/components/wordsearch/WordSearchHeader";
 import { WordSearchStatsRow } from "@/components/wordsearch/WordSearchStatsRow";
+import { WordProgress } from "@/components/wordsearch/WordProgress";
 import { Bookmark } from "lucide-react";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
 import type { CrosswordPuzzleData, CrosswordClue } from "@/lib/types";
@@ -331,8 +332,8 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
           score={score}
         />
 
-        {/* Grid */}
-        <div style={{ padding: "4px 4px" }}>
+        {/* Grid — centered with 24px side padding */}
+        <div style={{ padding: "4px 24px" }}>
           <div className="w-full flex justify-center" onClick={handleFirstInteraction}>
             <CrosswordGrid
               grid={puzzle.grid}
@@ -357,18 +358,19 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
           </div>
         </div>
 
-        {/* Progress */}
-        <div className="text-center py-2">
-          <span className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">
-            {state.solvedClues.length}/{puzzle.clues.length} Clues
-          </span>
+        {/* Progress bar */}
+        <div style={{ padding: "8px 24px 0" }}>
+          <WordProgress
+            found={state.solvedClues.length}
+            total={puzzle.clues.length}
+          />
         </div>
 
-        {/* Clues — scrollable */}
+        {/* Clues — independently scrollable */}
         <div
           className="flex-1 overflow-y-auto ws-pills-scroll"
           style={{
-            padding: "4px 18px 12px",
+            padding: "8px 18px 12px",
             paddingBottom: "calc(env(safe-area-inset-bottom, 34px) + 12px)",
           }}
         >
