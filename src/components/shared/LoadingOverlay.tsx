@@ -74,6 +74,8 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
             left: "50%",
             width: 80,
             height: 80,
+            transform: "translate(-50%, -50%) scale(1)",
+            opacity: 0,
             border: "2px solid rgba(168, 85, 247, 0.35)",
             animation: "lo-pulse-ring 3s ease-out infinite",
           }}
@@ -86,6 +88,8 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
             left: "50%",
             width: 80,
             height: 80,
+            transform: "translate(-50%, -50%) scale(1)",
+            opacity: 0,
             border: "2px solid rgba(192, 132, 252, 0.25)",
             animation: "lo-pulse-ring 3s ease-out 1.5s infinite",
           }}
