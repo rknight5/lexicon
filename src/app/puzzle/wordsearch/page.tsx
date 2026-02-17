@@ -354,7 +354,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
         />
 
         {/* Grid — fixed zone */}
-        <div style={{ padding: "4px 14px" }}>
+        <div style={{ padding: "4px 4px" }}>
           <div className="w-full flex justify-center">
             <PuzzleGrid
               grid={puzzle.grid}

@@ -105,12 +105,12 @@ export function PuzzleGrid({
 
       if (mobile) {
         // Mobile: fit grid width with padding, account for gap
-        const wrapperPadding = 28; // 14px each side
+        const wrapperPadding = 8; // 4px each side
         const containerPadding = 10; // 5px each side
         const gapTotal = (cols - 1) * 2; // 2px gap
         const available = parentWidth - wrapperPadding - containerPadding - gapTotal;
         const computed = Math.floor(available / cols);
-        setCellSize(Math.max(16, Math.min(36, computed)));
+        setCellSize(Math.max(20, Math.min(36, computed)));
       } else {
         // Desktop: original behavior
         const padding = 24;
