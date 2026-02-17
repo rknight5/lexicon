@@ -86,19 +86,24 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
     }
   }
 
-  // Use prefetched categories if available, otherwise fetch on mount
+  // Use prefetched categories if available, otherwise fetch once on mount
+  const hasFetchedRef = useRef(false);
   useEffect(() => {
     if (prefetchedCategories && prefetchedCategories.length > 0) {
       setCategories(prefetchedCategories);
       setSelectedCategories([]);
       setLoadingCategories(false);
+      hasFetchedRef.current = true;
       return;
     }
+
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
 
     const controller = new AbortController();
     fetchCategories(controller.signal);
     return () => controller.abort();
-  }, [topic, prefetchedCategories]);
+  }, [prefetchedCategories]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleCategory = (name: string) => {
     setSelectedCategories((prev) =>
