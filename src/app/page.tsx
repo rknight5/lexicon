@@ -256,7 +256,7 @@ export default function HomePage() {
           />
         </div>
       ) : (
-        <div className="flex flex-col items-center mt-10 gap-4 w-full max-w-md">
+        <div className="flex flex-col items-center mt-16 gap-4 w-full max-w-md">
           <div className="flex items-center gap-3 w-full">
             <div className="h-px flex-1 bg-white/15" />
             <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold whitespace-nowrap">Quick Starts</span>
