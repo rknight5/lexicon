@@ -17,6 +17,7 @@ interface PuzzleGridProps {
   onPointerLeave: () => void;
   lastMissTimestamp?: number;
   lastFoundTimestamp?: number;
+  variant?: "mobile" | "desktop";
 }
 
 function isCellInList(cells: CellPosition[], row: number, col: number): boolean {
@@ -84,23 +85,22 @@ export function PuzzleGrid({
   onPointerLeave,
   lastMissTimestamp = 0,
   lastFoundTimestamp = 0,
+  variant,
 }: PuzzleGridProps) {
   const cols = gridCols ?? gridSize;
   const rows = gridRows ?? gridSize;
+  const mobile = variant === "mobile";
   const [shaking, setShaking] = useState(false);
   const [flashingGreen, setFlashingGreen] = useState(false);
   const isDragging = useRef(false);
   const startCell = useRef<CellPosition | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [cellSize, setCellSize] = useState(28);
-  const [isMobile, setIsMobile] = useState(false);
 
   // Dynamically compute cell size to fit within the container
   useEffect(() => {
     const measure = () => {
       if (!containerRef.current?.parentElement) return;
-      const mobile = window.innerWidth < 1024;
-      setIsMobile(mobile);
       const parentWidth = containerRef.current.parentElement.clientWidth;
 
       if (mobile) {
@@ -123,9 +123,9 @@ export function PuzzleGrid({
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
-  }, [cols]);
+  }, [cols, mobile]);
 
-  const fontSize = isMobile ? 13 : Math.max(12, Math.floor(cellSize * 0.7));
+  const fontSize = mobile ? 13 : Math.max(12, Math.floor(cellSize * 0.7));
 
   useEffect(() => {
     if (lastMissTimestamp > 0) {
@@ -176,9 +176,9 @@ export function PuzzleGrid({
     }
   }, [onPointerLeave]);
 
-  const cellClass = isMobile ? "ws-grid-cell" : "grid-cell";
-  const selectingClass = isMobile ? "ws-grid-cell--selecting" : "grid-cell--selecting";
-  const foundClass = isMobile ? "ws-grid-cell--found" : "grid-cell--found";
+  const cellClass = mobile ? "ws-grid-cell" : "grid-cell";
+  const selectingClass = mobile ? "ws-grid-cell--selecting" : "grid-cell--selecting";
+  const foundClass = mobile ? "ws-grid-cell--found" : "grid-cell--found";
 
   return (
     <div
@@ -186,10 +186,10 @@ export function PuzzleGrid({
       className={`inline-grid select-none ${shaking ? "animate-shake" : ""}`}
       style={{
         gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
-        gap: isMobile ? "2px" : "0px",
-        padding: isMobile ? "5px" : "12px",
-        background: isMobile ? "rgba(255, 255, 255, 0.015)" : "#FFFFFF",
-        borderRadius: isMobile ? "10px" : "12px",
+        gap: mobile ? "2px" : "0px",
+        padding: mobile ? "5px" : "12px",
+        background: mobile ? "rgba(255, 255, 255, 0.015)" : "#FFFFFF",
+        borderRadius: mobile ? "10px" : "12px",
         touchAction: "none",
       }}
       onPointerUp={handlePointerUp}
@@ -215,7 +215,7 @@ export function PuzzleGrid({
                 width: cellSize,
                 height: cellSize,
                 fontSize,
-                fontFamily: isMobile ? "var(--font-ws-mono)" : "var(--font-grid)",
+                fontFamily: mobile ? "var(--font-ws-mono)" : "var(--font-grid)",
                 aspectRatio: "1",
               }}
               onPointerDown={() => handlePointerDown(rowIdx, colIdx)}

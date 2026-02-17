@@ -291,6 +291,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
                 onPointerLeave={cancelSelection}
                 lastMissTimestamp={lastMissTimestamp}
                 lastFoundTimestamp={lastFoundTimestamp}
+                variant="desktop"
               />
             </div>
 
@@ -372,6 +373,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
               onPointerLeave={cancelSelection}
               lastMissTimestamp={lastMissTimestamp}
               lastFoundTimestamp={lastFoundTimestamp}
+              variant="mobile"
             />
           </div>
         </div>
