@@ -1,11 +1,28 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
+// Messages ordered by logical progress — exploratory → constructive → conclusive
 const MESSAGES = [
+  "Exploring your topic",
   "Choosing the perfect words",
   "Crafting clever clues",
+  "Building the grid",
+  "Placing hidden words",
   "Shuffling everything around",
   "Adding the finishing touches",
   "Almost ready",
+];
+
+// Weighted durations: early/mid messages ~80% of time, final stretch ~20%
+// Total budget ~25s (well under 60s timeout), messages never repeat
+const MESSAGE_DURATIONS = [
+  3500, // Exploring your topic
+  3500, // Choosing the perfect words
+  3500, // Crafting clever clues
+  3500, // Building the grid
+  3000, // Placing hidden words
+  3000, // Shuffling everything around
+  2500, // Adding the finishing touches
+  8000, // Almost ready (sits here until done)
 ];
 
 const SPARKLES = [
@@ -23,18 +40,29 @@ interface LoadingOverlayProps {
 
 export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
   const [messageIndex, setMessageIndex] = useState(0);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setMessageIndex((prev) => (prev + 1) % MESSAGES.length);
-    }, 2500);
-    return () => clearInterval(interval);
+    const advance = (index: number) => {
+      if (index >= MESSAGES.length - 1) return; // stay on last message
+      timeoutRef.current = setTimeout(() => {
+        setMessageIndex(index + 1);
+        advance(index + 1);
+      }, MESSAGE_DURATIONS[index]);
+    };
+    advance(0);
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
   }, []);
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center px-5"
-      style={{ background: "linear-gradient(180deg, #2D1B69 0%, #1A0A2E 100%)" }}
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center px-5"
+      style={{
+        background: "linear-gradient(180deg, #2D1B69 0%, #1A0A2E 100%)",
+        overflow: "hidden",
+      }}
     >
       {/* Effects wrapper — gives pulse rings and sparkles room */}
       <div className="relative flex items-center justify-center mb-8" style={{ width: 192, height: 192 }}>
@@ -47,7 +75,7 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
             width: 80,
             height: 80,
             border: "2px solid rgba(168, 85, 247, 0.35)",
-            animation: "pulse-ring 3s ease-out infinite",
+            animation: "lo-pulse-ring 3s ease-out infinite",
           }}
         />
         {/* Pulse ring 2 */}
@@ -59,38 +87,32 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
             width: 80,
             height: 80,
             border: "2px solid rgba(192, 132, 252, 0.25)",
-            animation: "pulse-ring 3s ease-out 1.5s infinite",
+            animation: "lo-pulse-ring 3s ease-out 1.5s infinite",
           }}
         />
 
-        {/* 3D rotating orb */}
-        <div className="relative w-20 h-20" style={{ animation: "orb-float 3s ease-in-out infinite" }}>
-          {/* Base sphere with rotating gradient */}
+        {/* 3D orb with breathing pulse + float */}
+        <div
+          className="relative w-20 h-20"
+          style={{ animation: "lo-orb-float 3s ease-in-out infinite, lo-orb-breathe 2s ease-in-out infinite" }}
+        >
+          {/* Base sphere — radially symmetric gradient (no seam) */}
           <div
             className="absolute inset-0 rounded-full"
             style={{
-              background: "radial-gradient(circle at 35% 30%, #C084FC 0%, #A855F7 15%, #7B3FBF 40%, #5B2D8E 65%, #2E1065 100%)",
-              boxShadow: "0 0 40px rgba(123, 63, 191, 0.5), 0 8px 24px rgba(0, 0, 0, 0.4), inset -6px -6px 20px rgba(0, 0, 0, 0.4), inset 3px 3px 10px rgba(192, 132, 252, 0.2)",
+              background: "radial-gradient(circle at 50% 50%, #C084FC 0%, #A855F7 20%, #7B3FBF 45%, #5B2D8E 70%, #2E1065 100%)",
+              boxShadow: "0 0 40px rgba(123, 63, 191, 0.5), 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 -8px 20px rgba(0, 0, 0, 0.4), inset 0 4px 10px rgba(192, 132, 252, 0.2)",
             }}
           />
-          {/* Rotating highlight band — simulates a turning surface */}
+          {/* Rotating ambient glow — radially symmetric so no seam on loop */}
           <div
-            className="absolute inset-0 rounded-full overflow-hidden"
-            style={{ animation: "orb-rotate 4s linear infinite" }}
-          >
-            <div
-              className="absolute"
-              style={{
-                top: "10%",
-                left: "-20%",
-                width: "60%",
-                height: "80%",
-                background: "linear-gradient(180deg, transparent 0%, rgba(192, 132, 252, 0.25) 30%, rgba(255, 255, 255, 0.15) 50%, rgba(192, 132, 252, 0.25) 70%, transparent 100%)",
-                filter: "blur(6px)",
-              }}
-            />
-          </div>
-          {/* Specular highlight */}
+            className="absolute inset-0 rounded-full"
+            style={{
+              background: "conic-gradient(from 0deg, transparent 0%, rgba(192, 132, 252, 0.15) 25%, transparent 50%, rgba(192, 132, 252, 0.15) 75%, transparent 100%)",
+              animation: "lo-orb-rotate 4s linear infinite",
+            }}
+          />
+          {/* Specular highlight — fixed, not rotating */}
           <div
             className="absolute rounded-full"
             style={{
@@ -98,7 +120,7 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
               left: "22%",
               width: "30%",
               height: "20%",
-              background: "radial-gradient(ellipse, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 70%)",
+              background: "radial-gradient(ellipse, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 70%)",
               transform: "rotate(-20deg)",
             }}
           />
@@ -110,7 +132,7 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
               left: "15%",
               width: "18%",
               height: "12%",
-              background: "radial-gradient(ellipse, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 70%)",
+              background: "radial-gradient(ellipse, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%)",
               transform: "rotate(-30deg)",
             }}
           />
@@ -129,7 +151,7 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
               height: "8px",
               background: "radial-gradient(ellipse, rgba(123, 63, 191, 0.3) 0%, transparent 70%)",
               borderRadius: "50%",
-              animation: "orb-shadow 3s ease-in-out infinite",
+              animation: "lo-orb-shadow 3s ease-in-out infinite",
             }}
           />
         </div>
@@ -144,7 +166,7 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
               left: "50%",
               width: 0,
               height: 0,
-              animation: `sparkle-orbit ${s.duration}s linear ${s.delay}s infinite`,
+              animation: `lo-sparkle-orbit ${s.duration}s linear ${s.delay}s infinite`,
               ["--orbit-radius" as string]: `${s.radius}px`,
             }}
           >
@@ -155,7 +177,7 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
                 height: s.size,
                 background: s.color,
                 boxShadow: `0 0 ${s.size * 2}px ${s.color}`,
-                animation: `sparkle-twinkle ${1.5 + i * 0.3}s ease-in-out infinite`,
+                animation: `lo-sparkle-twinkle ${1.5 + i * 0.3}s ease-in-out infinite`,
               }}
             />
           </div>
@@ -163,19 +185,23 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
       </div>
 
       <style>{`
-        @keyframes orb-float {
+        @keyframes lo-orb-float {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-8px); }
         }
-        @keyframes orb-rotate {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+        @keyframes lo-orb-breathe {
+          0%, 100% { scale: 1; }
+          50% { scale: 1.05; }
         }
-        @keyframes orb-shadow {
+        @keyframes lo-orb-rotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes lo-orb-shadow {
           0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
           50% { transform: translateX(-50%) scale(0.8); opacity: 0.6; }
         }
-        @keyframes pulse-ring {
+        @keyframes lo-pulse-ring {
           0% {
             transform: translate(-50%, -50%) scale(1);
             opacity: 0.6;
@@ -185,7 +211,7 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
             opacity: 0;
           }
         }
-        @keyframes sparkle-orbit {
+        @keyframes lo-sparkle-orbit {
           0% {
             transform: translate(-50%, -50%) rotate(0deg) translateX(var(--orbit-radius));
             opacity: 0;
@@ -197,11 +223,11 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
             opacity: 0;
           }
         }
-        @keyframes sparkle-twinkle {
+        @keyframes lo-sparkle-twinkle {
           0%, 100% { opacity: 0.5; transform: scale(1); }
           50% { opacity: 1; transform: scale(1.6); }
         }
-        @keyframes message-fade {
+        @keyframes lo-message-fade {
           0% { opacity: 0; transform: translateY(6px); }
           15% { opacity: 1; transform: translateY(0); }
           85% { opacity: 1; transform: translateY(0); }
@@ -218,7 +244,7 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
           className="font-body text-sm"
           style={{
             color: "var(--white-muted)",
-            animation: "message-fade 2.5s ease-in-out",
+            animation: `lo-message-fade ${Math.min(MESSAGE_DURATIONS[messageIndex], 3000)}ms ease-in-out`,
           }}
         >
           {MESSAGES[messageIndex]}
@@ -230,8 +256,8 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
           onClick={onCancel}
           className="mt-12 px-5 py-2 rounded-pill font-body text-sm text-white/70 hover:text-white transition-colors"
           style={{
-            background: "var(--glass-bg)",
-            border: "1px solid var(--glass-border)",
+            background: "rgba(255, 255, 255, 0.06)",
+            border: "1px solid rgba(255, 255, 255, 0.2)",
           }}
         >
           Cancel
