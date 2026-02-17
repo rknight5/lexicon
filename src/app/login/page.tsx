@@ -38,7 +38,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-5">
+    <main className="min-h-screen flex flex-col items-center justify-center px-5" style={{ background: "linear-gradient(180deg, #2D1B69 0%, #0c0a14 100%)" }}>
       <h1
         className="font-display text-5xl md:text-7xl tracking-[8px] mb-3"
         style={{
