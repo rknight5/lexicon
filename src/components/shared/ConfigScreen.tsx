@@ -391,7 +391,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
                   Couldn&apos;t load categories.
                 </p>
                 <button
-                  onClick={fetchCategories}
+                  onClick={() => fetchCategories()}
                   className="text-sm font-heading font-bold underline"
                   style={{ color: "var(--color-gold-primary)" }}
                 >

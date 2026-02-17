@@ -670,6 +670,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
         <PauseMenu
           onResume={resume}
           onQuit={handleNewTopic}
+          gameType="anagram"
         />
       )}
 

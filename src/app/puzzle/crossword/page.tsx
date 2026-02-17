@@ -391,6 +391,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
         <PauseMenu
           onResume={resume}
           onQuit={handleNewTopic}
+          gameType="crossword"
         />
       )}
 

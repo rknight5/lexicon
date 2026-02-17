@@ -408,6 +408,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
         <PauseMenu
           onResume={resume}
           onQuit={handleNewTopic}
+          gameType="wordsearch"
         />
       )}
 
