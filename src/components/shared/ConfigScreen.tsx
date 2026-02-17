@@ -102,7 +102,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
   };
 
   const handleGenerate = async () => {
-    if (selectedCategories.length === 0) return;
+    if (selectedCategories.length < 2) return;
     setGenerating(true);
     setError(null);
     cancelledRef.current = false;
@@ -399,9 +399,9 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
               </p>
             )}
 
-            {selectedCategories.length === 0 && categories.length > 0 && (
+            {selectedCategories.length < 2 && categories.length > 0 && (
               <p className="text-sm text-pink-accent mt-2">
-                Select at least one category
+                Select at least 2 categories
               </p>
             )}
           </div>
@@ -445,7 +445,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
             onClick={handleGenerate}
             disabled={
               generating ||
-              selectedCategories.length === 0 ||
+              selectedCategories.length < 2 ||
               !topic.trim()
             }
             className="w-full max-w-md mx-auto flex items-center justify-center gap-2 h-12 rounded-pill font-heading text-sm font-bold uppercase tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed active:enabled:scale-[0.97]"

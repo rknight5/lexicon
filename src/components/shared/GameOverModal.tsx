@@ -24,6 +24,10 @@ export function GameOverModal({
 
   return (
     <ModalShell centered>
+        <div className="flex justify-center text-4xl" aria-hidden>
+          😔
+        </div>
+
         <h2 className="font-heading text-3xl font-bold text-pink-accent text-center">
           Game Over
         </h2>

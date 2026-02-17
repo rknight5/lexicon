@@ -104,12 +104,12 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
               boxShadow: "0 0 40px rgba(123, 63, 191, 0.5), 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 -8px 20px rgba(0, 0, 0, 0.4), inset 0 4px 10px rgba(192, 132, 252, 0.2)",
             }}
           />
-          {/* Rotating ambient glow — radially symmetric so no seam on loop */}
+          {/* Ambient glow — radial so identical from any angle, pulses instead of rotating */}
           <div
             className="absolute inset-0 rounded-full"
             style={{
-              background: "conic-gradient(from 0deg, transparent 0%, rgba(192, 132, 252, 0.15) 25%, transparent 50%, rgba(192, 132, 252, 0.15) 75%, transparent 100%)",
-              animation: "lo-orb-rotate 4s linear infinite",
+              background: "radial-gradient(circle at 50% 50%, rgba(192, 132, 252, 0.25) 0%, rgba(168, 85, 247, 0.1) 40%, transparent 70%)",
+              animation: "lo-orb-glow 2.5s ease-in-out infinite",
             }}
           />
           {/* Specular highlight — fixed, not rotating */}
@@ -193,9 +193,9 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
           0%, 100% { scale: 1; }
           50% { scale: 1.05; }
         }
-        @keyframes lo-orb-rotate {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+        @keyframes lo-orb-glow {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
         }
         @keyframes lo-orb-shadow {
           0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
