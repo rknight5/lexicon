@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Shield, Flame, Skull, Home, Pencil, Check, BarChart2, Bookmark, Settings, LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Shield, Flame, Skull, Home, Check, Bookmark } from "lucide-react";
 import type { Difficulty } from "@/lib/types";
 
 interface GameBarProps {
@@ -18,6 +17,7 @@ interface GameBarProps {
   onHint?: () => void;
   canHint?: boolean;
   hintsUsed?: number;
+  onMenu?: () => void;
 }
 
 const DIFFICULTY_CONFIG: Record<
@@ -46,29 +46,17 @@ const DIFFICULTY_CONFIG: Record<
 
 export function GameBar({
   difficulty,
-  onPause,
   onBack,
-  gameStatus,
   title,
   onTitleChange,
-  onStats,
   onSave,
   isSaved,
-  onHint,
-  canHint,
-  hintsUsed = 0,
+  onMenu,
 }: GameBarProps) {
-  const router = useRouter();
   const badge = DIFFICULTY_CONFIG[difficulty];
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(title || "");
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
-    router.push("/login");
-    router.refresh();
-  };
 
   useEffect(() => {
     if (editing && inputRef.current) {
@@ -92,7 +80,7 @@ export function GameBar({
 
   return (
     <div
-      className="min-h-14 px-4 py-2 flex items-center gap-3 border-b"
+      className="px-4 py-2 border-b"
       style={{
         background: "var(--ws-header-bg)",
         backdropFilter: "blur(12px)",
@@ -100,109 +88,147 @@ export function GameBar({
         borderColor: "rgba(255, 255, 255, 0.08)",
       }}
     >
-      {/* Left: back button + difficulty (mobile) */}
-      <div className="flex items-center gap-4">
-        <button
-          onClick={onBack}
-          className="flex-shrink-0 flex items-center gap-1.5 text-white/70 hover:text-white transition-colors"
-        >
-          <Home className="w-6 h-6" />
-        </button>
-        {/* Difficulty label (mobile only) */}
-        <span className="lg:hidden flex items-center gap-1 text-xs font-heading font-bold p-1.5 -m-1.5" style={{ color: badge.color }}>
-          {badge.icon}
-          {badge.label}
-        </span>
-      </div>
-
-      {/* Center: title + difficulty badge (desktop only) */}
-      <div className="hidden lg:flex flex-1 min-w-0 items-center justify-center gap-2">
-        {editing ? (
-          <form
-            onSubmit={(e) => { e.preventDefault(); commitEdit(); }}
-            className="flex items-center gap-1.5 min-w-0"
-          >
-            <input
-              ref={inputRef}
-              type="text"
-              value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
-              onBlur={commitEdit}
-              maxLength={60}
-              className="font-heading text-sm font-bold bg-transparent border-b border-white/30 outline-none text-white text-center px-1 py-0.5 min-w-0 w-full"
-            />
-            <button
-              type="submit"
-              className="flex-shrink-0 text-green-accent hover:text-green-accent/80 transition-colors p-0.5"
-            >
-              <Check className="w-4 h-4" />
-            </button>
-          </form>
-        ) : (
-          <span className="font-heading text-sm font-bold truncate">{title}</span>
-        )}
-        {!editing && onTitleChange && (
+      <div
+        className="grid items-center"
+        style={{
+          gridTemplateColumns: "80px 1fr 80px",
+          padding: "4px 0",
+        }}
+      >
+        {/* Left — Home button in container */}
+        <div className="flex justify-start">
           <button
-            onClick={startEditing}
-            className="flex-shrink-0 text-white/50 hover:text-white/80 transition-colors p-0.5"
-            style={{ alignSelf: "flex-start", marginTop: 2 }}
-            title="Edit title"
+            onClick={onBack}
+            className="flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80 active:scale-95"
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: "rgba(255, 255, 255, 0.08)",
+            }}
           >
-            <Pencil style={{ width: 10, height: 10 }} />
+            <Home style={{ width: 19, height: 19, color: "rgba(255, 255, 255, 0.7)" }} />
           </button>
-        )}
-        <div
-          className={`flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-pill border text-[11px] font-heading font-bold ${badge.className}`}
-        >
-          {badge.icon}
-          {badge.label}
         </div>
-      </div>
 
-      {/* Spacer on mobile (pushes icons right) */}
-      <div className="flex-1 lg:hidden" />
-
-      {/* Right: hint (mobile) + save + settings + logout */}
-      <div className="flex-shrink-0 flex items-center gap-4">
-        {onHint && (
-          <button
-            onClick={onHint}
-            disabled={!canHint}
-            className="lg:hidden relative text-gold-primary/70 hover:text-gold-primary transition-colors p-1.5 -m-1.5 disabled:opacity-30"
-            title="Hint (costs 1 life)"
-          >
-            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
-            {hintsUsed > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-gold-primary text-purple-deep text-[10px] font-bold flex items-center justify-center">
-                {hintsUsed}
+        {/* Center — Title + pencil + difficulty badge */}
+        <div className="flex items-center justify-center min-w-0 gap-2">
+          {editing ? (
+            <form
+              onSubmit={(e) => { e.preventDefault(); commitEdit(); }}
+              className="flex items-center gap-1.5 min-w-0"
+            >
+              <input
+                ref={inputRef}
+                type="text"
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                onBlur={commitEdit}
+                maxLength={60}
+                className="bg-transparent border-b text-center text-white outline-none w-full max-w-[200px]"
+                style={{
+                  fontFamily: "var(--font-ws-body)",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  borderColor: "rgba(255, 255, 255, 0.3)",
+                }}
+              />
+              <button
+                type="submit"
+                className="flex-shrink-0 text-green-accent hover:text-green-accent/80 transition-colors p-0.5"
+              >
+                <Check className="w-4 h-4" />
+              </button>
+            </form>
+          ) : (
+            <button
+              onClick={onTitleChange ? startEditing : undefined}
+              className="flex items-center min-w-0 cursor-pointer"
+              style={{ gap: 4 }}
+            >
+              <span
+                className="text-white truncate"
+                style={{
+                  fontFamily: "var(--font-ws-body)",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  minWidth: 0,
+                }}
+              >
+                {title}
               </span>
-            )}
-          </button>
-        )}
-        {onSave && (
-          <button
-            onClick={onSave}
-            disabled={isSaved}
-            className={`transition-colors p-1.5 -m-1.5 cursor-pointer ${isSaved ? "text-gold-primary cursor-default" : "text-white/50 hover:text-white/80"}`}
-            title={isSaved ? "Saved" : "Save puzzle"}
+              {onTitleChange && (
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="rgba(255, 255, 255, 0.35)"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="flex-shrink-0"
+                  style={{ alignSelf: "flex-start", marginTop: 1 }}
+                >
+                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                  <path d="m15 5 4 4" />
+                </svg>
+              )}
+            </button>
+          )}
+          <div
+            className={`flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-pill border text-[11px] font-heading font-bold ${badge.className}`}
           >
-            <Bookmark className="w-6 h-6" fill={isSaved ? "currentColor" : "none"} />
-          </button>
-        )}
-        <button
-          disabled
-          className="text-white/25 cursor-not-allowed p-1.5 -m-1.5"
-          title="Settings (coming soon)"
-        >
-          <Settings className="w-6 h-6" />
-        </button>
-        <button
-          onClick={handleLogout}
-          className="text-white/50 hover:text-white/80 transition-colors p-1.5 -m-1.5"
-          title="Log out"
-        >
-          <LogOut className="w-6 h-6" />
-        </button>
+            {badge.icon}
+            {badge.label}
+          </div>
+        </div>
+
+        {/* Right — Save + Hamburger in containers */}
+        <div className="flex items-center justify-end gap-2">
+          {onSave && (
+            <button
+              onClick={onSave}
+              disabled={isSaved}
+              className="flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80 active:scale-95 disabled:cursor-default"
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: 10,
+                background: isSaved ? "rgba(255, 215, 0, 0.12)" : "rgba(255, 255, 255, 0.08)",
+                border: isSaved ? "1px solid rgba(255, 215, 0, 0.18)" : "none",
+              }}
+              title={isSaved ? "Saved" : "Save puzzle"}
+            >
+              <Bookmark
+                style={{
+                  width: 16,
+                  height: 16,
+                  color: isSaved ? "#f7c948" : "rgba(255, 255, 255, 0.5)",
+                }}
+                fill={isSaved ? "currentColor" : "none"}
+              />
+            </button>
+          )}
+          {onMenu && (
+            <button
+              onClick={onMenu}
+              className="flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80 active:scale-95"
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: 10,
+                background: "rgba(255, 255, 255, 0.08)",
+              }}
+            >
+              <div className="flex flex-col items-center justify-center" style={{ gap: "3.5px" }}>
+                <span style={{ width: 16, height: 1.5, background: "rgba(255, 255, 255, 0.5)", borderRadius: 1 }} />
+                <span style={{ width: 16, height: 1.5, background: "rgba(255, 255, 255, 0.5)", borderRadius: 1 }} />
+                <span style={{ width: 16, height: 1.5, background: "rgba(255, 255, 255, 0.5)", borderRadius: 1 }} />
+              </div>
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

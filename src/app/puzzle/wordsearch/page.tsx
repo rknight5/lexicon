@@ -239,6 +239,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
           onHint={handleRandomHint}
           canHint={canHint}
           hintsUsed={state.hintsUsed}
+          onMenu={() => setDrawerOpen(true)}
         />
       </div>
 

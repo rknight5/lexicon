@@ -216,6 +216,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
           onHint={useHint}
           canHint={state.gameStatus === "playing" && state.livesRemaining > 1}
           hintsUsed={state.hintsUsed}
+          onMenu={() => setDrawerOpen(true)}
         />
       </div>
 

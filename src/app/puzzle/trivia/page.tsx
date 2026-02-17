@@ -273,6 +273,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
           onStats={() => setShowStats(true)}
           onSave={handleSave}
           isSaved={isSaved || isSaving}
+          onMenu={() => setDrawerOpen(true)}
         />
       </div>
 

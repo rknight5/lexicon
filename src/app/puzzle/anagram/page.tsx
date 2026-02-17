@@ -303,6 +303,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
           onHint={handleHint}
           canHint={canHint}
           hintsUsed={state.hintsUsed}
+          onMenu={() => setDrawerOpen(true)}
         />
       </div>
 
