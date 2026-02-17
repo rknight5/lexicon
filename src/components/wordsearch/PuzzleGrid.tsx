@@ -144,7 +144,8 @@ export function PuzzleGrid({
     }
   }, [lastFoundTimestamp]);
 
-  // Grid-level pointer handlers — coordinate math for reliable touch drag
+  // Convert client coordinates to grid row/col via coordinate math.
+  // Works for both mouse and touch — no elementFromPoint needed.
   const cellToRowCol = useCallback(
     (clientX: number, clientY: number) => {
       if (!containerRef.current) return null;
@@ -159,6 +160,9 @@ export function PuzzleGrid({
     [cellSize, mobile]
   );
 
+  // Pointer events only — handles both mouse and touch.
+  // No setPointerCapture: touch has implicit capture, and explicit capture
+  // triggers pointercancel on iOS Safari.
   const handleGridPointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       const pos = cellToRowCol(e.clientX, e.clientY);
@@ -168,7 +172,6 @@ export function PuzzleGrid({
       startCell.current = pos;
       lastCell.current = null;
       onCellPointerDown(pos);
-      containerRef.current?.setPointerCapture(e.pointerId);
     },
     [gameStatus, cols, rows, cellToRowCol, onCellPointerDown]
   );
@@ -189,13 +192,14 @@ export function PuzzleGrid({
   );
 
   const handlePointerUp = useCallback(() => {
+    if (!isDragging.current) return;
     isDragging.current = false;
     startCell.current = null;
     lastCell.current = null;
     onPointerUp();
   }, [onPointerUp]);
 
-  const handlePointerLeaveGrid = useCallback(() => {
+  const handlePointerEnd = useCallback(() => {
     if (isDragging.current) {
       isDragging.current = false;
       startCell.current = null;
@@ -203,47 +207,6 @@ export function PuzzleGrid({
       onPointerLeave();
     }
   }, [onPointerLeave]);
-
-  // Touch event handlers — reliable on mobile Safari where pointer events fail
-  const handleTouchStart = useCallback(
-    (e: React.TouchEvent<HTMLDivElement>) => {
-      const touch = e.touches[0];
-      const pos = cellToRowCol(touch.clientX, touch.clientY);
-      if (!pos || pos.row < 0 || pos.row >= rows || pos.col < 0 || pos.col >= cols) return;
-      if (gameStatus !== "playing" && gameStatus !== "idle") return;
-      e.preventDefault();
-      isDragging.current = true;
-      startCell.current = pos;
-      lastCell.current = null;
-      onCellPointerDown(pos);
-    },
-    [gameStatus, cols, rows, cellToRowCol, onCellPointerDown]
-  );
-
-  const handleTouchMove = useCallback(
-    (e: React.TouchEvent<HTMLDivElement>) => {
-      if (!isDragging.current || !startCell.current) return;
-      e.preventDefault();
-      const touch = e.touches[0];
-      const pos = cellToRowCol(touch.clientX, touch.clientY);
-      if (!pos) return;
-      const row = Math.max(0, Math.min(rows - 1, pos.row));
-      const col = Math.max(0, Math.min(cols - 1, pos.col));
-      if (lastCell.current?.row === row && lastCell.current?.col === col) return;
-      lastCell.current = { row, col };
-      const snapped = getSnappedCells(startCell.current, { row, col }, gridSize, cols, rows);
-      onSelectionChange(snapped);
-    },
-    [gridSize, cols, rows, cellToRowCol, onSelectionChange]
-  );
-
-  const handleTouchEnd = useCallback(() => {
-    if (!isDragging.current) return;
-    isDragging.current = false;
-    startCell.current = null;
-    lastCell.current = null;
-    onPointerUp();
-  }, [onPointerUp]);
 
   const cellClass = mobile ? "ws-grid-cell" : "grid-cell";
   const selectingClass = mobile ? "ws-grid-cell--selecting" : "grid-cell--selecting";
@@ -264,12 +227,8 @@ export function PuzzleGrid({
       onPointerDown={handleGridPointerDown}
       onPointerMove={handleGridPointerMove}
       onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerLeaveGrid}
-      onPointerCancel={handlePointerLeaveGrid}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onTouchCancel={handleTouchEnd}
+      onPointerLeave={handlePointerEnd}
+      onPointerCancel={handlePointerEnd}
     >
       {grid.map((row, rowIdx) =>
         row.map((letter, colIdx) => {
