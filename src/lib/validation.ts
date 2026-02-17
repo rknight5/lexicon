@@ -48,6 +48,7 @@ export function validateAndFilterWords(
 ): WordEntry[] {
   const minLen = config.minWordLength ?? 3;
   const maxLen = config.maxWordLength ?? 12;
+  const normalizedCategories = config.focusCategories.map((c) => c.toLowerCase());
   return words
     .map((w) => ({
       ...w,
@@ -55,6 +56,6 @@ export function validateAndFilterWords(
     }))
     .filter((w) => w.word.length >= minLen && w.word.length <= maxLen)
     .filter((w, i, arr) => arr.findIndex((x) => x.word === w.word) === i)
-    .filter((w) => config.focusCategories.includes(w.category))
+    .filter((w) => normalizedCategories.includes(w.category.toLowerCase()))
     .slice(0, config.maxWords);
 }
