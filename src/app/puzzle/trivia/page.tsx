@@ -329,7 +329,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
 
           {/* Main game panel */}
           <div
-            className="flex flex-col items-center gap-6 rounded-3xl p-10 min-w-[480px]"
+            className="flex flex-col items-center gap-8 rounded-3xl p-10 min-w-[480px]"
             style={{
               background: "rgba(255, 255, 255, 0.05)",
               border: "1px solid rgba(255, 255, 255, 0.1)",
@@ -730,7 +730,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
         {currentQuestion && state.gameStatus === "playing" && (
           <>
             {/* Countdown Timer */}
-            <div className="py-2">
+            <div className="py-4">
               <CountdownTimer
                 timeRemaining={timeRemaining}
                 timeTotal={timeTotal}
@@ -740,7 +740,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
             </div>
 
             {/* Question text */}
-            <div className="w-full max-w-md text-center mb-4">
+            <div className="w-full max-w-md text-center mb-6">
               <p
                 className="font-body text-base font-semibold leading-snug"
                 style={{ color: "rgba(255, 255, 255, 0.9)" }}
@@ -780,7 +780,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
                       disabled={hasAnswered || isEliminated}
                       className={`w-full flex items-center px-4 rounded-xl font-body text-sm font-medium transition-all ${animClass}`}
                       style={{
-                        minHeight: 52,
+                        minHeight: 48,
                         background: bg,
                         border,
                         color: isEliminated
@@ -838,7 +838,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
                       disabled={hasAnswered}
                       className={`flex-1 flex items-center justify-center rounded-xl font-heading text-sm font-bold uppercase tracking-wider transition-all ${animClass}`}
                       style={{
-                        minHeight: 56,
+                        minHeight: 48,
                         background: bg,
                         border,
                         color: "rgba(255, 255, 255, 0.85)",
