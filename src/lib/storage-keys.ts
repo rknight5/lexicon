@@ -6,6 +6,7 @@ export const STORAGE_KEYS = {
   PUZZLE_ANAGRAM: "lexicon-puzzle-anagram",
   GAME_STATE: "lexicon-game-state",
   PENDING_AUTOSAVE: "lexicon-pending-autosave",
+  UNSEEN_SAVES: "lexicon-unseen-saves",
 } as const;
 
 /** Map a GameType to its puzzle sessionStorage key */

@@ -32,5 +32,6 @@ export async function getAllOfflinePuzzles(): Promise<OfflinePuzzle[]> {
     const puzzle = await get(key);
     if (puzzle) puzzles.push(puzzle as OfflinePuzzle);
   }
+  puzzles.sort((a, b) => new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime());
   return puzzles;
 }

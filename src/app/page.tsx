@@ -6,7 +6,7 @@ import { Sparkles, LogOut, BarChart2, Bookmark } from "lucide-react";
 import { ConfigScreen } from "@/components/shared/ConfigScreen";
 import { StatsModal } from "@/components/shared/StatsModal";
 import { ResumeCard } from "@/components/shared/ResumeCard";
-import { getAutoSave, deleteAutoSave, getSavedPuzzles, savePuzzle, type AutoSaveSummary } from "@/lib/storage";
+import { getAutoSave, deleteAutoSave, savePuzzle, type AutoSaveSummary } from "@/lib/storage";
 import type { CategorySuggestion } from "@/lib/types";
 import { STORAGE_KEYS, puzzleKeyForGameType } from "@/lib/storage-keys";
 
@@ -29,7 +29,7 @@ export default function HomePage() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [autoSave, setAutoSave] = useState<AutoSaveSummary | null>(null);
-  const [savedCount, setSavedCount] = useState(0);
+  const [hasUnseenSaves, setHasUnseenSaves] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export default function HomePage() {
     }
     // Also fetch from server (authoritative, covers tab-close saves)
     getAutoSave().then(setAutoSave).catch(() => {});
-    getSavedPuzzles().then((p) => setSavedCount(p.length)).catch(() => {});
+    try { setHasUnseenSaves(localStorage.getItem(STORAGE_KEYS.UNSEEN_SAVES) === "1"); } catch {}
   }, []);
 
   // Prefetch categories as the user types (debounced 600ms)
@@ -169,7 +169,7 @@ export default function HomePage() {
           title="Saved puzzles"
         >
           <Bookmark className="w-5 h-5" />
-          {savedCount > 0 && (
+          {hasUnseenSaves && (
             <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-gold-primary" />
           )}
         </button>

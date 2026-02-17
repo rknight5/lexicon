@@ -7,6 +7,19 @@ import { getSavedPuzzles, loadSavedPuzzle, deleteSavedPuzzle, type SavedPuzzleSu
 import { Toast } from "@/components/shared/Toast";
 import { STORAGE_KEYS, puzzleKeyForGameType } from "@/lib/storage-keys";
 
+function timeAgo(dateStr: string): string {
+  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+  if (seconds < 60) return "just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  return `${months}mo ago`;
+}
+
 const GAME_TYPE_ICON: Record<string, React.ReactNode> = {
   wordsearch: <Search className="w-5 h-5 text-white/60" />,
   crossword: <Grid3X3 className="w-5 h-5 text-white/60" />,
@@ -34,6 +47,7 @@ export default function SavedPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    try { localStorage.removeItem(STORAGE_KEYS.UNSEEN_SAVES); } catch {}
     getSavedPuzzles().then((p) => {
       setPuzzles(p);
       setLoading(false);
@@ -145,8 +159,14 @@ export default function SavedPage() {
                       </span>
                       {DIFFICULTY_ICON[puzzle.difficulty]}
                     </div>
-                    <div className="text-[11px] text-white/50 font-body mt-1">
-                      {GAME_TYPE_LABEL[puzzle.gameType] ?? puzzle.gameType}
+                    <div className="text-[11px] text-white/50 font-body mt-1 flex items-center gap-2">
+                      <span>{GAME_TYPE_LABEL[puzzle.gameType] ?? puzzle.gameType}</span>
+                      {puzzle.createdAt && (
+                        <>
+                          <span className="text-white/25">·</span>
+                          <span>{timeAgo(puzzle.createdAt)}</span>
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">

@@ -1,5 +1,6 @@
 import type { PuzzleResult, PuzzleData, CrosswordPuzzleData, AnagramPuzzleData, GameType, Difficulty } from "./types";
 import { saveOfflinePuzzle, deleteOfflinePuzzle, getAllOfflinePuzzles, getOfflinePuzzle } from "./offline-storage";
+import { STORAGE_KEYS } from "./storage-keys";
 
 export type SaveError = "session-expired" | "network" | "server";
 
@@ -99,6 +100,7 @@ export async function savePuzzle(
       puzzleData,
       savedAt: new Date().toISOString(),
     }).catch(() => {}); // best-effort
+    try { localStorage.setItem(STORAGE_KEYS.UNSEEN_SAVES, "1"); } catch {}
     return { id: data.id };
   } catch {
     return { id: null, error: "network" };
