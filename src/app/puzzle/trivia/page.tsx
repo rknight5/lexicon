@@ -4,6 +4,8 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Home, Heart, Bookmark } from "lucide-react";
 import { CountdownTimer } from "@/components/trivia/CountdownTimer";
+import { GameBar } from "@/components/shared/GameBar";
+import { GameStatsBar } from "@/components/shared/GameStatsBar";
 import { PauseMenu } from "@/components/shared/PauseMenu";
 import { GameDrawer } from "@/components/shared/GameDrawer";
 import { GameOverModal } from "@/components/shared/GameOverModal";
@@ -256,12 +258,295 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
 
   return (
     <div
-      className="min-h-screen flex flex-col"
+      className="min-h-screen lg:h-screen flex flex-col lg:overflow-hidden"
       style={{ background: "var(--ws-bg)" }}
     >
+      {/* Desktop: GameBar header */}
+      <div className="hidden lg:block">
+        <GameBar
+          difficulty={puzzle.difficulty}
+          onPause={pause}
+          onBack={handleHome}
+          gameStatus={state.gameStatus}
+          title={puzzleTitle}
+          onTitleChange={setPuzzleTitle}
+          onStats={() => setShowStats(true)}
+          onSave={handleSave}
+          isSaved={isSaved || isSaving}
+        />
+      </div>
+
+      {/* ═══ Desktop layout ═══ */}
+      <div className="hidden lg:flex flex-1 min-h-0 items-start justify-center pt-[14vh] pb-6">
+        <div className="relative">
+          {/* How to Play sidebar */}
+          <div
+            className="absolute right-full top-0 mr-24 flex flex-col gap-2.5 whitespace-nowrap"
+            style={{
+              background: "rgba(255, 255, 255, 0.04)",
+              border: "1px solid rgba(255, 255, 255, 0.06)",
+              borderRadius: 14,
+              padding: 16,
+            }}
+          >
+            <span className="font-ws-mono text-[11px] uppercase tracking-[2px] text-white/50 font-semibold">How to Play</span>
+            <div className="flex flex-col gap-2 text-white/45 text-xs font-ws-body">
+              <p>1. Read the question carefully</p>
+              <p>2. Choose the correct answer</p>
+              <p>3. Wrong answers cost 1 life</p>
+              <p>4. Hints eliminate wrong options</p>
+              <p>5. Answer all questions to win</p>
+            </div>
+          </div>
+
+          {/* Hint sidebar */}
+          <div className="absolute left-full top-0 ml-38 flex flex-col items-center whitespace-nowrap">
+            <div className="flex flex-col items-center gap-3">
+              <div>
+                <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold">
+                  Hint
+                </span>
+                <div className="h-px bg-white/15 mt-2" />
+              </div>
+              <button
+                onClick={useHint}
+                disabled={!canHint}
+                className="w-16 h-16 rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-110 hover:shadow-lg active:scale-95 disabled:opacity-25 disabled:cursor-not-allowed"
+                style={{
+                  background: "rgba(255, 215, 0, 0.15)",
+                  border: "2px solid rgba(255, 215, 0, 0.4)",
+                  boxShadow: "0 0 20px rgba(255, 215, 0, 0.15)",
+                }}
+                title="Eliminate wrong option (costs 1 hint)"
+              >
+                <svg className="w-6 h-6 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+              </button>
+              <span className="text-xs text-white/50 font-body">
+                {3 - state.hintsUsed} left
+              </span>
+            </div>
+          </div>
+
+          {/* Main game panel */}
+          <div
+            className="flex flex-col items-center gap-6 rounded-3xl p-10 min-w-[480px]"
+            style={{
+              background: "rgba(255, 255, 255, 0.05)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              boxShadow: "0 8px 40px rgba(0, 0, 0, 0.3)",
+            }}
+          >
+            {currentQuestion && state.gameStatus === "playing" && (
+              <>
+                {/* Timer + question counter */}
+                <div className="flex flex-col items-center gap-2">
+                  <CountdownTimer
+                    timeRemaining={timeRemaining}
+                    timeTotal={timeTotal}
+                    running={state.timerRunning}
+                    size={80}
+                  />
+                  <span className="font-ws-mono text-[11px] uppercase tracking-[2px] text-white/40">
+                    Question {state.currentIndex + 1} of {puzzle.questions.length}
+                  </span>
+                </div>
+
+                {/* Question text */}
+                <div className="w-full max-w-md text-center">
+                  <p
+                    className="font-body text-base font-semibold leading-snug"
+                    style={{ color: "rgba(255, 255, 255, 0.9)" }}
+                  >
+                    {currentQuestion.question}
+                  </p>
+                </div>
+
+                {/* Answer options */}
+                {currentQuestion.type === "mc" ? (
+                  <div className="w-full max-w-md space-y-3">
+                    {currentQuestion.options.map((option, i) => {
+                      const isEliminated = eliminated.includes(i);
+                      const isSelected = feedbackIndex === i;
+                      const isCorrectOption = i === currentQuestion.correctIndex;
+                      const showCorrect = hasAnswered && isCorrectOption;
+                      const showWrong = isSelected && feedbackResult === "wrong";
+
+                      let bg = "rgba(255, 255, 255, 0.06)";
+                      let border = "1px solid rgba(167, 139, 250, 0.15)";
+                      let animClass = "";
+
+                      if (showCorrect) {
+                        bg = "rgba(52, 211, 153, 0.2)";
+                        border = "1px solid rgba(52, 211, 153, 0.4)";
+                        animClass = "animate-answer-correct";
+                      } else if (showWrong) {
+                        bg = "rgba(255, 107, 138, 0.2)";
+                        border = "1px solid rgba(255, 107, 138, 0.4)";
+                        animClass = "animate-answer-wrong";
+                      }
+
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => !hasAnswered && !isEliminated && handleAnswer(i)}
+                          disabled={hasAnswered || isEliminated}
+                          className={`w-full flex items-center px-4 rounded-xl font-body text-sm font-medium transition-all ${animClass}`}
+                          style={{
+                            minHeight: 52,
+                            background: bg,
+                            border,
+                            color: isEliminated
+                              ? "rgba(255, 255, 255, 0.2)"
+                              : "rgba(255, 255, 255, 0.85)",
+                            opacity: isEliminated ? 0.3 : 1,
+                            textDecoration: isEliminated ? "line-through" : "none",
+                            cursor: hasAnswered || isEliminated ? "default" : "pointer",
+                          }}
+                        >
+                          <span
+                            className="flex-shrink-0 flex items-center justify-center mr-3 font-heading text-xs font-bold"
+                            style={{
+                              width: 24,
+                              height: 24,
+                              borderRadius: 8,
+                              background: "rgba(255, 255, 255, 0.08)",
+                              color: "rgba(255, 255, 255, 0.5)",
+                            }}
+                          >
+                            {String.fromCharCode(65 + i)}
+                          </span>
+                          {option}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="w-full max-w-md flex gap-3">
+                    {currentQuestion.options.map((option, i) => {
+                      const isSelected = feedbackIndex === i;
+                      const isCorrectOption = i === currentQuestion.correctIndex;
+                      const showCorrect = hasAnswered && isCorrectOption;
+                      const showWrong = isSelected && feedbackResult === "wrong";
+
+                      let bg = "rgba(255, 255, 255, 0.06)";
+                      let border = "1px solid rgba(167, 139, 250, 0.15)";
+                      let animClass = "";
+
+                      if (showCorrect) {
+                        bg = "rgba(52, 211, 153, 0.2)";
+                        border = "1px solid rgba(52, 211, 153, 0.4)";
+                        animClass = "animate-answer-correct";
+                      } else if (showWrong) {
+                        bg = "rgba(255, 107, 138, 0.2)";
+                        border = "1px solid rgba(255, 107, 138, 0.4)";
+                        animClass = "animate-answer-wrong";
+                      }
+
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => !hasAnswered && handleAnswer(i)}
+                          disabled={hasAnswered}
+                          className={`flex-1 flex items-center justify-center rounded-xl font-heading text-sm font-bold uppercase tracking-wider transition-all ${animClass}`}
+                          style={{
+                            minHeight: 56,
+                            background: bg,
+                            border,
+                            color: "rgba(255, 255, 255, 0.85)",
+                            cursor: hasAnswered ? "default" : "pointer",
+                          }}
+                        >
+                          {option}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Progress bar */}
+                <div className="w-full max-w-md">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="font-body text-[11px]" style={{ color: "rgba(255, 255, 255, 0.4)" }}>
+                      {state.answers.filter((a) => a === "correct").length}/{puzzle.questions.length} correct
+                    </span>
+                    <span className="font-body text-[11px]" style={{ color: "rgba(255, 255, 255, 0.4)" }}>
+                      {state.score} pts
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      height: 4,
+                      borderRadius: 2,
+                      background: "rgba(255, 255, 255, 0.08)",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: "100%",
+                        width: `${((state.currentIndex + (hasAnswered ? 1 : 0)) / puzzle.questions.length) * 100}%`,
+                        borderRadius: 2,
+                        background: "linear-gradient(90deg, #a78bfa, #c084fc)",
+                        transition: "width 0.3s ease",
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Feedback message + Next button */}
+                {hasAnswered && (
+                  <div className="w-full max-w-md flex flex-col items-center gap-3">
+                    {feedbackResult === "correct" && (
+                      <span className="font-heading text-sm font-bold" style={{ color: "#34D399" }}>
+                        Correct!
+                      </span>
+                    )}
+                    {feedbackResult === "wrong" && (
+                      <span className="font-heading text-sm font-bold" style={{ color: "#FF6B8A" }}>
+                        Wrong! The answer was: {currentQuestion.options[currentQuestion.correctIndex]}
+                      </span>
+                    )}
+                    {feedbackResult === "skipped" && (
+                      <span className="font-heading text-sm font-bold" style={{ color: "rgba(255, 255, 255, 0.5)" }}>
+                        Time&apos;s up! The answer was: {currentQuestion.options[currentQuestion.correctIndex]}
+                      </span>
+                    )}
+                    {feedbackResult === "skipped" && (
+                      <button
+                        onClick={handleNext}
+                        className="px-8 h-10 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.97]"
+                        style={{
+                          background: "rgba(255, 255, 255, 0.08)",
+                          border: "1px solid rgba(255, 255, 255, 0.15)",
+                          color: "rgba(255, 255, 255, 0.7)",
+                        }}
+                      >
+                        Next
+                      </button>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Stats pill below panel */}
+          <div className="flex justify-center mt-4">
+            <GameStatsBar
+              score={state.score}
+              livesRemaining={state.livesRemaining}
+              hintsUsed={state.hintsUsed}
+              elapsedSeconds={state.elapsedSeconds}
+              gameStatus={state.gameStatus}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ Mobile layout ═══ */}
       {/* Fixed header */}
       <div
-        className="fixed top-0 left-0 right-0 z-40"
+        className="lg:hidden fixed top-0 left-0 right-0 z-40"
         style={{
           background: "var(--ws-header-bg)",
           backdropFilter: "blur(12px)",
@@ -416,10 +701,10 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
       </div>
 
       {/* Spacer for fixed header */}
-      <div style={{ paddingTop: "calc(env(safe-area-inset-top, 40px) + 50px + 16px)" }} />
+      <div className="lg:hidden" style={{ paddingTop: "calc(env(safe-area-inset-top, 40px) + 50px + 16px)" }} />
 
       {/* Stats row: hearts + score */}
-      <div className="flex items-center justify-between px-5 py-1.5">
+      <div className="lg:hidden flex items-center justify-between px-5 py-1.5">
         {/* Hearts */}
         <div className="flex items-center gap-1">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -440,8 +725,8 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
         </span>
       </div>
 
-      {/* Main content area */}
-      <div className="flex-1 flex flex-col items-center px-5 pb-5" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 34px) + 20px)" }}>
+      {/* Main content area (mobile) */}
+      <div className="lg:hidden flex-1 flex flex-col items-center px-5 pb-5" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 34px) + 20px)" }}>
         {currentQuestion && state.gameStatus === "playing" && (
           <>
             {/* Countdown Timer */}

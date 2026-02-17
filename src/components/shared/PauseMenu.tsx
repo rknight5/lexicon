@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ShareSheet } from "@/components/shared/ShareSheet";
+import { HowToPlayModal } from "@/components/shared/HowToPlayModal";
 import { generateShareCard, type ShareCardData } from "@/lib/share";
 import type { GameType } from "@/lib/types";
 
@@ -16,6 +17,7 @@ interface PauseMenuProps {
 export function PauseMenu({ onResume, onQuit, gameType, shareData, onToast }: PauseMenuProps) {
   const [confirmQuit, setConfirmQuit] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
 
   if (showShare && shareData && onToast) {
     return (
@@ -25,6 +27,10 @@ export function PauseMenu({ onResume, onQuit, gameType, shareData, onToast }: Pa
         onToast={(msg) => { onToast(msg); setShowShare(false); }}
       />
     );
+  }
+
+  if (showHowToPlay) {
+    return <HowToPlayModal gameType={gameType} onClose={() => setShowHowToPlay(false)} />;
   }
 
   return (
@@ -76,6 +82,17 @@ export function PauseMenu({ onResume, onQuit, gameType, shareData, onToast }: Pa
               }}
             >
               Resume
+            </button>
+            <button
+              onClick={() => setShowHowToPlay(true)}
+              className="w-full h-10 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+              style={{
+                background: "rgba(255, 255, 255, 0.06)",
+                border: "1px solid rgba(255, 255, 255, 0.12)",
+                color: "rgba(255, 255, 255, 0.7)",
+              }}
+            >
+              How to Play
             </button>
             {shareData && (
               <button

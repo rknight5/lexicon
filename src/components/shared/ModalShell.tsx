@@ -29,8 +29,10 @@ export function ModalShell({
       <div
         className={`w-full max-w-sm rounded-card p-6 ${spaceY} ${centered ? "text-center" : ""} ${cardClassName}`.trim()}
         style={{
-          background: "linear-gradient(135deg, #2D1B69 0%, #5B2D8E 100%)",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
+          background: "rgba(22, 14, 42, 0.95)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: "1px solid rgba(167, 139, 250, 0.15)",
           boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
         }}
       >

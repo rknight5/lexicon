@@ -22,13 +22,8 @@ export function CountdownTimer({
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - fraction);
 
-  // Color based on fraction remaining
-  const color =
-    fraction > 0.5
-      ? "#34D399" // green
-      : fraction > 0.25
-      ? "#FFD700" // gold
-      : "#FF6B8A"; // pink/red
+  // Color based on fraction remaining: gold normal, red under ~5s
+  const color = fraction > 0.25 ? "#FFD700" : "#ff4d6a";
 
   const pulseClass = running && seconds <= 5 && seconds > 0 ? "animate-timer-pulse" : "";
 

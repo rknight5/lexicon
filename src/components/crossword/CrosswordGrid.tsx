@@ -243,46 +243,32 @@ export function CrosswordGrid({
               );
             }
 
-            const cellBg = mobile
-              ? isCursor
-                ? "#a78bfa"
-                : inWord
-                ? "rgba(167, 139, 250, 0.15)"
-                : solved
-                ? "rgba(52, 211, 153, 0.15)"
-                : "#FFFFFF"
-              : isCursor
-              ? "#FFF9C4"
+            const cellBg = isCursor
+              ? "#a78bfa"
               : inWord
-              ? "#DCEEFB"
+              ? "rgba(167, 139, 250, 0.15)"
               : solved
-              ? "#E8F5E9"
-              : "#FFFFFF";
+              ? "rgba(52, 211, 153, 0.15)"
+              : mobile
+              ? "#FFFFFF"
+              : "rgba(255, 255, 255, 0.08)";
 
-            const cellColor = mobile
-              ? isCursor
-                ? "#FFFFFF"
-                : isHinted
-                ? "#D4A800"
-                : solved
-                ? "#2E7D32"
-                : "#1A1A2E"
+            const cellColor = isCursor
+              ? "#FFFFFF"
               : isHinted
               ? "#D4A800"
               : solved
-              ? "#2E7D32"
-              : "#1A1A2E";
+              ? mobile ? "#2E7D32" : "#4ade80"
+              : mobile ? "#1A1A2E" : "rgba(255, 255, 255, 0.9)";
 
-            const cellShadow = mobile && isCursor
+            const cellShadow = isCursor
               ? "0 0 10px rgba(167, 139, 250, 0.5)"
               : undefined;
 
-            const cellBorder = mobile
-              ? isCursor
-                ? "2px solid #a78bfa"
-                : inWord
-                ? "1px solid rgba(167, 139, 250, 0.30)"
-                : undefined
+            const cellBorder = isCursor
+              ? "2px solid #a78bfa"
+              : inWord
+              ? "1px solid rgba(167, 139, 250, 0.30)"
               : undefined;
 
             return (
@@ -317,7 +303,7 @@ export function CrosswordGrid({
                       fontSize: `${clueNumSize}px`,
                       color: mobile
                         ? (isCursor ? "rgba(255,255,255,0.5)" : "rgba(0, 0, 0, 0.35)")
-                        : "#000000",
+                        : (isCursor ? "rgba(255,255,255,0.5)" : "rgba(255, 255, 255, 0.35)"),
                     }}
                   >
                     {cell.number}

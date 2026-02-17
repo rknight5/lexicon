@@ -223,17 +223,24 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
       <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-0 pb-6">
         <div className="relative">
           {/* Instructions */}
-          <div className="absolute right-full top-0 mr-24 flex flex-col gap-2.5 text-white/45 text-xs font-body whitespace-nowrap">
-            <div>
-              <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold">How to Play</span>
-              <div className="h-px bg-white/15 mt-2" />
+          <div
+            className="absolute right-full top-0 mr-24 flex flex-col gap-2.5 whitespace-nowrap"
+            style={{
+              background: "rgba(255, 255, 255, 0.04)",
+              border: "1px solid rgba(255, 255, 255, 0.06)",
+              borderRadius: 14,
+              padding: 16,
+            }}
+          >
+            <span className="font-ws-mono text-[11px] uppercase tracking-[2px] text-white/50 font-semibold">How to Play</span>
+            <div className="flex flex-col gap-2 text-white/45 text-xs font-ws-body">
+              <p>1. Tap a cell, type your answer</p>
+              <p>2. Press Tab/Enter to check word</p>
+              <p>3. Space to toggle direction</p>
+              <p>4. Wrong checks cost 1 life</p>
+              <p>5. Hints reveal a letter in the word</p>
+              <p>6. Solve all clues to win</p>
             </div>
-            <p>1. Tap a cell, type your answer</p>
-            <p>2. Press Tab/Enter to check word</p>
-            <p>3. Space to toggle direction</p>
-            <p>4. Wrong checks cost 1 life</p>
-            <p>5. Hints reveal a letter in the word</p>
-            <p>6. Solve all clues to win</p>
           </div>
 
           {/* Hint: positioned to the right */}

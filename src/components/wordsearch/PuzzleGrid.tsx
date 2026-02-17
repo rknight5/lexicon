@@ -113,9 +113,10 @@ export function PuzzleGrid({
         const computed = Math.floor(available / cols);
         setCellSize(Math.max(20, Math.min(36, computed)));
       } else {
-        // Desktop: original behavior
-        const padding = 24;
-        const available = parentWidth - padding;
+        // Desktop: match mobile grid style with gap
+        const containerPadding = 10; // 5px each side
+        const gapTotal = (cols - 1) * 2; // 2px gap
+        const available = parentWidth - containerPadding - gapTotal;
         const maxSize = cols <= 15 ? 40 : 32;
         const computed = Math.floor(available / cols);
         setCellSize(Math.max(16, Math.min(maxSize, computed)));
@@ -153,8 +154,8 @@ export function PuzzleGrid({
     (clientX: number, clientY: number) => {
       if (!containerRef.current) return null;
       const rect = containerRef.current.getBoundingClientRect();
-      const pad = mobile ? 5 : 12;
-      const gap = mobile ? 2 : 0;
+      const pad = 5;
+      const gap = 2;
       const step = cellSize + gap;
       const col = Math.floor((clientX - rect.left - pad) / step);
       const row = Math.floor((clientY - rect.top - pad) / step);
@@ -221,10 +222,10 @@ export function PuzzleGrid({
       className={`inline-grid select-none ${shaking ? "animate-shake" : ""}`}
       style={{
         gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
-        gap: mobile ? "2px" : "0px",
-        padding: mobile ? "5px" : "12px",
-        background: mobile ? "rgba(255, 255, 255, 0.015)" : "#FFFFFF",
-        borderRadius: mobile ? "10px" : "12px",
+        gap: "2px",
+        padding: "5px",
+        background: "rgba(255, 255, 255, 0.015)",
+        borderRadius: "10px",
         touchAction: "none",
       }}
       onPointerDown={handleGridPointerDown}

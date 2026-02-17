@@ -246,16 +246,23 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
       <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-0 pb-6">
         <div className="relative">
           {/* Instructions: positioned to the left of the panel, top-aligned */}
-          <div className="absolute right-full top-0 mr-23 flex flex-col gap-2.5 text-white/45 text-xs font-body whitespace-nowrap">
-            <div>
-              <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold">How to Play</span>
-              <div className="h-px bg-white/15 mt-2" />
+          <div
+            className="absolute right-full top-0 mr-23 flex flex-col gap-2.5 whitespace-nowrap"
+            style={{
+              background: "rgba(255, 255, 255, 0.04)",
+              border: "1px solid rgba(255, 255, 255, 0.06)",
+              borderRadius: 14,
+              padding: 16,
+            }}
+          >
+            <span className="font-ws-mono text-[11px] uppercase tracking-[2px] text-white/50 font-semibold">How to Play</span>
+            <div className="flex flex-col gap-2 text-white/45 text-xs font-ws-body">
+              <p>1. Drag across letters to form words</p>
+              <p>2. Words can go in any direction</p>
+              <p>3. Wrong words cost 1 life</p>
+              <p>4. Hints reveal a word&apos;s direction</p>
+              <p>5. Find all words to win</p>
             </div>
-            <p>1. Drag across letters to form words</p>
-            <p>2. Words can go in any direction</p>
-            <p>3. Wrong words cost 1 life</p>
-            <p>4. Hints reveal a word&apos;s direction</p>
-            <p>5. Find all words to win</p>
           </div>
 
           {/* Hint: positioned to the right of the panel, top-aligned, mirroring How to Play */}

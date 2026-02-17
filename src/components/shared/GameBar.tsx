@@ -145,9 +145,10 @@ export function GameBar({
           <button
             onClick={startEditing}
             className="flex-shrink-0 text-white/50 hover:text-white/80 transition-colors p-0.5"
+            style={{ alignSelf: "flex-start", marginTop: 2 }}
             title="Edit title"
           >
-            <Pencil className="w-3.5 h-3.5" />
+            <Pencil style={{ width: 10, height: 10 }} />
           </button>
         )}
         <div

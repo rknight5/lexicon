@@ -310,18 +310,23 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
       <div className="hidden lg:flex flex-1 min-h-0 items-start justify-center pt-[18vh] pb-6">
         <div className="relative">
           {/* Instructions: positioned to the left */}
-          <div className="absolute right-full top-0 mr-40 flex flex-col gap-2.5 text-white/45 text-xs font-body whitespace-nowrap">
-            <div>
-              <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold">
-                How to Play
-              </span>
-              <div className="h-px bg-white/15 mt-2" />
+          <div
+            className="absolute right-full top-0 mr-40 flex flex-col gap-2.5 whitespace-nowrap"
+            style={{
+              background: "rgba(255, 255, 255, 0.04)",
+              border: "1px solid rgba(255, 255, 255, 0.06)",
+              borderRadius: 14,
+              padding: 16,
+            }}
+          >
+            <span className="font-ws-mono text-[11px] uppercase tracking-[2px] text-white/50 font-semibold">How to Play</span>
+            <div className="flex flex-col gap-2 text-white/45 text-xs font-ws-body">
+              <p>1. Tap scrambled letters to spell the word</p>
+              <p>2. Tap answer slots to remove letters</p>
+              <p>3. Wrong answers and skips cost 1 life</p>
+              <p>4. Hints lock a letter in the right spot</p>
+              <p>5. Unscramble all words to win</p>
             </div>
-            <p>1. Tap scrambled letters to spell the word</p>
-            <p>2. Tap answer slots to remove letters</p>
-            <p>3. Wrong answers and skips cost 1 life</p>
-            <p>4. Hints lock a letter in the right spot</p>
-            <p>5. Unscramble all words to win</p>
           </div>
 
           {/* Hint: positioned to the right */}
@@ -368,15 +373,12 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
 
             {/* Clue */}
             {showClues && currentWord?.clue && (
-              <div className="flex flex-col items-center gap-1">
-                <span className="text-[10px] uppercase tracking-[2px] text-white/40 font-heading font-semibold">Clue</span>
-                <p
-                  className="text-sm font-body text-center max-w-xs italic"
-                  style={{ color: "var(--white-muted)" }}
-                >
-                  &ldquo;{currentWord.clue}&rdquo;
-                </p>
-              </div>
+              <p
+                className="text-sm font-body text-center max-w-xs italic"
+                style={{ color: "var(--white-muted)" }}
+              >
+                &ldquo;{currentWord.clue}&rdquo;
+              </p>
             )}
 
             {/* Answer slots — extra top margin for breathing room */}
@@ -395,14 +397,18 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
                       className={`w-14 h-14 rounded-xl flex items-center justify-center font-grid text-2xl font-bold uppercase transition-all ${letter ? "animate-tile-pop" : ""}`}
                       style={{
                         background: letter
-                          ? "rgba(255, 215, 0, 0.15)"
+                          ? "rgba(255, 255, 255, 0.08)"
                           : "rgba(255, 255, 255, 0.03)",
                         border: isRevealed
-                          ? "2px solid #FFD700"
+                          ? "2px solid #f7c948"
                           : letter
-                            ? "2px solid rgba(255, 215, 0, 0.4)"
-                            : "2px dashed rgba(255, 255, 255, 0.15)",
-                        color: letter ? "#FFD700" : "transparent",
+                            ? "1px solid rgba(255, 255, 255, 0.18)"
+                            : "1px solid rgba(255, 255, 255, 0.15)",
+                        color: isRevealed
+                          ? "#f7c948"
+                          : letter
+                            ? "rgba(255, 255, 255, 0.9)"
+                            : "transparent",
                         cursor:
                           letter && !isRevealed ? "pointer" : "default",
                       }}
@@ -429,13 +435,13 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
                       style={{
                         background: isSelected
                           ? "rgba(255, 255, 255, 0.02)"
-                          : "rgba(255, 255, 255, 0.95)",
+                          : "rgba(255, 255, 255, 0.08)",
                         border: isSelected
-                          ? "1px solid rgba(255, 255, 255, 0.05)"
-                          : "1px solid rgba(255, 255, 255, 0.3)",
+                          ? "1px solid rgba(255, 255, 255, 0.04)"
+                          : "1px solid rgba(255, 255, 255, 0.12)",
                         color: isSelected
-                          ? "rgba(255, 255, 255, 0.15)"
-                          : "#1a1a2e",
+                          ? "rgba(255, 255, 255, 0.08)"
+                          : "rgba(255, 255, 255, 0.9)",
                         opacity: isSelected ? 0.3 : 1,
                         cursor: isSelected ? "default" : "pointer",
                       }}
@@ -469,16 +475,27 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
                 className="px-7 py-2.5 rounded-pill font-heading text-sm font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
                 style={{
                   background: allSlotsFilled
-                    ? "rgba(255, 215, 0, 0.2)"
+                    ? "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)"
                     : "rgba(255, 215, 0, 0.08)",
                   border: allSlotsFilled
-                    ? "1px solid rgba(255, 215, 0, 0.5)"
+                    ? "none"
                     : "1px solid rgba(255, 215, 0, 0.15)",
-                  color: "#FFD700",
+                  color: allSlotsFilled ? "#1a0a2e" : "rgba(255, 215, 0, 0.4)",
+                  boxShadow: allSlotsFilled
+                    ? "0 4px 15px rgba(255, 215, 0, 0.4)"
+                    : "none",
                 }}
               >
                 Submit
               </button>
+            </div>
+
+            {/* Progress bar */}
+            <div style={{ width: "100%", maxWidth: 320 }}>
+              <WordProgress
+                found={state.solvedWords.length}
+                total={puzzle.words.length}
+              />
             </div>
           </div>
 

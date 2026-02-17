@@ -60,7 +60,7 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
     <div
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center px-5"
       style={{
-        background: "linear-gradient(180deg, #2D1B69 0%, #0c0a14 100%)",
+        background: "#0c0a14",
         overflow: "hidden",
       }}
     >
@@ -218,13 +218,9 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
         @keyframes lo-sparkle-orbit {
           0% {
             transform: translate(-50%, -50%) rotate(0deg) translateX(var(--orbit-radius));
-            opacity: 0;
           }
-          10% { opacity: 1; }
-          90% { opacity: 1; }
           100% {
             transform: translate(-50%, -50%) rotate(360deg) translateX(var(--orbit-radius));
-            opacity: 0;
           }
         }
         @keyframes lo-sparkle-twinkle {
@@ -258,10 +254,10 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
       {onCancel && (
         <button
           onClick={onCancel}
-          className="mt-12 px-5 py-2 rounded-pill font-body text-sm text-white/70 hover:text-white transition-colors"
+          className="mt-12 px-5 py-2 rounded-pill font-body text-sm text-white/80 hover:text-white transition-colors"
           style={{
-            background: "rgba(255, 255, 255, 0.06)",
-            border: "1px solid rgba(255, 255, 255, 0.2)",
+            background: "rgba(255, 255, 255, 0.08)",
+            border: "1px solid rgba(255, 255, 255, 0.15)",
           }}
         >
           Cancel
