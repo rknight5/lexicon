@@ -18,6 +18,7 @@ interface CrosswordGridProps {
   onDeleteLetter: () => void;
   onCheckWord: () => void;
   onToggleDirection: () => void;
+  variant?: "mobile" | "desktop";
 }
 
 export function CrosswordGrid({
@@ -35,7 +36,9 @@ export function CrosswordGrid({
   onDeleteLetter,
   onCheckWord,
   onToggleDirection,
+  variant,
 }: CrosswordGridProps) {
+  const mobile = variant === "mobile";
   const containerRef = useRef<HTMLDivElement>(null);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
 
@@ -131,18 +134,27 @@ export function CrosswordGrid({
     const measure = () => {
       if (!containerRef.current?.parentElement) return;
       const parentWidth = containerRef.current.parentElement.clientWidth;
-      const gapTotal = (gridSize - 1) * 2 + 4; // 2px gaps + 2px padding each side
-      const available = parentWidth - gapTotal;
-      const maxSize = gridSize <= 9 ? 56 : gridSize <= 11 ? 48 : 40; // desktop max
-      const computed = Math.floor(available / gridSize);
-      setCellPx(Math.max(20, Math.min(maxSize, computed)));
+
+      if (mobile) {
+        const containerPadding = 10; // 5px each side
+        const gapTotal = (gridSize - 1) * 2;
+        const available = parentWidth - containerPadding - gapTotal;
+        const computed = Math.floor(available / gridSize);
+        setCellPx(Math.max(20, Math.min(36, computed)));
+      } else {
+        const gapTotal = (gridSize - 1) * 2 + 4; // 2px gaps + 2px padding each side
+        const available = parentWidth - gapTotal;
+        const maxSize = gridSize <= 9 ? 56 : gridSize <= 11 ? 48 : 40;
+        const computed = Math.floor(available / gridSize);
+        setCellPx(Math.max(20, Math.min(maxSize, computed)));
+      }
     };
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
-  }, [gridSize]);
+  }, [gridSize, mobile]);
 
-  const fontSize = Math.max(12, Math.floor(cellPx * 0.45));
+  const fontSize = mobile ? 13 : Math.max(12, Math.floor(cellPx * 0.45));
   const clueNumSize = Math.max(7, Math.floor(cellPx * 0.22));
 
   return (
@@ -172,7 +184,9 @@ export function CrosswordGrid({
         style={{
           gridTemplateColumns: `repeat(${gridSize}, ${cellPx}px)`,
           gap: "2px",
-          padding: "2px",
+          padding: mobile ? "5px" : "2px",
+          background: mobile ? "rgba(255, 255, 255, 0.015)" : "transparent",
+          borderRadius: mobile ? "10px" : undefined,
         }}
         onClick={focusInput}
       >
@@ -194,21 +208,53 @@ export function CrosswordGrid({
               );
             }
 
+            const cellBg = mobile
+              ? isCursor
+                ? "#a78bfa"
+                : inWord
+                ? "rgba(167, 139, 250, 0.15)"
+                : solved
+                ? "rgba(52, 211, 153, 0.15)"
+                : "transparent"
+              : isCursor
+              ? "#FFF9C4"
+              : inWord
+              ? "#DCEEFB"
+              : solved
+              ? "#E8F5E9"
+              : "#FFFFFF";
+
+            const cellColor = mobile
+              ? isCursor
+                ? "#FFFFFF"
+                : isHinted
+                ? "#D4A800"
+                : solved
+                ? "#34d399"
+                : "rgba(255, 255, 255, 0.5)"
+              : isHinted
+              ? "#D4A800"
+              : solved
+              ? "#2E7D32"
+              : "#1A1A2E";
+
+            const cellShadow = mobile && isCursor
+              ? "0 0 8px rgba(167, 139, 250, 0.4)"
+              : undefined;
+
             return (
               <div
                 key={`${rowIdx}-${colIdx}`}
-                className="relative flex items-center justify-center font-grid cursor-pointer rounded-sm"
+                className="relative flex items-center justify-center cursor-pointer"
                 style={{
                   width: cellPx,
                   height: cellPx,
-                  background: isCursor
-                    ? "#FFF9C4"
-                    : inWord
-                    ? "#DCEEFB"
-                    : solved
-                    ? "#E8F5E9"
-                    : "#FFFFFF",
-                  color: isHinted ? "#D4A800" : solved ? "#2E7D32" : "#1A1A2E",
+                  background: cellBg,
+                  color: cellColor,
+                  borderRadius: mobile ? "3px" : "4px",
+                  boxShadow: cellShadow,
+                  fontFamily: mobile ? "var(--font-ws-mono)" : "var(--font-grid)",
+                  transition: "all 0.15s ease",
                 }}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -220,14 +266,17 @@ export function CrosswordGrid({
                 {cell.number !== undefined && (
                   <span
                     className="absolute top-0.5 left-1 font-body font-semibold leading-none"
-                    style={{ fontSize: `${clueNumSize}px`, color: "#000000" }}
+                    style={{
+                      fontSize: `${clueNumSize}px`,
+                      color: mobile ? "rgba(255, 255, 255, 0.35)" : "#000000",
+                    }}
                   >
                     {cell.number}
                   </span>
                 )}
 
                 {/* Player's letter */}
-                <span className="font-semibold" style={{ fontSize }}>
+                <span className="font-bold" style={{ fontSize, letterSpacing: "0.5px" }}>
                   {playerLetter || ""}
                 </span>
               </div>

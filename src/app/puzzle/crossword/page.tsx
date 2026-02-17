@@ -334,7 +334,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
         </div>
 
         {/* Grid */}
-        <div className="w-full flex justify-center" onClick={handleFirstInteraction}>
+        <div className="w-full flex justify-center" style={{ padding: "0 14px" }} onClick={handleFirstInteraction}>
           <CrosswordGrid
             grid={puzzle.grid}
             gridSize={puzzle.gridSize}
@@ -353,6 +353,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
             onDeleteLetter={deleteLetter}
             onCheckWord={checkWord}
             onToggleDirection={toggleDirection}
+            variant="mobile"
           />
         </div>
 
