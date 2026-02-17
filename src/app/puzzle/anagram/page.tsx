@@ -223,16 +223,29 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
     return () => window.removeEventListener("resize", measure);
   }, []);
 
-  const mobileTileSize = useMemo(() => {
-    if (!currentWord) return 40;
+  const { mobileTileSize, mobileGap, mobileFontSize } = useMemo(() => {
+    if (!currentWord) return { mobileTileSize: 44, mobileGap: 8, mobileFontSize: 18 };
     const wordLen = currentWord.word.length;
-    const gap = 6; // gap-1.5 = 6px
-    const available = containerWidth - 24; // px-3 padding
-    const computed = Math.floor((available - (wordLen - 1) * gap) / wordLen);
-    return Math.max(28, Math.min(44, computed));
-  }, [currentWord, containerWidth]);
+    const padding = 48; // px-5 each side + buffer
+    const available = containerWidth - padding;
 
-  const mobileFontSize = Math.max(12, Math.floor(mobileTileSize * 0.4));
+    // Try with 8px gap first
+    let gap = 8;
+    let size = Math.floor((available - (wordLen - 1) * gap) / wordLen);
+
+    // If below 32px floor, reduce gap to 4px first
+    if (size < 32) {
+      gap = 4;
+      size = Math.floor((available - (wordLen - 1) * gap) / wordLen);
+    }
+
+    size = Math.max(24, Math.min(44, size));
+
+    // Font scales proportionally: 44px tile → 18px font
+    const fontSize = Math.max(11, Math.round(size * (18 / 44)));
+
+    return { mobileTileSize: size, mobileGap: gap, mobileFontSize: fontSize };
+  }, [currentWord, containerWidth]);
 
   const handleHint = () => {
     handleFirstInteraction();
@@ -523,7 +536,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
           )}
 
           {/* Answer slots */}
-          <div className="flex gap-1.5 justify-center flex-wrap">
+          <div className="flex justify-center" style={{ gap: mobileGap }}>
             {currentWord &&
               Array.from({ length: currentWord.word.length }).map((_, i) => {
                 const letter = answerLetters[i] ?? null;
@@ -539,11 +552,10 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
                     style={{
                       width: mobileTileSize,
                       height: mobileTileSize,
-                      fontSize: 20,
+                      fontSize: mobileFontSize,
                       fontFamily: "var(--font-ws-mono)",
                       fontWeight: 700,
-                      aspectRatio: "1",
-                      borderRadius: 8,
+                      borderRadius: Math.max(6, Math.round(mobileTileSize * 0.18)),
                       background: letter
                         ? "rgba(255, 255, 255, 0.08)"
                         : "rgba(255, 255, 255, 0.03)",
@@ -567,7 +579,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
           </div>
 
           {/* Scrambled letter tiles */}
-          <div className="flex gap-1.5 justify-center flex-wrap" style={{ marginTop: 16 }}>
+          <div className="flex justify-center" style={{ marginTop: 16, gap: mobileGap }}>
             {currentWord &&
               currentWord.scrambled.split("").map((letter, i) => {
                 const isSelected = state.selectedIndices.includes(i);
@@ -582,11 +594,10 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
                     style={{
                       width: mobileTileSize,
                       height: mobileTileSize,
-                      fontSize: 20,
+                      fontSize: mobileFontSize,
                       fontFamily: "var(--font-ws-mono)",
                       fontWeight: 700,
-                      aspectRatio: "1",
-                      borderRadius: 8,
+                      borderRadius: Math.max(6, Math.round(mobileTileSize * 0.18)),
                       background: isSelected
                         ? "rgba(255, 255, 255, 0.02)"
                         : "rgba(255, 255, 255, 0.08)",
