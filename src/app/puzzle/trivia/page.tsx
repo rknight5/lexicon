@@ -56,6 +56,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
   // Feedback state
   const [feedbackIndex, setFeedbackIndex] = useState<number | null>(null);
   const [feedbackResult, setFeedbackResult] = useState<"correct" | "wrong" | "skipped" | null>(null);
+  const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const {
     state,
@@ -130,7 +131,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
     }
   }, [state.gameStatus, state.answers, state.score, state.elapsedSeconds, state.livesRemaining, state.hintsUsed, puzzle]);
 
-  // Handle answer selection — show feedback, wait for player to tap Next
+  // Handle answer selection — show feedback, auto-advance after delay
   const handleAnswer = useCallback((index: number) => {
     if (state.gameStatus !== "playing") return;
     if (state.answers.length > state.currentIndex) return; // already answered
@@ -141,7 +142,15 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
     selectAnswer(index, timeRemaining);
     setFeedbackIndex(index);
     setFeedbackResult(isCorrect ? "correct" : "wrong");
-  }, [state.gameStatus, state.currentIndex, state.answers.length, puzzle.questions, selectAnswer, timeRemaining]);
+
+    feedbackTimerRef.current = setTimeout(() => {
+      setFeedbackIndex(null);
+      setFeedbackResult(null);
+      if (isCorrect || state.livesRemaining > 1) {
+        nextQuestion();
+      }
+    }, 1200);
+  }, [state.gameStatus, state.currentIndex, state.answers.length, state.livesRemaining, puzzle.questions, selectAnswer, timeRemaining, nextQuestion]);
 
   // Handle time up feedback — show result, wait for player to tap Next
   const prevAnswersLenRef = useRef(state.answers.length);
@@ -153,6 +162,13 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
       }
     }
   }, [state.answers]);
+
+  // Cleanup feedback timer on unmount
+  useEffect(() => {
+    return () => {
+      if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
+    };
+  }, []);
 
   const handleNext = () => {
     setFeedbackIndex(null);
@@ -534,17 +550,19 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
                     Time&apos;s up! The answer was: {currentQuestion.options[currentQuestion.correctIndex]}
                   </span>
                 )}
-                <button
-                  onClick={handleNext}
-                  className="px-8 h-10 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.97]"
-                  style={{
-                    background: "rgba(255, 255, 255, 0.08)",
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                    color: "rgba(255, 255, 255, 0.7)",
-                  }}
-                >
-                  Next
-                </button>
+                {feedbackResult === "skipped" && (
+                  <button
+                    onClick={handleNext}
+                    className="px-8 h-10 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.97]"
+                    style={{
+                      background: "rgba(255, 255, 255, 0.08)",
+                      border: "1px solid rgba(255, 255, 255, 0.15)",
+                      color: "rgba(255, 255, 255, 0.7)",
+                    }}
+                  >
+                    Next
+                  </button>
+                )}
               </div>
             )}
           </>
