@@ -10,7 +10,7 @@ interface WordSearchHeaderProps {
   onHint: () => void;
   canHint: boolean;
   hintsRemaining: number;
-  onPause: () => void;
+  onMenu: () => void;
   gameStatus: string;
 }
 
@@ -21,7 +21,7 @@ export function WordSearchHeader({
   onHint,
   canHint,
   hintsRemaining,
-  onPause,
+  onMenu,
   gameStatus,
 }: WordSearchHeaderProps) {
   const [editing, setEditing] = useState(false);
@@ -79,8 +79,8 @@ export function WordSearchHeader({
           </button>
         </div>
 
-        {/* Center — Title */}
-        <div className="flex items-center justify-center gap-1.5 min-w-0">
+        {/* Center — Title + pencil as one unit */}
+        <div className="flex items-center justify-center min-w-0">
           {editing ? (
             <input
               ref={inputRef}
@@ -105,28 +105,34 @@ export function WordSearchHeader({
           ) : (
             <button
               onClick={() => setEditing(true)}
-              className="flex items-center gap-1.5 min-w-0 cursor-pointer"
+              className="flex items-center min-w-0 cursor-pointer"
+              style={{ gap: 4 }}
             >
               <span
-                className="truncate text-white"
+                className="text-white"
                 style={{
                   fontFamily: "var(--font-ws-body)",
                   fontSize: 14,
                   fontWeight: 600,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  minWidth: 0,
                 }}
               >
                 {title}
               </span>
               <svg
-                width="13"
-                height="13"
+                width="10"
+                height="10"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="rgba(255, 255, 255, 0.35)"
-                strokeWidth="2"
+                strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 className="flex-shrink-0"
+                style={{ alignSelf: "flex-start", marginTop: 1 }}
               >
                 <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
                 <path d="m15 5 4 4" />
@@ -185,9 +191,8 @@ export function WordSearchHeader({
 
           {/* Hamburger menu */}
           <button
-            onClick={onPause}
-            disabled={gameStatus !== "playing" && gameStatus !== "idle"}
-            className="flex items-center justify-center cursor-pointer transition-opacity disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+            onClick={onMenu}
+            className="flex items-center justify-center cursor-pointer transition-opacity active:scale-95"
             style={{
               width: 34,
               height: 34,
