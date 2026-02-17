@@ -31,23 +31,29 @@ export function ClueList({
       <button
         key={`${clue.direction}-${clue.number}`}
         onClick={() => onClueClick(clue)}
-        className="w-full text-left py-0.5 rounded-lg transition-colors"
+        className="w-full text-left py-1.5 flex items-start gap-2 transition-colors"
         style={{
-          background: isActive
-            ? "rgba(0, 229, 255, 0.1)"
-            : "transparent",
           opacity: isSolved ? 0.5 : 1,
         }}
       >
         <span
-          className="font-grid text-xs mr-2"
-          style={{ color: "rgba(255, 255, 255, 0.6)" }}
+          className="font-grid text-xs flex-shrink-0 mt-px"
+          style={{
+            color: isActive ? "#a78bfa" : "rgba(255, 255, 255, 0.45)",
+            minWidth: "16px",
+          }}
         >
           {clue.number}
         </span>
         <span
-          className={`font-body text-sm ${isSolved ? "line-through" : ""}`}
-          style={{ color: isSolved ? "var(--color-green-accent)" : "rgba(255, 255, 255, 0.8)" }}
+          className={`font-body text-[13px] leading-relaxed ${isSolved ? "line-through" : ""}`}
+          style={{
+            color: isSolved
+              ? "#34d399"
+              : isActive
+              ? "rgba(255, 255, 255, 0.95)"
+              : "rgba(255, 255, 255, 0.7)",
+          }}
         >
           {clue.clue}
         </span>
@@ -56,29 +62,29 @@ export function ClueList({
   };
 
   return (
-    <div className={`${horizontal ? "grid grid-cols-2 gap-4" : "flex flex-col gap-3"} w-full`}>
+    <div className={`${horizontal ? "grid grid-cols-2 gap-6" : "flex flex-col gap-4"} w-full`}>
       {/* Across */}
       <div>
         <h3
-          className="font-heading text-[11px] uppercase tracking-widest mb-1"
+          className="font-heading text-[11px] uppercase tracking-widest mb-2 font-semibold"
           style={{ color: "rgba(255, 255, 255, 0.5)" }}
         >
           Across
         </h3>
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-0.5">
           {acrossClues.map(renderClue)}
         </div>
       </div>
 
       {/* Down */}
-      <div className={horizontal ? "" : "mt-2"}>
+      <div>
         <h3
-          className="font-heading text-[11px] uppercase tracking-widest mb-1"
+          className="font-heading text-[11px] uppercase tracking-widest mb-2 font-semibold"
           style={{ color: "rgba(255, 255, 255, 0.5)" }}
         >
           Down
         </h3>
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-0.5">
           {downClues.map(renderClue)}
         </div>
       </div>

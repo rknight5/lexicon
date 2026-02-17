@@ -14,7 +14,9 @@ import { saveResult, savePuzzle } from "@/lib/storage";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { Toast } from "@/components/shared/Toast";
 import { SessionExpiredModal } from "@/components/shared/SessionExpiredModal";
-import { Bookmark, Shield, Flame, Skull, Heart, Pencil } from "lucide-react";
+import { WordSearchHeader } from "@/components/wordsearch/WordSearchHeader";
+import { WordSearchStatsRow } from "@/components/wordsearch/WordSearchStatsRow";
+import { Bookmark } from "lucide-react";
 import { ANAGRAM_DIFFICULTY_CONFIG } from "@/lib/types";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
 import type { AnagramPuzzleData } from "@/lib/types";
@@ -254,20 +256,23 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
 
   return (
     <div className="min-h-screen lg:h-screen flex flex-col lg:overflow-hidden">
-      <GameBar
-        difficulty={puzzle.difficulty}
-        onPause={pause}
-        onBack={handleNewTopic}
-        gameStatus={state.gameStatus}
-        title={puzzleTitle}
-        onTitleChange={setPuzzleTitle}
-        onStats={() => setShowStats(true)}
-        onSave={handleSave}
-        isSaved={isSaved || isSaving}
-        onHint={handleHint}
-        canHint={canHint}
-        hintsUsed={state.hintsUsed}
-      />
+      {/* Desktop: GameBar header */}
+      <div className="hidden lg:block">
+        <GameBar
+          difficulty={puzzle.difficulty}
+          onPause={pause}
+          onBack={handleNewTopic}
+          gameStatus={state.gameStatus}
+          title={puzzleTitle}
+          onTitleChange={setPuzzleTitle}
+          onStats={() => setShowStats(true)}
+          onSave={handleSave}
+          isSaved={isSaved || isSaving}
+          onHint={handleHint}
+          canHint={canHint}
+          hintsUsed={state.hintsUsed}
+        />
+      </div>
 
       {/* Desktop layout */}
       <div className="hidden lg:flex flex-1 min-h-0 items-start justify-center pt-[18vh] pb-6">
@@ -459,161 +464,158 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
         </div>
       </div>
 
-      {/* Mobile layout */}
-      <div ref={mobileContainerRef} className="lg:hidden flex-1 flex flex-col items-center px-3 py-3 gap-3">
-        {/* Title + pencil */}
-        <div className="flex items-center justify-center gap-2 w-full">
-          <span className="font-heading font-bold truncate" style={{ fontSize: "1.05rem" }}>{puzzleTitle}</span>
-          <button
-            onClick={() => {
-              const newTitle = prompt("Edit title", puzzleTitle);
-              if (newTitle?.trim()) setPuzzleTitle(newTitle.trim());
-            }}
-            className="flex-shrink-0 text-white/50 hover:text-white/80 transition-colors p-0.5"
-          >
-            <Pencil className="w-3.5 h-3.5" />
-          </button>
-        </div>
+      {/* ═══ Mobile: dark layout matching word search ═══ */}
+      <div
+        className="lg:hidden flex-1 flex flex-col"
+        style={{ background: "var(--ws-bg)" }}
+      >
+        {/* Fixed header */}
+        <WordSearchHeader
+          title={puzzleTitle}
+          onTitleChange={setPuzzleTitle}
+          onBack={handleNewTopic}
+          onHint={handleHint}
+          canHint={canHint}
+          hintsRemaining={Math.max(0, 3 - state.hintsUsed)}
+          onPause={pause}
+          gameStatus={state.gameStatus}
+        />
 
-        {/* Lives + score */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5">
-            {[0, 1, 2].map((i) => (
-              <Heart
-                key={i}
-                className={`w-4 h-4 transition-all ${
-                  i < state.livesRemaining ? "text-red-400" : "text-gray-600"
-                }`}
-                fill={i < state.livesRemaining ? "currentColor" : "none"}
-              />
-            ))}
+        {/* Spacer for fixed header */}
+        <div style={{ paddingTop: "calc(env(safe-area-inset-top, 40px) + 50px + 36px)" }} />
+
+        {/* Stats row: hearts + score */}
+        <WordSearchStatsRow
+          livesRemaining={state.livesRemaining}
+          score={score}
+          lastMissTimestamp={lastMissTimestamp}
+        />
+
+        {/* Game content */}
+        <div ref={mobileContainerRef} className="flex-1 flex flex-col items-center px-3 gap-3">
+          {/* Word progress */}
+          <div className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">
+            Word {state.currentWordIndex + 1} of {puzzle.words.length}
           </div>
-          <span className="text-white/25">|</span>
-          <span className="text-xs font-heading font-bold text-gold-primary">{score} pts</span>
-        </div>
 
-        {/* Word progress */}
-        <div className="text-[11px] uppercase tracking-[2px] text-white/55 font-heading font-semibold">
-          Word {state.currentWordIndex + 1} of {puzzle.words.length}
-        </div>
+          {/* Clue */}
+          {showClues && currentWord?.clue && (
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-[10px] uppercase tracking-[2px] text-white/40 font-heading font-semibold">Clue</span>
+              <p
+                className="text-sm font-body text-center max-w-xs italic"
+                style={{ color: "var(--white-muted)" }}
+              >
+                &ldquo;{currentWord.clue}&rdquo;
+              </p>
+            </div>
+          )}
 
-        {/* Clue */}
-        {showClues && currentWord?.clue && (
-          <div className="flex flex-col items-center gap-1">
-            <span className="text-[10px] uppercase tracking-[2px] text-white/40 font-heading font-semibold">Clue</span>
-            <p
-              className="text-sm font-body text-center max-w-xs italic"
-              style={{ color: "var(--white-muted)" }}
+          {/* Answer slots */}
+          <div className="flex gap-1.5 justify-center flex-wrap">
+            {currentWord &&
+              Array.from({ length: currentWord.word.length }).map((_, i) => {
+                const letter = answerLetters[i] ?? null;
+                const isRevealed = revealedForCurrent.includes(i);
+                return (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      if (letter && !isRevealed) handleDeselectLetter(i);
+                    }}
+                    disabled={!letter || isRevealed}
+                    className="rounded-xl flex items-center justify-center font-grid font-bold uppercase transition-all"
+                    style={{
+                      width: mobileTileSize,
+                      height: mobileTileSize,
+                      fontSize: mobileFontSize,
+                      background: letter
+                        ? "rgba(255, 215, 0, 0.15)"
+                        : "rgba(255, 255, 255, 0.03)",
+                      border: isRevealed
+                        ? "2px solid #FFD700"
+                        : letter
+                          ? "2px solid rgba(255, 215, 0, 0.4)"
+                          : "2px dashed rgba(255, 255, 255, 0.15)",
+                      color: letter ? "#FFD700" : "transparent",
+                      cursor: letter && !isRevealed ? "pointer" : "default",
+                    }}
+                  >
+                    {letter ?? ""}
+                  </button>
+                );
+              })}
+          </div>
+
+          {/* Scrambled letter tiles */}
+          <div className="flex gap-1.5 justify-center flex-wrap">
+            {currentWord &&
+              currentWord.scrambled.split("").map((letter, i) => {
+                const isSelected = state.selectedIndices.includes(i);
+                return (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      if (!isSelected) handleSelectLetter(i);
+                    }}
+                    disabled={isSelected}
+                    className="rounded-xl flex items-center justify-center font-grid font-bold uppercase transition-all active:scale-[0.97]"
+                    style={{
+                      width: mobileTileSize,
+                      height: mobileTileSize,
+                      fontSize: mobileFontSize,
+                      background: isSelected
+                        ? "rgba(255, 255, 255, 0.02)"
+                        : "rgba(255, 255, 255, 0.95)",
+                      border: isSelected
+                        ? "1px solid rgba(255, 255, 255, 0.05)"
+                        : "1px solid rgba(255, 255, 255, 0.3)",
+                      color: isSelected
+                        ? "rgba(255, 255, 255, 0.15)"
+                        : "#1a1a2e",
+                      opacity: isSelected ? 0.3 : 1,
+                      cursor: isSelected ? "default" : "pointer",
+                    }}
+                  >
+                    {letter}
+                  </button>
+                );
+              })}
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex gap-3 items-center">
+            <button
+              onClick={handleSkip}
+              disabled={
+                state.gameStatus !== "playing" && state.gameStatus !== "idle"
+              }
+              className="px-4 py-2 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
+              style={{
+                background: "rgba(255, 255, 255, 0.06)",
+                border: "1px solid rgba(255, 255, 255, 0.12)",
+                color: "var(--white-muted)",
+              }}
             >
-              &ldquo;{currentWord.clue}&rdquo;
-            </p>
+              Skip
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={!allSlotsFilled}
+              className="px-6 py-2.5 rounded-pill font-heading text-sm font-bold uppercase tracking-wider transition-all active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
+              style={{
+                background: allSlotsFilled
+                  ? "rgba(255, 215, 0, 0.2)"
+                  : "rgba(255, 215, 0, 0.08)",
+                border: allSlotsFilled
+                  ? "1px solid rgba(255, 215, 0, 0.5)"
+                  : "1px solid rgba(255, 215, 0, 0.15)",
+                color: "#FFD700",
+              }}
+            >
+              Submit
+            </button>
           </div>
-        )}
-
-        {/* Answer slots */}
-        <div className="flex gap-1.5 justify-center flex-wrap">
-          {currentWord &&
-            Array.from({ length: currentWord.word.length }).map((_, i) => {
-              const letter = answerLetters[i] ?? null;
-              const isRevealed = revealedForCurrent.includes(i);
-              return (
-                <button
-                  key={i}
-                  onClick={() => {
-                    if (letter && !isRevealed) handleDeselectLetter(i);
-                  }}
-                  disabled={!letter || isRevealed}
-                  className="rounded-xl flex items-center justify-center font-grid font-bold uppercase transition-all"
-                  style={{
-                    width: mobileTileSize,
-                    height: mobileTileSize,
-                    fontSize: mobileFontSize,
-                    background: letter
-                      ? "rgba(255, 215, 0, 0.15)"
-                      : "rgba(255, 255, 255, 0.03)",
-                    border: isRevealed
-                      ? "2px solid #FFD700"
-                      : letter
-                        ? "2px solid rgba(255, 215, 0, 0.4)"
-                        : "2px dashed rgba(255, 255, 255, 0.15)",
-                    color: letter ? "#FFD700" : "transparent",
-                    cursor: letter && !isRevealed ? "pointer" : "default",
-                  }}
-                >
-                  {letter ?? ""}
-                </button>
-              );
-            })}
-        </div>
-
-        {/* Scrambled letter tiles */}
-        <div className="flex gap-1.5 justify-center flex-wrap">
-          {currentWord &&
-            currentWord.scrambled.split("").map((letter, i) => {
-              const isSelected = state.selectedIndices.includes(i);
-              return (
-                <button
-                  key={i}
-                  onClick={() => {
-                    if (!isSelected) handleSelectLetter(i);
-                  }}
-                  disabled={isSelected}
-                  className="rounded-xl flex items-center justify-center font-grid font-bold uppercase transition-all hover:-translate-y-0.5 active:scale-[0.97]"
-                  style={{
-                    width: mobileTileSize,
-                    height: mobileTileSize,
-                    fontSize: mobileFontSize,
-                    background: isSelected
-                      ? "rgba(255, 255, 255, 0.02)"
-                      : "rgba(255, 255, 255, 0.95)",
-                    border: isSelected
-                      ? "1px solid rgba(255, 255, 255, 0.05)"
-                      : "1px solid rgba(255, 255, 255, 0.3)",
-                    color: isSelected
-                      ? "rgba(255, 255, 255, 0.15)"
-                      : "#1a1a2e",
-                    opacity: isSelected ? 0.3 : 1,
-                    cursor: isSelected ? "default" : "pointer",
-                  }}
-                >
-                  {letter}
-                </button>
-              );
-            })}
-        </div>
-
-        {/* Action buttons */}
-        <div className="flex gap-3 items-center">
-          <button
-            onClick={handleSkip}
-            disabled={
-              state.gameStatus !== "playing" && state.gameStatus !== "idle"
-            }
-            className="px-4 py-2 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
-            style={{
-              background: "rgba(255, 255, 255, 0.06)",
-              border: "1px solid rgba(255, 255, 255, 0.12)",
-              color: "var(--white-muted)",
-            }}
-          >
-            Skip
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={!allSlotsFilled}
-            className="px-6 py-2.5 rounded-pill font-heading text-sm font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97] disabled:opacity-30 disabled:pointer-events-none"
-            style={{
-              background: allSlotsFilled
-                ? "rgba(255, 215, 0, 0.2)"
-                : "rgba(255, 215, 0, 0.08)",
-              border: allSlotsFilled
-                ? "1px solid rgba(255, 215, 0, 0.5)"
-                : "1px solid rgba(255, 215, 0, 0.15)",
-              color: "#FFD700",
-            }}
-          >
-            Submit
-          </button>
         </div>
       </div>
 

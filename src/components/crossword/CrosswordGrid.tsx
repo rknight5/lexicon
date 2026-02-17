@@ -210,12 +210,12 @@ export function CrosswordGrid({
 
             const cellBg = mobile
               ? isCursor
-                ? "rgba(140, 120, 215, 0.55)"
+                ? "#a78bfa"
                 : inWord
-                ? "rgba(140, 120, 215, 0.18)"
+                ? "rgba(167, 139, 250, 0.2)"
                 : solved
-                ? "rgba(35, 75, 65, 0.6)"
-                : "rgba(255, 255, 255, 0.06)"
+                ? "rgba(52, 211, 153, 0.2)"
+                : "#FFFFFF"
               : isCursor
               ? "#FFF9C4"
               : inWord
@@ -230,20 +230,16 @@ export function CrosswordGrid({
                 : isHinted
                 ? "#D4A800"
                 : solved
-                ? "#4ade80"
-                : "rgba(255, 255, 255, 0.45)"
+                ? "#2E7D32"
+                : "#1A1A2E"
               : isHinted
               ? "#D4A800"
               : solved
               ? "#2E7D32"
               : "#1A1A2E";
 
-            const cellShadow = mobile
-              ? isCursor
-                ? "inset 0 1px 0 rgba(255,255,255,0.18), 0 2px 8px rgba(130,100,210,0.3)"
-                : solved
-                ? "inset 0 1px 0 rgba(255,255,255,0.08)"
-                : undefined
+            const cellShadow = mobile && isCursor
+              ? "0 0 8px rgba(167, 139, 250, 0.4)"
               : undefined;
 
             return (
@@ -272,7 +268,9 @@ export function CrosswordGrid({
                     className="absolute top-0.5 left-1 font-body font-semibold leading-none"
                     style={{
                       fontSize: `${clueNumSize}px`,
-                      color: mobile ? "rgba(255, 255, 255, 0.35)" : "#000000",
+                      color: mobile
+                        ? (isCursor ? "rgba(255,255,255,0.5)" : "rgba(0, 0, 0, 0.35)")
+                        : "#000000",
                     }}
                   >
                     {cell.number}
