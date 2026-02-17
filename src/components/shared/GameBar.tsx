@@ -190,10 +190,9 @@ export function GameBar({
           </button>
         )}
         <button
-          onClick={onPause}
-          className="text-white/50 hover:text-white/80 transition-colors p-1.5 -m-1.5"
-          title="Settings"
-          disabled={gameStatus !== "playing"}
+          disabled
+          className="text-white/25 cursor-not-allowed p-1.5 -m-1.5"
+          title="Settings (coming soon)"
         >
           <Settings className="w-6 h-6" />
         </button>

@@ -216,13 +216,11 @@ export function GameDrawer({
           {/* Divider */}
           <div style={{ height: 1, background: "rgba(255, 255, 255, 0.06)", margin: "2px 12px" }} />
 
-          {/* Settings */}
+          {/* Settings (coming soon) */}
           <button
-            onClick={handleSettings}
-            className="w-full flex items-center gap-2.5 transition-colors cursor-pointer"
+            disabled
+            className="w-full flex items-center gap-2.5 cursor-not-allowed opacity-40"
             style={{ padding: "11px 14px" }}
-            onMouseEnter={(e) => applyHover(e.currentTarget)}
-            onMouseLeave={(e) => clearHover(e.currentTarget)}
           >
             <Settings data-menu-icon="" style={{ width: 18, height: 18, color: "rgba(255, 255, 255, 0.45)" }} />
             <span
