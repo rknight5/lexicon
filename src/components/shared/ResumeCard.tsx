@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Grid3X3, Shuffle, Play, Trash2, Bookmark, Shield, Flame, Skull, Heart } from "lucide-react";
+import { Search, Grid3X3, Shuffle, Play, Trash2, Bookmark, Shield, Flame, Skull, Heart, Sparkles } from "lucide-react";
 import type { AutoSaveSummary } from "@/lib/storage";
 
 interface ResumeCardProps {
@@ -59,10 +59,10 @@ export function ResumeCard({ autoSave, onResume, onSave, onDismiss }: ResumeCard
       className="w-full max-w-xl p-4 rounded-2xl flex flex-col gap-3"
       style={{
         background: "var(--glass-bg)",
-        border: "1px solid var(--glass-border)",
-        borderLeft: "3px solid #FFD700",
+        border: "1px solid rgba(167, 139, 250, 0.15)",
       }}
     >
+      {/* Title row with icon buttons */}
       <div className="flex items-center gap-3">
         <div className="flex-shrink-0">
           {GAME_TYPE_ICON[autoSave.gameType]}
@@ -85,37 +85,55 @@ export function ResumeCard({ autoSave, onResume, onSave, onDismiss }: ResumeCard
             </span>
           </div>
         </div>
+        {/* Save & Delete icon buttons */}
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          <button
+            onClick={handleSave}
+            disabled={saved}
+            className="flex items-center justify-center transition-all hover:brightness-125 active:scale-90 disabled:opacity-40"
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              background: "rgba(255, 255, 255, 0.06)",
+            }}
+            title={saved ? "Saved to library" : "Save to library"}
+          >
+            <Bookmark
+              className="w-4 h-4"
+              style={{ color: saved ? "#FFD700" : "rgba(255, 255, 255, 0.5)" }}
+              fill={saved ? "currentColor" : "none"}
+            />
+          </button>
+          <button
+            onClick={onDismiss}
+            className="flex items-center justify-center transition-all hover:brightness-125 active:scale-90"
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              background: "rgba(255, 255, 255, 0.06)",
+            }}
+            title="Delete saved game"
+          >
+            <Trash2 className="w-4 h-4" style={{ color: "rgba(255, 255, 255, 0.5)" }} />
+          </button>
+        </div>
       </div>
-      <div className="flex items-center gap-2">
-        <button
-          onClick={onResume}
-          className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-heading font-bold px-3 py-1.5 rounded-pill transition-all hover:brightness-125 active:scale-95"
-          style={{ background: "rgba(255, 215, 0, 0.15)", color: "#FFD700" }}
-          title="Resume game"
-        >
-          <Play className="w-3 h-3" fill="currentColor" />
-          Continue
-        </button>
-        <button
-          onClick={handleSave}
-          disabled={saved}
-          className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-heading font-bold px-3 py-1.5 rounded-pill transition-all hover:brightness-125 active:scale-95 disabled:opacity-50"
-          style={{ background: "rgba(0, 229, 255, 0.12)", color: "#00E5FF" }}
-          title={saved ? "Saved to library" : "Save to library"}
-        >
-          <Bookmark className="w-3 h-3" fill={saved ? "currentColor" : "none"} />
-          {saved ? "Saved" : "Save"}
-        </button>
-        <button
-          onClick={onDismiss}
-          className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-heading font-bold px-3 py-1.5 rounded-pill transition-all hover:brightness-125 active:scale-95"
-          style={{ background: "rgba(255, 64, 129, 0.15)", color: "#FF4081" }}
-          title="Delete saved game"
-        >
-          <Trash2 className="w-3 h-3" />
-          Delete
-        </button>
-      </div>
+
+      {/* Full-width Continue button */}
+      <button
+        onClick={onResume}
+        className="w-full flex items-center justify-center gap-2 h-11 rounded-pill font-heading text-sm font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+        style={{
+          background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
+          boxShadow: "0 4px 15px rgba(255, 215, 0, 0.4)",
+          color: "#1a0a2e",
+        }}
+      >
+        <Sparkles className="w-4 h-4" />
+        Continue
+      </button>
     </div>
   );
 }

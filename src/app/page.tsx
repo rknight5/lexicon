@@ -161,30 +161,33 @@ export default function HomePage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-5 pb-20 relative" style={{ paddingTop: "8vh" }}>
       {/* Top-right buttons */}
-      <div className="absolute top-6 right-6 flex items-center gap-5">
+      <div className="absolute top-6 right-6 flex items-center gap-3">
         <button
           onClick={() => router.push("/saved")}
-          className="relative text-white/50 hover:text-white/80 transition-colors p-2 -m-2"
+          className="relative flex items-center justify-center text-white/50 hover:text-white/80 transition-colors"
+          style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(255, 255, 255, 0.08)" }}
           title="Saved puzzles"
         >
-          <Bookmark className="w-6 h-6" />
+          <Bookmark className="w-5 h-5" />
           {savedCount > 0 && (
-            <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-gold-primary" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-gold-primary" />
           )}
         </button>
         <button
           onClick={() => setShowStats(true)}
-          className="text-white/50 hover:text-white/80 transition-colors p-2 -m-2"
+          className="flex items-center justify-center text-white/50 hover:text-white/80 transition-colors"
+          style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(255, 255, 255, 0.08)" }}
           title="Stats"
         >
-          <BarChart2 className="w-6 h-6" />
+          <BarChart2 className="w-5 h-5" />
         </button>
         <button
           onClick={handleLogout}
-          className="text-white/50 hover:text-white/80 transition-colors p-2 -m-2"
+          className="flex items-center justify-center text-white/50 hover:text-white/80 transition-colors"
+          style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(255, 255, 255, 0.08)" }}
           title="Log out"
         >
-          <LogOut className="w-6 h-6" />
+          <LogOut className="w-5 h-5" />
         </button>
       </div>
 
@@ -204,8 +207,8 @@ export default function HomePage() {
         Turn your interests into word puzzles
       </p>
 
-      {/* Topic Input */}
-      <div className="w-full max-w-md mb-6">
+      {/* Topic Input + Generate Button — tight cohesive block */}
+      <div className="w-full max-w-md flex flex-col" style={{ gap: "14px", padding: "0 24px" }}>
         <input
           type="text"
           value={topic}
@@ -219,23 +222,21 @@ export default function HomePage() {
           }}
           autoFocus
         />
+        <button
+          onClick={handleSubmit}
+          disabled={!topic.trim() || isOffline}
+          className="w-full flex items-center justify-center gap-2 h-12 rounded-pill font-heading text-sm font-bold uppercase tracking-wider text-purple-deep transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:-translate-y-0.5 active:enabled:scale-[0.97]"
+          style={{
+            background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
+            boxShadow: topic.trim()
+              ? "0 4px 15px rgba(255, 215, 0, 0.4)"
+              : "none",
+          }}
+        >
+          <Sparkles className="w-5 h-5" />
+          Generate Puzzle
+        </button>
       </div>
-
-      {/* Generate Button */}
-      <button
-        onClick={handleSubmit}
-        disabled={!topic.trim() || isOffline}
-        className="flex items-center gap-2 h-12 px-8 rounded-pill font-heading text-sm font-bold uppercase tracking-wider text-purple-deep transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:-translate-y-0.5 active:enabled:scale-[0.97]"
-        style={{
-          background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
-          boxShadow: topic.trim()
-            ? "0 4px 15px rgba(255, 215, 0, 0.4)"
-            : "none",
-        }}
-      >
-        <Sparkles className="w-5 h-5" />
-        Generate Puzzle
-      </button>
 
       {/* Resume Card (replaces Quick Starts when auto-save exists) */}
       {autoSave ? (
