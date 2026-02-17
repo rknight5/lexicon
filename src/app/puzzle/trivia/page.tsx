@@ -173,14 +173,6 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
     };
   }, []);
 
-  // Skip feedback delay with "Next" tap
-  const handleSkipFeedback = () => {
-    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
-    setFeedbackIndex(null);
-    setFeedbackResult(null);
-    nextQuestion();
-  };
-
   const handleNewTopic = () => {
     sessionStorage.removeItem(puzzleKeyForGameType("trivia"));
     sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
@@ -537,7 +529,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
               </div>
             </div>
 
-            {/* Feedback message + Next button */}
+            {/* Feedback message */}
             {hasAnswered && (
               <div className="w-full max-w-md mt-5 flex flex-col items-center gap-3">
                 {feedbackResult === "correct" && (
@@ -555,17 +547,6 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
                     Time&apos;s up! The answer was: {currentQuestion.options[currentQuestion.correctIndex]}
                   </span>
                 )}
-                <button
-                  onClick={handleSkipFeedback}
-                  className="px-8 h-10 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.97]"
-                  style={{
-                    background: "rgba(255, 255, 255, 0.08)",
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                    color: "rgba(255, 255, 255, 0.7)",
-                  }}
-                >
-                  Next
-                </button>
               </div>
             )}
           </>
