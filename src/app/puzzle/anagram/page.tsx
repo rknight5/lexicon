@@ -154,6 +154,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
   const handleNewTopic = () => {
     sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_ANAGRAM);
     sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
+    sessionStorage.setItem(STORAGE_KEYS.SHOW_CONFIG, puzzleTitle);
     router.push("/");
   };
 

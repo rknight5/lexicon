@@ -153,6 +153,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
   const handleNewTopic = () => {
     sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_WORDSEARCH);
     sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
+    sessionStorage.setItem(STORAGE_KEYS.SHOW_CONFIG, puzzleTitle);
     router.push("/");
   };
 

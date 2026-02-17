@@ -214,7 +214,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
             className="text-center font-heading font-semibold text-white"
             style={{ fontSize: 15 }}
           >
-            New Puzzle
+            Create Puzzle
           </span>
           <div />
         </div>

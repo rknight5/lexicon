@@ -32,6 +32,16 @@ export default function HomePage() {
   const [hasUnseenSaves, setHasUnseenSaves] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
 
+  // Auto-open config screen if returning from a game via "New Game"
+  useEffect(() => {
+    const savedTopic = sessionStorage.getItem(STORAGE_KEYS.SHOW_CONFIG);
+    if (savedTopic !== null) {
+      sessionStorage.removeItem(STORAGE_KEYS.SHOW_CONFIG);
+      if (savedTopic) setTopic(savedTopic);
+      setShowConfig(true);
+    }
+  }, []);
+
   useEffect(() => {
     setIsOffline(!navigator.onLine);
     const goOffline = () => setIsOffline(true);
