@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Home, Shield, Flame, Skull, Sparkles, Tag, Search, Grid3X3, Shuffle } from "lucide-react";
+import { X, Shield, Flame, Skull, Sparkles, Search, Grid3X3, Shuffle, Info, Check } from "lucide-react";
 import type { Difficulty, GameType, CategorySuggestion } from "@/lib/types";
 import { LoadingOverlay } from "@/components/shared/LoadingOverlay";
 import { STORAGE_KEYS, puzzleKeyForGameType } from "@/lib/storage-keys";
@@ -24,22 +24,22 @@ const DIFFICULTY_OPTIONS: {
   {
     value: "easy",
     label: "Easy",
-    description: "12×12 grid, 10-12 words, horizontal & vertical",
-    icon: <Shield className="w-6 h-6" />,
+    description: "Horizontal & vertical only",
+    icon: <Shield className="w-5 h-5" />,
     color: "text-green-accent",
   },
   {
     value: "medium",
     label: "Medium",
-    description: "15×15 grid, 15-18 words, all directions",
-    icon: <Flame className="w-6 h-6" />,
+    description: "All 8 directions",
+    icon: <Flame className="w-5 h-5" />,
     color: "text-gold-primary",
   },
   {
     value: "hard",
     label: "Hard",
-    description: "18×18 grid, 18-22 words, deep cuts included",
-    icon: <Skull className="w-6 h-6" />,
+    description: "Deep cuts included",
+    icon: <Skull className="w-5 h-5" />,
     color: "text-pink-accent",
   },
 ];
@@ -175,244 +175,288 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center px-5 pt-16 pb-8">
-      {/* Back button — pinned top-left */}
-      <button
-        onClick={onBack}
-        className="fixed top-6 left-6 z-50 flex items-center gap-2 font-body text-sm"
-        style={{ color: "var(--white-muted)" }}
+    <main className="min-h-screen flex flex-col" style={{ background: "var(--ws-bg)" }}>
+      {/* ── Header bar ── */}
+      <div
+        className="fixed top-0 left-0 right-0 z-50"
+        style={{
+          background: "var(--ws-header-bg)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          paddingTop: "env(safe-area-inset-top, 40px)",
+        }}
       >
-        <Home className="w-4 h-4" />
-      </button>
-
-      <div className="w-full max-w-md space-y-6">
-        {/* Topic (editable) */}
-        <div>
-          <label className="block font-heading text-sm mb-2 text-white/70">
-            Topic
-          </label>
-          <input
-            type="text"
-            value={topic}
-            onChange={(e) => onTopicChange(e.target.value.slice(0, 200))}
-            className="w-full h-11 px-4 rounded-xl text-base font-body text-white placeholder:text-white/50 outline-none transition-all"
+        <div
+          className="grid items-center"
+          style={{
+            gridTemplateColumns: "48px 1fr 48px",
+            padding: "10px 14px",
+          }}
+        >
+          <button
+            onClick={onBack}
+            className="flex items-center justify-center cursor-pointer transition-opacity hover:opacity-80 active:scale-95"
             style={{
-              background: "var(--glass-bg)",
-              border: "1px solid var(--glass-border)",
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: "rgba(255, 255, 255, 0.08)",
             }}
-          />
-          <p className="text-xs mt-2" style={{ color: "var(--white-muted)" }}>
-            Tip: If your topic is very niche, we may broaden it to include
-            related terms to build a great puzzle.
-          </p>
+          >
+            <X style={{ width: 18, height: 18, color: "rgba(255, 255, 255, 0.7)" }} />
+          </button>
+          <span
+            className="text-center font-heading font-semibold text-white"
+            style={{ fontSize: 15 }}
+          >
+            New Puzzle
+          </span>
+          <div />
         </div>
+      </div>
 
-        {/* Game Type */}
-        <div>
-          <label className="block font-heading text-sm mb-3 text-white/70">
-            Game Type
-          </label>
-          <div className="grid grid-cols-3 gap-3">
-            <button
-              onClick={() => setGameType("wordsearch")}
-              className="p-4 rounded-2xl text-center transition-all"
+      {/* Spacer for fixed header */}
+      <div style={{ paddingTop: "calc(env(safe-area-inset-top, 40px) + 56px + 16px)" }} />
+
+      {/* ── Scrollable content ── */}
+      <div
+        className="flex-1 overflow-y-auto px-5"
+        style={{ paddingBottom: "calc(72px + env(safe-area-inset-bottom, 34px) + 16px)" }}
+      >
+        <div className="w-full max-w-md mx-auto space-y-6">
+          {/* Topic input */}
+          <div>
+            <label className="block font-heading text-sm mb-2 text-white/70">
+              Topic
+            </label>
+            <input
+              type="text"
+              value={topic}
+              onChange={(e) => onTopicChange(e.target.value.slice(0, 200))}
+              className="w-full h-11 px-4 rounded-xl text-base font-body text-white placeholder:text-white/50 outline-none transition-all"
               style={{
-                background: gameType === "wordsearch" ? "rgba(255, 215, 0, 0.1)" : "var(--glass-bg)",
-                border: gameType === "wordsearch" ? "2px solid #FFD700" : "1px solid var(--glass-border)",
+                background: "var(--glass-bg)",
+                border: "1px solid var(--glass-border)",
+              }}
+            />
+            {/* Tip card */}
+            <div
+              className="flex items-start gap-2.5 mt-3 px-3 py-2.5 rounded-xl"
+              style={{
+                background: "rgba(167, 139, 250, 0.06)",
+                border: "1px solid rgba(167, 139, 250, 0.15)",
               }}
             >
-              <div className="text-gold-primary flex justify-center mb-2">
-                <Search className="w-6 h-6" />
-              </div>
-              <div className="font-heading text-sm font-bold">Word Search</div>
-              <div className="text-xs mt-1" style={{ color: "var(--white-muted)" }}>
-                Find hidden words in a grid
-              </div>
-            </button>
-            <button
-              onClick={() => setGameType("crossword")}
-              className="p-4 rounded-2xl text-center transition-all"
-              style={{
-                background: gameType === "crossword" ? "rgba(255, 215, 0, 0.1)" : "var(--glass-bg)",
-                border: gameType === "crossword" ? "2px solid #FFD700" : "1px solid var(--glass-border)",
-              }}
-            >
-              <div className="text-gold-primary flex justify-center mb-2">
-                <Grid3X3 className="w-6 h-6" />
-              </div>
-              <div className="font-heading text-sm font-bold">Crossword</div>
-              <div className="text-xs mt-1" style={{ color: "var(--white-muted)" }}>
-                Solve clues in a mini grid
-              </div>
-            </button>
-            <button
-              onClick={() => setGameType("anagram")}
-              className="p-4 rounded-2xl text-center transition-all"
-              style={{
-                background: gameType === "anagram" ? "rgba(255, 215, 0, 0.1)" : "var(--glass-bg)",
-                border: gameType === "anagram" ? "2px solid #FFD700" : "1px solid var(--glass-border)",
-              }}
-            >
-              <div className="text-gold-primary flex justify-center mb-2">
-                <Shuffle className="w-6 h-6" />
-              </div>
-              <div className="font-heading text-sm font-bold">Anagram</div>
-              <div className="text-xs mt-1" style={{ color: "var(--white-muted)" }}>
-                Unscramble jumbled words
-              </div>
-            </button>
+              <Info
+                className="w-3.5 h-3.5 flex-shrink-0 mt-0.5"
+                style={{ color: "rgba(167, 139, 250, 0.6)" }}
+              />
+              <p className="text-xs font-body" style={{ color: "var(--ws-text-muted)", lineHeight: 1.5 }}>
+                If your topic is very niche, we may broaden it to include
+                related terms to build a great puzzle.
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* Difficulty */}
-        <div>
-          <label className="block font-heading text-sm mb-3 text-white/70">
-            Difficulty
-          </label>
-          <div className="grid grid-cols-3 gap-3">
-            {DIFFICULTY_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => setDifficulty(opt.value)}
-                className={`p-4 rounded-2xl text-center transition-all ${
-                  difficulty === opt.value
-                    ? "scale-[1.02] border-gold-primary"
-                    : ""
-                }`}
-                style={{
-                  background:
-                    difficulty === opt.value
-                      ? "rgba(255, 215, 0, 0.1)"
-                      : "var(--glass-bg)",
-                  border:
-                    difficulty === opt.value
-                      ? "2px solid #FFD700"
-                      : "1px solid var(--glass-border)",
-                }}
-              >
-                <div
-                  className={`${opt.color} flex justify-center mb-2`}
+          {/* Game Type — taller cards */}
+          <div>
+            <label className="block font-heading text-sm mb-3 text-white/70">
+              Game Type
+            </label>
+            <div className="grid grid-cols-3 gap-3">
+              {([
+                { value: "wordsearch" as GameType, label: "Word Search", desc: "Find hidden words in a grid", icon: <Search className="w-7 h-7" /> },
+                { value: "crossword" as GameType, label: "Crossword", desc: "Solve clues in a mini grid", icon: <Grid3X3 className="w-7 h-7" /> },
+                { value: "anagram" as GameType, label: "Anagram", desc: "Unscramble jumbled words", icon: <Shuffle className="w-7 h-7" /> },
+              ]).map((g) => (
+                <button
+                  key={g.value}
+                  onClick={() => setGameType(g.value)}
+                  className="flex flex-col items-center justify-center rounded-2xl text-center transition-all"
+                  style={{
+                    minHeight: 130,
+                    padding: "16px 8px",
+                    background: gameType === g.value ? "rgba(255, 215, 0, 0.1)" : "var(--glass-bg)",
+                    border: gameType === g.value ? "2px solid #FFD700" : "1px solid var(--glass-border)",
+                  }}
                 >
-                  {opt.icon}
-                </div>
-                <div className="font-heading text-sm font-bold">
-                  {opt.label}
-                </div>
-                <div
-                  className="text-xs mt-1"
-                  style={{ color: "var(--white-muted)" }}
-                >
-                  {opt.description}
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Focus Areas */}
-        <div>
-          <label className="block font-heading text-sm mb-3 text-white/70">
-            Focus Areas
-          </label>
-          {loadingCategories ? (
-            <div className="flex gap-2 flex-wrap">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div
-                  key={i}
-                  className="h-9 w-24 rounded-pill animate-pulse"
-                  style={{ background: "var(--glass-bg)" }}
-                />
+                  <div className="text-gold-primary mb-3">{g.icon}</div>
+                  <div className="font-heading text-sm font-bold">{g.label}</div>
+                  <div className="text-[10px] mt-1.5 leading-tight" style={{ color: "var(--ws-text-muted)" }}>
+                    {g.desc}
+                  </div>
+                </button>
               ))}
             </div>
-          ) : categories.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {categories.map((cat) => {
-                const isSelected = selectedCategories.includes(cat.name);
-                return (
-                  <button
-                    key={cat.name}
-                    onClick={() => toggleCategory(cat.name)}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-pill text-sm font-body font-semibold transition-all"
-                    style={{
-                      background: isSelected
-                        ? "rgba(255, 215, 0, 0.15)"
-                        : "rgba(255, 255, 255, 0.1)",
-                      border: isSelected
-                        ? "1px solid #FFD700"
-                        : "1px solid rgba(255, 255, 255, 0.2)",
-                      color: isSelected ? "#FFF0A0" : "var(--white-muted)",
-                    }}
-                    title={cat.description}
+          </div>
+
+          {/* Difficulty — compact cards */}
+          <div>
+            <label className="block font-heading text-sm mb-3 text-white/70">
+              Difficulty
+            </label>
+            <div className="grid grid-cols-3 gap-3">
+              {DIFFICULTY_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setDifficulty(opt.value)}
+                  className="flex flex-col items-center justify-center rounded-2xl text-center transition-all"
+                  style={{
+                    minHeight: 90,
+                    padding: "10px 6px",
+                    background:
+                      difficulty === opt.value
+                        ? "rgba(255, 215, 0, 0.1)"
+                        : "var(--glass-bg)",
+                    border:
+                      difficulty === opt.value
+                        ? "2px solid #FFD700"
+                        : "1px solid var(--glass-border)",
+                  }}
+                >
+                  <div className={`${opt.color} mb-1.5`}>{opt.icon}</div>
+                  <div className="font-heading text-sm font-bold">
+                    {opt.label}
+                  </div>
+                  <div
+                    className="mt-1 leading-tight"
+                    style={{ fontSize: 9, color: "var(--ws-text-muted)" }}
                   >
-                    <Tag className="w-4 h-4" />
-                    {cat.name}
-                  </button>
-                );
-              })}
+                    {opt.description}
+                  </div>
+                </button>
+              ))}
             </div>
-          ) : categoryError ? (
-            <div className="flex items-center gap-3">
-              <p className="text-sm" style={{ color: "var(--color-pink-accent)" }}>
-                Couldn't load categories.
+          </div>
+
+          {/* Focus Areas — 2-column pill grid */}
+          <div>
+            <label className="block font-heading text-sm mb-3 text-white/70">
+              Focus Areas
+            </label>
+            {loadingCategories ? (
+              <div className="grid grid-cols-2 gap-2">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div
+                    key={i}
+                    className="h-10 rounded-xl animate-pulse"
+                    style={{ background: "var(--glass-bg)" }}
+                  />
+                ))}
+              </div>
+            ) : categories.length > 0 ? (
+              <div className="grid grid-cols-2 gap-2">
+                {categories.map((cat) => {
+                  const isSelected = selectedCategories.includes(cat.name);
+                  return (
+                    <button
+                      key={cat.name}
+                      onClick={() => toggleCategory(cat.name)}
+                      className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-[13px] font-body font-semibold transition-all text-left"
+                      style={{
+                        background: isSelected
+                          ? "rgba(247, 201, 72, 0.1)"
+                          : "rgba(255, 255, 255, 0.04)",
+                        border: isSelected
+                          ? "1px solid rgba(247, 201, 72, 0.4)"
+                          : "1px solid rgba(255, 255, 255, 0.08)",
+                        color: isSelected ? "#f7c948" : "var(--ws-text-muted)",
+                      }}
+                      title={cat.description}
+                    >
+                      {isSelected && (
+                        <Check className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#f7c948" }} />
+                      )}
+                      <span className="truncate">{cat.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : categoryError ? (
+              <div className="flex items-center gap-3">
+                <p className="text-sm" style={{ color: "var(--color-pink-accent)" }}>
+                  Couldn&apos;t load categories.
+                </p>
+                <button
+                  onClick={fetchCategories}
+                  className="text-sm font-heading font-bold underline"
+                  style={{ color: "var(--color-gold-primary)" }}
+                >
+                  Retry
+                </button>
+              </div>
+            ) : (
+              <p className="text-sm" style={{ color: "var(--ws-text-muted)" }}>
+                Categories will be auto-selected based on your topic.
               </p>
+            )}
+
+            {selectedCategories.length === 0 && categories.length > 0 && (
+              <p className="text-sm text-pink-accent mt-2">
+                Select at least one category
+              </p>
+            )}
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="flex items-center justify-between gap-3 text-sm text-pink-accent bg-pink-accent/10 p-3 rounded-xl">
+              <p>{error}</p>
               <button
-                onClick={fetchCategories}
-                className="text-sm font-heading font-bold underline"
+                onClick={handleGenerate}
+                className="shrink-0 font-heading font-bold underline"
                 style={{ color: "var(--color-gold-primary)" }}
               >
                 Retry
               </button>
             </div>
-          ) : (
-            <p className="text-sm" style={{ color: "var(--white-muted)" }}>
-              Categories will be auto-selected based on your topic.
-            </p>
-          )}
-
-          {selectedCategories.length === 0 && categories.length > 0 && (
-            <p className="text-sm text-pink-accent mt-2">
-              Select at least one category
-            </p>
           )}
         </div>
+      </div>
 
-        {/* Error */}
-        {error && (
-          <div className="flex items-center justify-between gap-3 text-sm text-pink-accent bg-pink-accent/10 p-3 rounded-xl">
-            <p>{error}</p>
-            <button
-              onClick={handleGenerate}
-              className="shrink-0 font-heading font-bold underline"
-              style={{ color: "var(--color-gold-primary)" }}
-            >
-              Retry
-            </button>
-          </div>
-        )}
-
-        {/* Generate Button */}
-        <button
-          onClick={handleGenerate}
-          disabled={
-            generating ||
-            selectedCategories.length === 0 ||
-            !topic.trim()
-          }
-          className="w-full flex items-center justify-center gap-2 h-12 rounded-pill font-heading text-sm font-bold uppercase tracking-wider text-purple-deep transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:-translate-y-0.5 active:enabled:scale-[0.97]"
+      {/* ── Pinned Generate button ── */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-50"
+        style={{
+          paddingBottom: "env(safe-area-inset-bottom, 34px)",
+        }}
+      >
+        {/* Gradient fade */}
+        <div
           style={{
-            background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
-            boxShadow: "0 4px 15px rgba(255, 215, 0, 0.4)",
+            height: 40,
+            background: "linear-gradient(to bottom, transparent, var(--ws-bg))",
+            pointerEvents: "none",
           }}
+        />
+        <div
+          className="px-5 pb-3"
+          style={{ background: "var(--ws-bg)" }}
         >
-          {generating ? (
-            <span className="animate-pulse">Generating...</span>
-          ) : (
-            <>
-              <Sparkles className="w-5 h-5" />
-              Generate Puzzle
-            </>
-          )}
-        </button>
+          <button
+            onClick={handleGenerate}
+            disabled={
+              generating ||
+              selectedCategories.length === 0 ||
+              !topic.trim()
+            }
+            className="w-full max-w-md mx-auto flex items-center justify-center gap-2 h-12 rounded-pill font-heading text-sm font-bold uppercase tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed active:enabled:scale-[0.97]"
+            style={{
+              background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
+              boxShadow: "0 4px 15px rgba(255, 215, 0, 0.4)",
+              color: "#1a0a2e",
+            }}
+          >
+            {generating ? (
+              <span className="animate-pulse">Generating...</span>
+            ) : (
+              <>
+                <Sparkles className="w-5 h-5" />
+                Generate Puzzle
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </main>
   );
