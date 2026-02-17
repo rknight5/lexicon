@@ -35,6 +35,23 @@ interface GameDrawerProps {
   onClose: () => void;
   onStats: () => void;
   onShare: () => void;
+  onSettings: () => void;
+}
+
+function applyHover(btn: HTMLButtonElement) {
+  const icon = btn.querySelector("[data-menu-icon]") as HTMLElement | null;
+  const label = btn.querySelector("[data-menu-label]") as HTMLElement | null;
+  btn.style.background = "rgba(167, 139, 250, 0.1)";
+  if (icon) icon.style.color = "#a78bfa";
+  if (label) label.style.color = "rgba(255, 255, 255, 1)";
+}
+
+function clearHover(btn: HTMLButtonElement) {
+  const icon = btn.querySelector("[data-menu-icon]") as HTMLElement | null;
+  const label = btn.querySelector("[data-menu-label]") as HTMLElement | null;
+  btn.style.background = "transparent";
+  if (icon) icon.style.color = "rgba(255, 255, 255, 0.45)";
+  if (label) label.style.color = "rgba(255, 255, 255, 0.8)";
 }
 
 export function GameDrawer({
@@ -43,6 +60,7 @@ export function GameDrawer({
   onClose,
   onStats,
   onShare,
+  onSettings,
 }: GameDrawerProps) {
   const [visible, setVisible] = useState(false);
   const [showRules, setShowRules] = useState(false);
@@ -76,12 +94,27 @@ export function GameDrawer({
     handleClose();
   }, [onShare, handleClose]);
 
+  const handleSettings = useCallback(() => {
+    setVisible(false);
+    setTimeout(() => {
+      onClose();
+      onSettings();
+    }, 200);
+  }, [onClose, onSettings]);
+
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50">
-      {/* Invisible backdrop to catch taps outside */}
-      <div className="absolute inset-0" onClick={handleClose} />
+      {/* Dark overlay backdrop */}
+      <div
+        className="absolute inset-0 transition-opacity duration-200"
+        style={{
+          background: "rgba(0, 0, 0, 0.4)",
+          opacity: visible ? 1 : 0,
+        }}
+        onClick={handleClose}
+      />
 
       {/* Dropdown — anchored top-right below header */}
       <div
@@ -95,22 +128,26 @@ export function GameDrawer({
           transform: visible ? "translateY(0) scale(1)" : "translateY(-8px) scale(0.95)",
           transformOrigin: "top right",
           background: "rgba(22, 14, 42, 0.95)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
           borderRadius: 14,
-          border: "1px solid rgba(255, 255, 255, 0.1)",
+          border: "1px solid rgba(167, 139, 250, 0.15)",
           boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
           overflow: "hidden",
         }}
       >
-        <div className="py-1.5">
-          {/* Info */}
+        <div className="py-1">
+          {/* How to Play */}
           <button
             onClick={() => setShowRules(!showRules)}
-            className="w-full flex items-center gap-2.5 px-4 py-2.5 transition-colors active:bg-white/5"
+            className="w-full flex items-center gap-2.5 transition-colors cursor-pointer"
+            style={{ padding: "11px 14px" }}
+            onMouseEnter={(e) => applyHover(e.currentTarget)}
+            onMouseLeave={(e) => clearHover(e.currentTarget)}
           >
-            <Info style={{ width: 16, height: 16, color: "rgba(255, 255, 255, 0.45)" }} />
+            <Info data-menu-icon="" style={{ width: 18, height: 18, color: "rgba(255, 255, 255, 0.45)" }} />
             <span
+              data-menu-label=""
               className="font-body text-[13px] font-medium"
               style={{ color: "rgba(255, 255, 255, 0.8)" }}
             >
@@ -120,8 +157,8 @@ export function GameDrawer({
 
           {showRules && (
             <div
-              className="px-4 pb-2 space-y-0.5"
-              style={{ paddingLeft: 42 }}
+              className="pb-2 space-y-0.5"
+              style={{ paddingLeft: 46, paddingRight: 14 }}
             >
               {RULES[gameType].map((rule, i) => (
                 <p
@@ -138,13 +175,17 @@ export function GameDrawer({
           {/* Divider */}
           <div style={{ height: 1, background: "rgba(255, 255, 255, 0.06)", margin: "2px 12px" }} />
 
-          {/* Share */}
+          {/* Share Puzzle */}
           <button
             onClick={handleShare}
-            className="w-full flex items-center gap-2.5 px-4 py-2.5 transition-colors active:bg-white/5"
+            className="w-full flex items-center gap-2.5 transition-colors cursor-pointer"
+            style={{ padding: "11px 14px" }}
+            onMouseEnter={(e) => applyHover(e.currentTarget)}
+            onMouseLeave={(e) => clearHover(e.currentTarget)}
           >
-            <Share2 style={{ width: 16, height: 16, color: "rgba(255, 255, 255, 0.45)" }} />
+            <Share2 data-menu-icon="" style={{ width: 18, height: 18, color: "rgba(255, 255, 255, 0.45)" }} />
             <span
+              data-menu-label=""
               className="font-body text-[13px] font-medium"
               style={{ color: "rgba(255, 255, 255, 0.8)" }}
             >
@@ -155,10 +196,14 @@ export function GameDrawer({
           {/* Stats */}
           <button
             onClick={handleStats}
-            className="w-full flex items-center gap-2.5 px-4 py-2.5 transition-colors active:bg-white/5"
+            className="w-full flex items-center gap-2.5 transition-colors cursor-pointer"
+            style={{ padding: "11px 14px" }}
+            onMouseEnter={(e) => applyHover(e.currentTarget)}
+            onMouseLeave={(e) => clearHover(e.currentTarget)}
           >
-            <BarChart2 style={{ width: 16, height: 16, color: "rgba(255, 255, 255, 0.45)" }} />
+            <BarChart2 data-menu-icon="" style={{ width: 18, height: 18, color: "rgba(255, 255, 255, 0.45)" }} />
             <span
+              data-menu-label=""
               className="font-body text-[13px] font-medium"
               style={{ color: "rgba(255, 255, 255, 0.8)" }}
             >
@@ -169,27 +214,23 @@ export function GameDrawer({
           {/* Divider */}
           <div style={{ height: 1, background: "rgba(255, 255, 255, 0.06)", margin: "2px 12px" }} />
 
-          {/* Settings — placeholder */}
-          <div
-            className="w-full flex items-center gap-2.5 px-4 py-2.5"
-            style={{ opacity: 0.3 }}
+          {/* Settings */}
+          <button
+            onClick={handleSettings}
+            className="w-full flex items-center gap-2.5 transition-colors cursor-pointer"
+            style={{ padding: "11px 14px" }}
+            onMouseEnter={(e) => applyHover(e.currentTarget)}
+            onMouseLeave={(e) => clearHover(e.currentTarget)}
           >
-            <Settings style={{ width: 16, height: 16, color: "rgba(255, 255, 255, 0.45)" }} />
-            <div className="flex flex-col">
-              <span
-                className="font-body text-[13px] font-medium"
-                style={{ color: "rgba(255, 255, 255, 0.8)" }}
-              >
-                Settings
-              </span>
-              <span
-                className="font-body"
-                style={{ fontSize: 10, color: "rgba(255, 255, 255, 0.35)" }}
-              >
-                Coming soon
-              </span>
-            </div>
-          </div>
+            <Settings data-menu-icon="" style={{ width: 18, height: 18, color: "rgba(255, 255, 255, 0.45)" }} />
+            <span
+              data-menu-label=""
+              className="font-body text-[13px] font-medium"
+              style={{ color: "rgba(255, 255, 255, 0.8)" }}
+            >
+              Settings
+            </span>
+          </button>
         </div>
       </div>
     </div>

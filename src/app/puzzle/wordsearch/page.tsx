@@ -423,6 +423,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
             setToastMessage("Copied to clipboard!");
           });
         }}
+        onSettings={() => { setDrawerOpen(false); setToastMessage("Coming soon"); }}
       />
 
       {/* Mobile game over */}

@@ -59,12 +59,12 @@
 }
 
 html {
-  background: #1A0A2E;
+  background: #0c0a14;
 }
 
 body {
   font-family: var(--font-inter), sans-serif;
-  background: linear-gradient(180deg, #2D1B69 0%, #1A0A2E 100%);
+  background: linear-gradient(180deg, #2D1B69 0%, #0c0a14 100%);
   color: white;
   min-height: 100dvh;
 }

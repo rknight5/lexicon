@@ -60,7 +60,7 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
     <div
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center px-5"
       style={{
-        background: "linear-gradient(180deg, #2D1B69 0%, #1A0A2E 100%)",
+        background: "linear-gradient(180deg, #2D1B69 0%, #0c0a14 100%)",
         overflow: "hidden",
       }}
     >

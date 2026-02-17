@@ -674,6 +674,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
             setToastMessage("Copied to clipboard!");
           });
         }}
+        onSettings={() => { setDrawerOpen(false); setToastMessage("Coming soon"); }}
       />
 
       {state.gameStatus === "lost" && (

@@ -103,7 +103,9 @@ export default function SavedPage() {
       <div
         className="h-14 px-5 flex items-center border-b relative"
         style={{
-          background: "#1A0A2E",
+          background: "var(--ws-header-bg)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
           borderColor: "rgba(255, 255, 255, 0.08)",
         }}
       >

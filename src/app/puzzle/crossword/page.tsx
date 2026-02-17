@@ -406,6 +406,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
             setToastMessage("Copied to clipboard!");
           });
         }}
+        onSettings={() => { setDrawerOpen(false); setToastMessage("Coming soon"); }}
       />
 
       {state.gameStatus === "lost" && (

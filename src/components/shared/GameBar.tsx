@@ -94,7 +94,9 @@ export function GameBar({
     <div
       className="min-h-14 px-4 py-2 flex items-center gap-3 border-b"
       style={{
-        background: "#1A0A2E",
+        background: "var(--ws-header-bg)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
         borderColor: "rgba(255, 255, 255, 0.08)",
       }}
     >
