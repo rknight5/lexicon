@@ -390,24 +390,24 @@ export const ANAGRAM_DIFFICULTY_CONFIG = {
 
 export const TRIVIA_DIFFICULTY_CONFIG = {
   easy: {
-    timePerQuestion: 20,
-    questionCount: 10,
+    timePerQuestion: 30,
+    questionCount: 5,
     lives: 3,
     label: "Easy",
-    description: "10 questions, 20s each, straightforward",
+    description: "5 questions, 30s each, straightforward",
   },
   medium: {
-    timePerQuestion: 15,
-    questionCount: 15,
+    timePerQuestion: 20,
+    questionCount: 7,
     lives: 3,
     label: "Medium",
-    description: "15 questions, 15s each, moderate",
+    description: "7 questions, 20s each, moderate",
   },
   hard: {
-    timePerQuestion: 10,
-    questionCount: 20,
+    timePerQuestion: 15,
+    questionCount: 10,
     lives: 3,
     label: "Hard",
-    description: "20 questions, 10s each, deep trivia",
+    description: "10 questions, 15s each, deep trivia",
   },
 } as const;

@@ -270,7 +270,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
             <label className="block font-heading text-sm mb-3 text-white/70">
               Game Type
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2" style={{ gap: 10 }}>
               {([
                 { value: "wordsearch" as GameType, label: "Word Search", desc: "Find hidden words in a grid", icon: <Search className="w-7 h-7" /> },
                 { value: "crossword" as GameType, label: "Crossword", desc: "Solve clues in a mini grid", icon: <Grid3X3 className="w-7 h-7" /> },
