@@ -348,8 +348,8 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
       {/* Spacer for fixed header */}
       <div style={{ paddingTop: "calc(env(safe-area-inset-top, 40px) + 50px + 16px)" }} />
 
-      {/* Stats row: hearts + score + question counter */}
-      <div className="flex items-center justify-between px-5 py-2">
+      {/* Stats row: hearts + score */}
+      <div className="flex items-center justify-between px-5 py-1.5">
         {/* Hearts */}
         <div className="flex items-center gap-1">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -364,11 +364,6 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
           ))}
         </div>
 
-        {/* Question counter */}
-        <span className="font-heading text-xs font-semibold" style={{ color: "rgba(255, 255, 255, 0.5)" }}>
-          Q {state.currentIndex + 1}/{puzzle.questions.length}
-        </span>
-
         {/* Score */}
         <span className="font-grid text-sm font-bold" style={{ color: "#FFD700" }}>
           {state.score}
@@ -380,7 +375,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
         {currentQuestion && state.gameStatus === "playing" && (
           <>
             {/* Countdown Timer */}
-            <div className="py-4">
+            <div className="py-2">
               <CountdownTimer
                 timeRemaining={timeRemaining}
                 timeTotal={timeTotal}
@@ -390,9 +385,9 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
             </div>
 
             {/* Question text */}
-            <div className="w-full max-w-md text-center mb-6">
+            <div className="w-full max-w-md text-center mb-4">
               <p
-                className="font-body text-lg font-semibold leading-relaxed"
+                className="font-body text-base font-semibold leading-snug"
                 style={{ color: "rgba(255, 255, 255, 0.9)" }}
               >
                 {currentQuestion.question}

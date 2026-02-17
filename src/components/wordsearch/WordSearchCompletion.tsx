@@ -128,6 +128,8 @@ export function WordSearchCompletion({
               borderRadius: 14,
               background: "rgba(255, 255, 255, 0.04)",
               border: "1px solid rgba(255, 255, 255, 0.06)",
+              maxHeight: "5.5lh",
+              overflowY: "auto",
             }}
           >
             <p

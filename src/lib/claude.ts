@@ -64,7 +64,7 @@ Rules:
   - Easy: mostly difficulty 1, a few 2s
   - Medium: mix of 1s, 2s, and a few 3s
   - Hard: heavy on 2s and 3s, fewer 1s
-- Include a brief, interesting fun fact related to the topic
+- Provide a fun fact in 1-2 sentences, maximum 40 words
 - Vary your selections: prioritize surprising, lesser-known, and creative word choices over the most obvious ones. Each generation should feel fresh, not formulaic.
 
 Respond with ONLY valid JSON in this exact format, with no markdown fences, no preamble, no explanation:
@@ -73,7 +73,7 @@ Respond with ONLY valid JSON in this exact format, with no markdown fences, no p
   "words": [
     { "word": "EXAMPLE", "clue": "Brief description", "category": "Category Name", "difficulty": 1 }
   ],
-  "funFact": "An interesting fact about the topic"
+  "funFact": "An interesting fact about the topic (1-2 sentences, max 40 words)"
 }`;
 
 function buildUserMessage(
@@ -177,7 +177,7 @@ Rules:
   - Easy: direct, obvious clues (e.g., "Six-string instrument" for GUITAR)
   - Medium: moderate clues, some require topic knowledge (e.g., "Cobain's band" for NIRVANA)
   - Hard: obscure or indirect clues that require deep knowledge (e.g., "Sub Pop label's hometown sound" for GRUNGE)
-- Include a brief, interesting fun fact related to the topic
+- Provide a fun fact in 1-2 sentences, maximum 40 words
 - Vary your selections: prioritize surprising, lesser-known, and creative word choices over the most obvious ones. Each generation should feel fresh, not formulaic.
 
 Respond with ONLY valid JSON in this exact format, with no markdown fences, no preamble, no explanation:
@@ -186,7 +186,7 @@ Respond with ONLY valid JSON in this exact format, with no markdown fences, no p
   "words": [
     { "word": "EXAMPLE", "clue": "Brief clue", "category": "Category Name", "difficulty": 1 }
   ],
-  "funFact": "An interesting fact about the topic"
+  "funFact": "An interesting fact about the topic (1-2 sentences, max 40 words)"
 }`;
 
 function buildCrosswordUserMessage(
@@ -290,7 +290,7 @@ Rules:
   - Easy: mostly difficulty 1, a few 2s. Clues should be clear and direct — obvious hints that help the player (e.g., "A stringed instrument played with a bow" for VIOLIN)
   - Medium: mix of 1s, 2s, and a few 3s. Clues should be slightly vague and indirect — they relate to the answer but require some thought (e.g., "Found in an orchestra pit" for VIOLIN)
   - Hard: heavy on 2s and 3s, fewer 1s. No clues will be shown to the player, but still include a clue in the JSON for consistency
-- Include a brief, interesting fun fact related to the topic
+- Provide a fun fact in 1-2 sentences, maximum 40 words
 - Vary your selections: prioritize surprising, lesser-known, and creative word choices over the most obvious ones. Each generation should feel fresh, not formulaic.
 
 Respond with ONLY valid JSON in this exact format, with no markdown fences, no preamble, no explanation:
@@ -299,7 +299,7 @@ Respond with ONLY valid JSON in this exact format, with no markdown fences, no p
   "words": [
     { "word": "EXAMPLE", "clue": "Brief clue", "category": "Category Name", "difficulty": 1 }
   ],
-  "funFact": "An interesting fact about the topic"
+  "funFact": "An interesting fact about the topic (1-2 sentences, max 40 words)"
 }`;
 
 function buildAnagramUserMessage(
@@ -404,7 +404,7 @@ Rules:
   - Medium: requires moderate topic knowledge, some tricky options
   - Hard: deep trivia, obscure facts, closely similar answer options
 - Shuffle the position of the correct answer among the options (don't always put it first or last)
-- Include a brief, interesting fun fact related to the topic
+- Provide a fun fact in 1-2 sentences, maximum 40 words
 - Vary your questions: prioritize surprising facts and lesser-known trivia over the most obvious questions
 
 Respond with ONLY valid JSON in this exact format, with no markdown fences, no preamble, no explanation:
@@ -414,7 +414,7 @@ Respond with ONLY valid JSON in this exact format, with no markdown fences, no p
     { "question": "What is...?", "type": "mc", "options": ["A", "B", "C", "D"], "correctIndex": 2, "category": "Category Name" },
     { "question": "True or false: ...", "type": "tf", "options": ["True", "False"], "correctIndex": 0, "category": "Category Name" }
   ],
-  "funFact": "An interesting fact about the topic"
+  "funFact": "An interesting fact about the topic (1-2 sentences, max 40 words)"
 }`;
 
 function buildTriviaUserMessage(
