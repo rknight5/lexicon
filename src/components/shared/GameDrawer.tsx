@@ -150,6 +150,9 @@ export function GameDrawer({
             </span>
           </button>
 
+          {/* Divider */}
+          <div style={{ height: 1, background: "rgba(255, 255, 255, 0.06)", margin: "2px 12px" }} />
+
           {/* New Puzzle */}
           <button
             onClick={handleNewPuzzle}
