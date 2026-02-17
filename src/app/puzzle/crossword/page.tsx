@@ -7,6 +7,7 @@ import { ClueList } from "@/components/crossword/ClueList";
 import { GameBar } from "@/components/shared/GameBar";
 import { GameStatsBar } from "@/components/shared/GameStatsBar";
 import { PauseMenu } from "@/components/shared/PauseMenu";
+import { GameMenu } from "@/components/shared/GameMenu";
 import { GameOverModal } from "@/components/shared/GameOverModal";
 import { CompletionModal } from "@/components/shared/CompletionModal";
 import { StatsModal } from "@/components/shared/StatsModal";
@@ -50,6 +51,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
   const router = useRouter();
   const [puzzleTitle, setPuzzleTitle] = useState(initialPuzzle.title);
   const [showStats, setShowStats] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [sessionExpired, setSessionExpired] = useState(false);
@@ -319,7 +321,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
           onHint={useHint}
           canHint={state.gameStatus === "playing" && state.livesRemaining > 1}
           hintsRemaining={Math.max(0, 3 - state.hintsUsed)}
-          onPause={pause}
+          onPause={() => { pause(); setShowMenu(true); }}
           gameStatus={state.gameStatus}
         />
 
@@ -386,7 +388,22 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
       </div>
 
       {/* Modals */}
-      {state.gameStatus === "paused" && (
+      {state.gameStatus === "paused" && showMenu && (
+        <GameMenu
+          gameType="crossword"
+          onResume={() => { resume(); setShowMenu(false); }}
+          onStats={() => { setShowMenu(false); setShowStats(true); }}
+          onShare={() => {
+            const msg = `I'm playing Crossword on Lexicon!\nTopic: ${puzzleTitle}\nDifficulty: ${puzzle.difficulty}`;
+            navigator.clipboard.writeText(msg).then(() => {
+              setToastMessage("Copied to clipboard!");
+            });
+          }}
+          onExit={handleNewTopic}
+        />
+      )}
+
+      {state.gameStatus === "paused" && !showMenu && (
         <PauseMenu
           onResume={resume}
           onQuit={handleNewTopic}

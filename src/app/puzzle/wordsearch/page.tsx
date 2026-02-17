@@ -12,6 +12,7 @@ import { WordSearchCompletion } from "@/components/wordsearch/WordSearchCompleti
 import { GameBar } from "@/components/shared/GameBar";
 import { GameStatsBar } from "@/components/shared/GameStatsBar";
 import { PauseMenu } from "@/components/shared/PauseMenu";
+import { GameMenu } from "@/components/shared/GameMenu";
 import { GameOverModal } from "@/components/shared/GameOverModal";
 import { CompletionModal } from "@/components/shared/CompletionModal";
 import { StatsModal } from "@/components/shared/StatsModal";
@@ -52,6 +53,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
   const router = useRouter();
   const [puzzleTitle, setPuzzleTitle] = useState(initialPuzzle.title);
   const [showStats, setShowStats] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [sessionExpired, setSessionExpired] = useState(false);
@@ -339,7 +341,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
           onHint={handleRandomHint}
           canHint={canHint}
           hintsRemaining={Math.max(0, hintsRemaining)}
-          onPause={pause}
+          onPause={() => { pause(); setShowMenu(true); }}
           gameStatus={state.gameStatus}
         />
 
@@ -403,7 +405,22 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
       </div>
 
       {/* ═══ Modals ═══ */}
-      {state.gameStatus === "paused" && (
+      {state.gameStatus === "paused" && showMenu && (
+        <GameMenu
+          gameType="wordsearch"
+          onResume={() => { resume(); setShowMenu(false); }}
+          onStats={() => { setShowMenu(false); setShowStats(true); }}
+          onShare={() => {
+            const msg = `I'm playing Word Search on Lexicon!\nTopic: ${puzzleTitle}\nDifficulty: ${puzzle.difficulty}`;
+            navigator.clipboard.writeText(msg).then(() => {
+              setToastMessage("Copied to clipboard!");
+            });
+          }}
+          onExit={handleNewTopic}
+        />
+      )}
+
+      {state.gameStatus === "paused" && !showMenu && (
         <PauseMenu
           onResume={resume}
           onQuit={handleNewTopic}

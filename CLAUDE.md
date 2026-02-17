@@ -13,15 +13,10 @@ Next.js 16 (App Router) + React 19 + TypeScript | Tailwind CSS 4 | PostgreSQL + 
 - Game state via `useReducer` action machines in `useWordSearchGame.ts` / `useCrosswordGame.ts` / `useAnagramGame.ts`
 - Status lifecycle: `idle` → `playing` → `won`/`lost` (with `paused` side state). Hints cost 1 life (disabled at 1 remaining)
 - Grid generators: `src/lib/games/wordsearch/gridGenerator.ts`, `src/lib/games/crossword/gridGenerator.ts`. Scoring: `src/lib/scoring.ts`
-- sessionStorage keys centralized in `src/lib/storage-keys.ts` (`STORAGE_KEYS` + `puzzleKeyForGameType()`). Auto-save via `useAutoSave` hook (30s periodic, pause, visibilitychange, beforeunload with keepalive fetch). One slot per user, upsert on username
-- Crossword `hintedCells` is a Set — serialize via `Array.from()` for JSON, reconstruct with `new Set()` on restore. Auto-save `getGameState` must handle this conversion
+- sessionStorage keys in `src/lib/storage-keys.ts`. Auto-save via `useAutoSave` hook. `hintedCells` Set → Array for JSON
 - All fetch to `/api/*` must include `credentials: "include"`
 - Puzzle history persisted in PostgreSQL, scoped by username. Stats derived server-side
-- Landing page debounces topic input (600ms) for category prefetch
-- All shared types/config constants in `src/lib/types.ts`. Shared utilities: `src/lib/format.ts` (formatTime), `src/components/shared/ModalShell.tsx` (modal wrapper)
-- Tests in `__tests__/` dirs alongside source. Setup at `src/test/setup.ts`. Path alias `@/` → `src/`
-- `drizzle-kit push` won't load `.env.local` — source env vars first: `source <(grep -v '^#' .env.local | sed 's/^/export /')`
-
+- Types/constants: `src/lib/types.ts`. Tests in `__tests__/` dirs, setup `src/test/setup.ts`, alias `@/` → `src/`
 ## Design
 Dark-first. Glassmorphic panels (`--glass-bg: rgba(255,255,255,0.08)`, `--glass-border: rgba(255,255,255,0.15)`, `--white-muted`). CSS custom properties in `globals.css`.
 
@@ -38,3 +33,7 @@ Purple gradient `#2D1B69` → `#1A0A2E` | Gold `#FFD700` | Green `#00E676` | Cya
 
 ## Reference docs (local only, not in git)
 - `.claude/docs/architecture.md` — game flow, API, state management, grid gen, hints, scoring, storage
+
+## Mobile
+- All 3 game pages share `WordSearchHeader` and `WordSearchStatsRow`. `WordProgress` used by wordsearch and anagram only. Update all when changing layout
+- Interstitials: `fixed inset-0 overflow-hidden`, not `min-h-screen`. Messages escalate (exploratory → constructive → conclusive), never loop
