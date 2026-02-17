@@ -144,37 +144,48 @@ export function PuzzleGrid({
     }
   }, [lastFoundTimestamp]);
 
-  // Grid-level pointer handlers — elementFromPoint enables touch drag
+  // Grid-level pointer handlers — coordinate math for reliable touch drag
+  const cellToRowCol = useCallback(
+    (clientX: number, clientY: number) => {
+      if (!containerRef.current) return null;
+      const rect = containerRef.current.getBoundingClientRect();
+      const pad = mobile ? 5 : 12;
+      const gap = mobile ? 2 : 0;
+      const step = cellSize + gap;
+      const col = Math.floor((clientX - rect.left - pad) / step);
+      const row = Math.floor((clientY - rect.top - pad) / step);
+      return { row, col };
+    },
+    [cellSize, mobile]
+  );
+
   const handleGridPointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      const target = (e.target as HTMLElement).closest("[data-row]") as HTMLElement | null;
-      if (!target) return;
-      const row = parseInt(target.dataset.row!, 10);
-      const col = parseInt(target.dataset.col!, 10);
+      const pos = cellToRowCol(e.clientX, e.clientY);
+      if (!pos || pos.row < 0 || pos.row >= rows || pos.col < 0 || pos.col >= cols) return;
       if (gameStatus !== "playing" && gameStatus !== "idle") return;
       isDragging.current = true;
-      startCell.current = { row, col };
+      startCell.current = pos;
       lastCell.current = null;
-      onCellPointerDown({ row, col });
-      // Capture pointer so pointermove fires reliably on touch
+      onCellPointerDown(pos);
       containerRef.current?.setPointerCapture(e.pointerId);
     },
-    [gameStatus, onCellPointerDown]
+    [gameStatus, cols, rows, cellToRowCol, onCellPointerDown]
   );
 
   const handleGridPointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (!isDragging.current || !startCell.current) return;
-      const target = (document.elementFromPoint(e.clientX, e.clientY) as HTMLElement)?.closest("[data-row]") as HTMLElement | null;
-      if (!target) return;
-      const row = parseInt(target.dataset.row!, 10);
-      const col = parseInt(target.dataset.col!, 10);
+      const pos = cellToRowCol(e.clientX, e.clientY);
+      if (!pos) return;
+      const row = Math.max(0, Math.min(rows - 1, pos.row));
+      const col = Math.max(0, Math.min(cols - 1, pos.col));
       if (lastCell.current?.row === row && lastCell.current?.col === col) return;
       lastCell.current = { row, col };
       const snapped = getSnappedCells(startCell.current, { row, col }, gridSize, cols, rows);
       onSelectionChange(snapped);
     },
-    [gridSize, cols, rows, onSelectionChange]
+    [gridSize, cols, rows, cellToRowCol, onSelectionChange]
   );
 
   const handlePointerUp = useCallback(() => {
