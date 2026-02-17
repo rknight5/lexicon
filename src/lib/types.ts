@@ -253,9 +253,9 @@ export const DIFFICULTY_CONFIG = {
     weightedFill: true,
   },
   medium: {
-    gridSize: 13,
+    gridSize: 12,
     gridCols: 10,
-    gridRows: 13,
+    gridRows: 12,
     minWords: 12,
     maxWords: 12,
     directions: [
@@ -263,13 +263,13 @@ export const DIFFICULTY_CONFIG = {
       "downRight", "downLeft", "upRight", "upLeft",
     ] as Direction[],
     label: "Medium",
-    description: "10×13 grid, 12 words, all 8 directions",
+    description: "10×12 grid, 12 words, all 8 directions",
     weightedFill: true,
   },
   hard: {
-    gridSize: 15,
-    gridCols: 12,
-    gridRows: 15,
+    gridSize: 12,
+    gridCols: 10,
+    gridRows: 12,
     minWords: 15,
     maxWords: 15,
     directions: [
@@ -277,7 +277,7 @@ export const DIFFICULTY_CONFIG = {
       "downRight", "downLeft", "upRight", "upLeft",
     ] as Direction[],
     label: "Hard",
-    description: "12×15 grid, 15 words, all 8 directions, includes obscure terms",
+    description: "10×12 grid, 15 words, all 8 directions, includes obscure terms",
     weightedFill: false,
   },
 } as const;

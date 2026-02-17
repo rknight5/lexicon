@@ -378,17 +378,19 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
           </div>
         </div>
 
-        {/* Progress bar */}
-        <WordProgress
-          found={state.foundWords.length}
-          total={puzzle.words.length}
-        />
+        {/* Progress bar — clean divider between grid and pills */}
+        <div style={{ padding: "12px 18px 10px" }}>
+          <WordProgress
+            found={state.foundWords.length}
+            total={puzzle.words.length}
+          />
+        </div>
 
-        {/* Word pills — scrollable zone */}
+        {/* Word pills — independently scrollable zone */}
         <div
           className="flex-1 overflow-y-auto ws-pills-scroll"
           style={{
-            padding: "4px 18px 12px",
+            padding: "0 18px 12px",
             paddingBottom: "calc(env(safe-area-inset-bottom, 34px) + 12px)",
           }}
         >
