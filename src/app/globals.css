@@ -231,3 +231,35 @@ body {
 .animate-tile-pop {
   animation: tile-pop 0.15s ease-out;
 }
+
+/* Trivia animations */
+@keyframes answer-correct {
+  0% { background: rgba(52, 211, 153, 0.2); transform: scale(1); }
+  50% { background: rgba(52, 211, 153, 0.35); transform: scale(1.02); }
+  100% { background: rgba(52, 211, 153, 0.2); transform: scale(1); }
+}
+
+@keyframes answer-wrong {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+@keyframes timer-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-answer-correct {
+  animation: answer-correct 0.3s ease-out;
+}
+
+.animate-answer-wrong {
+  animation: answer-wrong 0.3s ease-in-out;
+}
+
+.animate-timer-pulse {
+  animation: timer-pulse 0.5s ease-in-out infinite;
+}

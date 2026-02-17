@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { suggestCategories, generatePuzzleWords, generateCrosswordWords, generateAnagramWords } from "@/lib/claude";
+import { suggestCategories, generatePuzzleWords, generateCrosswordWords, generateAnagramWords, generateTriviaQuestions } from "@/lib/claude";
 import { generateGrid } from "@/lib/games/wordsearch/gridGenerator";
 import { generateCrosswordGrid } from "@/lib/games/crossword/gridGenerator";
-import { DIFFICULTY_CONFIG, CROSSWORD_DIFFICULTY_CONFIG, ANAGRAM_DIFFICULTY_CONFIG } from "@/lib/types";
-import type { Difficulty, GameType, PlacedWord, PuzzleData, CrosswordPuzzleData, AnagramPuzzleData } from "@/lib/types";
+import { DIFFICULTY_CONFIG, CROSSWORD_DIFFICULTY_CONFIG, ANAGRAM_DIFFICULTY_CONFIG, TRIVIA_DIFFICULTY_CONFIG } from "@/lib/types";
+import type { Difficulty, GameType, PlacedWord, PuzzleData, CrosswordPuzzleData, AnagramPuzzleData, TriviaPuzzleData } from "@/lib/types";
 
 function scrambleWord(word: string): string {
   const letters = word.split("");
@@ -115,6 +115,32 @@ export async function POST(request: NextRequest) {
       const puzzle: AnagramPuzzleData = {
         title,
         words: anagramWords,
+        funFact,
+        difficulty,
+      };
+
+      return NextResponse.json(puzzle);
+    }
+
+    // ---- Trivia generation ----
+    if (gameType === "trivia") {
+      const config = TRIVIA_DIFFICULTY_CONFIG[difficulty];
+      if (!config) {
+        return NextResponse.json(
+          { error: "Invalid difficulty. Must be: easy, medium, or hard" },
+          { status: 400 }
+        );
+      }
+
+      const { title, questions, funFact } = await generateTriviaQuestions(
+        topic,
+        difficulty,
+        focusCategories
+      );
+
+      const puzzle: TriviaPuzzleData = {
+        title,
+        questions,
         funFact,
         difficulty,
       };

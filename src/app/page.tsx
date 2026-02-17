@@ -124,7 +124,9 @@ export default function HomePage() {
         ? "/puzzle/crossword"
         : autoSave.gameType === "anagram"
           ? "/puzzle/anagram"
-          : "/puzzle/wordsearch";
+          : autoSave.gameType === "trivia"
+            ? "/puzzle/trivia"
+            : "/puzzle/wordsearch";
 
     sessionStorage.setItem(storageKey, JSON.stringify(autoSave.puzzleData));
     sessionStorage.setItem(STORAGE_KEYS.GAME_STATE, JSON.stringify(autoSave.gameState));

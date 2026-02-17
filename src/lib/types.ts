@@ -97,7 +97,7 @@ export type WordSearchAction =
 // Crossword specific types
 // ============================================
 
-export type GameType = "wordsearch" | "crossword" | "anagram";
+export type GameType = "wordsearch" | "crossword" | "anagram" | "trivia";
 
 export interface CrosswordCell {
   letter: string | null; // null = black square
@@ -196,6 +196,49 @@ export type AnagramAction =
   | { type: "PAUSE" }
   | { type: "RESUME" }
   | { type: "RESTORE_GAME"; savedState: AnagramGameState };
+
+// ============================================
+// Trivia specific types
+// ============================================
+
+export interface TriviaQuestion {
+  question: string;
+  type: "mc" | "tf";
+  options: string[];
+  correctIndex: number;
+  category?: string;
+}
+
+export interface TriviaPuzzleData {
+  title: string;
+  questions: TriviaQuestion[];
+  funFact: string;
+  difficulty: Difficulty;
+}
+
+export interface TriviaGameState {
+  puzzle: TriviaPuzzleData;
+  currentIndex: number;
+  answers: ("correct" | "wrong" | "skipped")[];
+  score: number;
+  livesRemaining: number;
+  hintsUsed: number;
+  eliminatedOptions: number[][];
+  elapsedSeconds: number;
+  timerRunning: boolean;
+  gameStatus: "idle" | "playing" | "paused" | "won" | "lost";
+}
+
+export type TriviaAction =
+  | { type: "START_GAME" }
+  | { type: "SELECT_ANSWER"; index: number; timeRemaining: number; timeTotal: number }
+  | { type: "USE_HINT" }
+  | { type: "TIME_UP" }
+  | { type: "NEXT_QUESTION" }
+  | { type: "TICK_TIMER" }
+  | { type: "PAUSE" }
+  | { type: "RESUME" }
+  | { type: "RESTORE_GAME"; savedState: TriviaGameState };
 
 // ============================================
 // Storage types
@@ -342,5 +385,29 @@ export const ANAGRAM_DIFFICULTY_CONFIG = {
     lives: 3,
     label: "Hard",
     description: "10 long words, no clues",
+  },
+} as const;
+
+export const TRIVIA_DIFFICULTY_CONFIG = {
+  easy: {
+    timePerQuestion: 20,
+    questionCount: 10,
+    lives: 3,
+    label: "Easy",
+    description: "10 questions, 20s each, straightforward",
+  },
+  medium: {
+    timePerQuestion: 15,
+    questionCount: 15,
+    lives: 3,
+    label: "Medium",
+    description: "15 questions, 15s each, moderate",
+  },
+  hard: {
+    timePerQuestion: 10,
+    questionCount: 20,
+    lives: 3,
+    label: "Hard",
+    description: "20 questions, 10s each, deep trivia",
   },
 } as const;

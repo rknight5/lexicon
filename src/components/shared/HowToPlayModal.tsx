@@ -12,6 +12,7 @@ const GAME_LABELS: Record<GameType, string> = {
   wordsearch: "Word Search",
   crossword: "Crossword",
   anagram: "Anagram",
+  trivia: "Trivia",
 };
 
 const GAME_STEPS: Record<GameType, { emoji: string; text: string }[]> = {
@@ -32,6 +33,12 @@ const GAME_STEPS: Record<GameType, { emoji: string; text: string }[]> = {
     { emoji: "\ud83d\udca1", text: "Use the clue to figure out the word." },
     { emoji: "\u2705", text: "Submit when all slots are filled." },
     { emoji: "\u23ed\ufe0f", text: "Skip to move to the next word." },
+  ],
+  trivia: [
+    { emoji: "\u23f0", text: "Read the question before time runs out." },
+    { emoji: "\ud83d\udc46", text: "Tap an answer to submit." },
+    { emoji: "\ud83d\udca1", text: "Use hints to eliminate a wrong answer (multiple choice only)." },
+    { emoji: "\u26a1", text: "Earn bonus points for fast answers." },
   ],
 };
 

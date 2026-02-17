@@ -1,12 +1,12 @@
 import { get, set, del, keys } from "idb-keyval";
-import type { GameType, Difficulty, PuzzleData, CrosswordPuzzleData, AnagramPuzzleData } from "./types";
+import type { GameType, Difficulty, PuzzleData, CrosswordPuzzleData, AnagramPuzzleData, TriviaPuzzleData } from "./types";
 
 export interface OfflinePuzzle {
   id: string;
   gameType: GameType;
   title: string;
   difficulty: Difficulty;
-  puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData;
+  puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData | TriviaPuzzleData;
   savedAt: string;
 }
 

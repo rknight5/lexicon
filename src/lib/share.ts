@@ -24,12 +24,17 @@ interface AnagramShareCard extends ShareCardBase {
   gameType: "anagram";
 }
 
-export type ShareCardData = WordSearchShareCard | CrosswordShareCard | AnagramShareCard;
+interface TriviaShareCard extends ShareCardBase {
+  gameType: "trivia";
+}
+
+export type ShareCardData = WordSearchShareCard | CrosswordShareCard | AnagramShareCard | TriviaShareCard;
 
 const GAME_LABELS: Record<GameType, string> = {
   wordsearch: "Word Search",
   crossword: "Crossword",
   anagram: "Anagram",
+  trivia: "Trivia",
 };
 
 const DIFFICULTY_LABELS: Record<Difficulty, string> = {

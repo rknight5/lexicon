@@ -23,3 +23,17 @@ export function calculateScore(
   const livesBonus = livesRemaining >= 3 ? 1.5 : livesRemaining === 2 ? 1.25 : 1;
   return Math.round(base * diffMultiplier * livesBonus);
 }
+
+/**
+ * Per-question trivia scoring.
+ * Base 100pts × difficulty multiplier × speed bonus (1.0–2.0x based on time remaining).
+ */
+export function calculateTriviaQuestionScore(
+  difficulty: Difficulty,
+  timeRemaining: number,
+  timeTotal: number
+): number {
+  const diffMultiplier = DIFFICULTY_MULTIPLIER[difficulty];
+  const speedBonus = 1 + (timeRemaining / timeTotal);
+  return Math.round(POINTS_PER_WORD * diffMultiplier * speedBonus);
+}

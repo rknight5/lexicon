@@ -1,4 +1,4 @@
-import type { PuzzleResult, PuzzleData, CrosswordPuzzleData, AnagramPuzzleData, GameType, Difficulty } from "./types";
+import type { PuzzleResult, PuzzleData, CrosswordPuzzleData, AnagramPuzzleData, TriviaPuzzleData, GameType, Difficulty } from "./types";
 import { saveOfflinePuzzle, deleteOfflinePuzzle, getAllOfflinePuzzles, getOfflinePuzzle } from "./offline-storage";
 import { STORAGE_KEYS } from "./storage-keys";
 
@@ -47,6 +47,7 @@ export async function getStats(): Promise<PlayerStats> {
       wordsearch: { easy: 0, medium: 0, hard: 0 },
       crossword: { easy: 0, medium: 0, hard: 0 },
       anagram: { easy: 0, medium: 0, hard: 0 },
+      trivia: { easy: 0, medium: 0, hard: 0 },
     },
   };
   try {
@@ -73,7 +74,7 @@ export async function savePuzzle(
   gameType: GameType,
   topic: string,
   difficulty: Difficulty,
-  puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData
+  puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData | TriviaPuzzleData
 ): Promise<{ id: string | null; error?: SaveError }> {
   try {
     const res = await fetch("/api/puzzles", {
@@ -134,7 +135,7 @@ export async function getSavedPuzzles(): Promise<SavedPuzzleSummary[]> {
 
 export async function loadSavedPuzzle(
   id: string
-): Promise<{ gameType: GameType; puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData } | null> {
+): Promise<{ gameType: GameType; puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData | TriviaPuzzleData } | null> {
   // Try server first
   try {
     const res = await fetch(`/api/puzzles/${id}`, { credentials: "include" });
@@ -173,7 +174,7 @@ export interface AutoSaveSummary {
   gameType: GameType;
   title: string;
   difficulty: Difficulty;
-  puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData;
+  puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData | TriviaPuzzleData;
   gameState: Record<string, unknown>;
   updatedAt: string;
 }
@@ -192,7 +193,7 @@ export async function upsertAutoSave(
   gameType: GameType,
   title: string,
   difficulty: Difficulty,
-  puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData,
+  puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData | TriviaPuzzleData,
   gameState: Record<string, unknown>
 ): Promise<{ ok: boolean; error?: SaveError }> {
   try {

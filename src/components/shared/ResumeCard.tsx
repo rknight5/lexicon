@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Grid3X3, Shuffle, Trash2, Bookmark, Flame, Heart, ChevronRight } from "lucide-react";
+import { Search, Grid3X3, Shuffle, Brain, Trash2, Bookmark, Flame, Heart, ChevronRight } from "lucide-react";
 import type { AutoSaveSummary } from "@/lib/storage";
 
 interface ResumeCardProps {
@@ -15,6 +15,7 @@ const GAME_TYPE_ICON: Record<string, React.ReactNode> = {
   wordsearch: <Search className="w-5 h-5 text-white/40" />,
   crossword: <Grid3X3 className="w-5 h-5 text-white/40" />,
   anagram: <Shuffle className="w-5 h-5 text-white/40" />,
+  trivia: <Brain className="w-5 h-5 text-white/40" />,
 };
 
 function getProgress(autoSave: AutoSaveSummary): { count: string; label: string; livesRemaining: number } {
@@ -30,6 +31,13 @@ function getProgress(autoSave: AutoSaveSummary): { count: string; label: string;
     const solvedClues = (gs.solvedClues as number[]) ?? [];
     const totalClues = (autoSave.puzzleData as { clues: unknown[] }).clues?.length ?? 0;
     return { count: `${solvedClues.length}/${totalClues}`, label: "clues solved", livesRemaining: (gs.livesRemaining as number) ?? 3 };
+  }
+
+  if (autoSave.gameType === "trivia") {
+    const answers = (gs.answers as string[]) ?? [];
+    const correctCount = answers.filter((a) => a === "correct").length;
+    const totalQuestions = (autoSave.puzzleData as { questions: unknown[] }).questions?.length ?? 0;
+    return { count: `${correctCount}/${totalQuestions}`, label: "questions answered", livesRemaining: (gs.livesRemaining as number) ?? 3 };
   }
 
   // anagram

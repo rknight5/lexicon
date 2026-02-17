@@ -71,7 +71,9 @@ export default function SavedPage() {
         ? "/puzzle/crossword"
         : loaded.gameType === "anagram"
           ? "/puzzle/anagram"
-          : "/puzzle/wordsearch";
+          : loaded.gameType === "trivia"
+            ? "/puzzle/trivia"
+            : "/puzzle/wordsearch";
 
     try {
       sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);

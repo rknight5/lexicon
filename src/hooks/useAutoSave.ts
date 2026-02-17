@@ -7,13 +7,14 @@ import type {
   PuzzleData,
   CrosswordPuzzleData,
   AnagramPuzzleData,
+  TriviaPuzzleData,
 } from "@/lib/types";
 
 interface UseAutoSaveOptions {
   gameType: GameType;
   title: string;
   difficulty: Difficulty;
-  puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData;
+  puzzleData: PuzzleData | CrosswordPuzzleData | AnagramPuzzleData | TriviaPuzzleData;
   gameStatus: string;
   getGameState: () => Record<string, unknown>;
   onSessionExpired?: () => void;

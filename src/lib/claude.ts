@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { CategorySuggestion, Difficulty, WordEntry } from "./types";
+import type { CategorySuggestion, Difficulty, WordEntry, TriviaQuestion } from "./types";
 import { parseClaudeResponse, validateAndFilterWords } from "./validation";
-import { DIFFICULTY_CONFIG, CROSSWORD_DIFFICULTY_CONFIG, ANAGRAM_DIFFICULTY_CONFIG } from "./types";
+import { DIFFICULTY_CONFIG, CROSSWORD_DIFFICULTY_CONFIG, ANAGRAM_DIFFICULTY_CONFIG, TRIVIA_DIFFICULTY_CONFIG } from "./types";
 
 const anthropic = new Anthropic();
 
@@ -383,5 +383,136 @@ export async function generateAnagramWords(
 
   throw new Error(
     "Couldn't generate enough words for that topic. Try something broader."
+  );
+}
+
+// ============================================
+// Trivia question generation (Sonnet — quality)
+// ============================================
+
+const TRIVIA_SYSTEM_PROMPT = `You are a trivia question generator. Given a user's topic of interest, generate a set of trivia questions mixing multiple choice and true/false formats.
+
+Rules:
+- Generate the number of questions specified in the config
+- Mix of question types: roughly 70% multiple choice ("mc") and 30% true/false ("tf")
+- Multiple choice questions MUST have exactly 4 options. correctIndex is 0-based (0, 1, 2, or 3)
+- True/false questions MUST have exactly 2 options: ["True", "False"]. correctIndex is 0 (True) or 1 (False)
+- All questions must be factually accurate and verifiable
+- Only include questions related to the requested focus categories
+- Question difficulty should match the requested level:
+  - Easy: straightforward, common knowledge about the topic
+  - Medium: requires moderate topic knowledge, some tricky options
+  - Hard: deep trivia, obscure facts, closely similar answer options
+- Shuffle the position of the correct answer among the options (don't always put it first or last)
+- Include a brief, interesting fun fact related to the topic
+- Vary your questions: prioritize surprising facts and lesser-known trivia over the most obvious questions
+
+Respond with ONLY valid JSON in this exact format, with no markdown fences, no preamble, no explanation:
+{
+  "title": "A catchy title for the trivia set",
+  "questions": [
+    { "question": "What is...?", "type": "mc", "options": ["A", "B", "C", "D"], "correctIndex": 2, "category": "Category Name" },
+    { "question": "True or false: ...", "type": "tf", "options": ["True", "False"], "correctIndex": 0, "category": "Category Name" }
+  ],
+  "funFact": "An interesting fact about the topic"
+}`;
+
+function buildTriviaUserMessage(
+  topic: string,
+  difficulty: Difficulty,
+  focusCategories: string[],
+  attempt: number
+): string {
+  const config = TRIVIA_DIFFICULTY_CONFIG[difficulty];
+  let message = `Topic: ${topic}
+Difficulty: ${difficulty}
+Question count: ${config.questionCount}
+Focus categories: ${focusCategories.join(", ")}`;
+
+  if (attempt === 2) {
+    message +=
+      "\n\nNote: If the topic is narrow, broaden to include related topics, influences, and cultural references.";
+  }
+  if (attempt === 3) {
+    message +=
+      "\n\nNote: Generate any questions broadly related to this topic area. Ignore category restrictions — just produce enough valid trivia questions.";
+  }
+
+  return message;
+}
+
+function validateTriviaQuestions(questions: TriviaQuestion[], minCount: number): TriviaQuestion[] {
+  return questions.filter((q) => {
+    if (!q.question || typeof q.question !== "string") return false;
+    if (q.type === "mc") {
+      if (!Array.isArray(q.options) || q.options.length !== 4) return false;
+      if (typeof q.correctIndex !== "number" || q.correctIndex < 0 || q.correctIndex > 3) return false;
+    } else if (q.type === "tf") {
+      if (!Array.isArray(q.options) || q.options.length !== 2) return false;
+      if (typeof q.correctIndex !== "number" || q.correctIndex < 0 || q.correctIndex > 1) return false;
+    } else {
+      return false;
+    }
+    return true;
+  }).slice(0, minCount + 5);
+}
+
+export async function generateTriviaQuestions(
+  topic: string,
+  difficulty: Difficulty,
+  focusCategories: string[]
+): Promise<{ title: string; questions: TriviaQuestion[]; funFact: string }> {
+  const config = TRIVIA_DIFFICULTY_CONFIG[difficulty];
+
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const response = await anthropic.messages.create({
+      model: "claude-sonnet-4-5-20250929",
+      max_tokens: 4096,
+      temperature: 0.9,
+      system: TRIVIA_SYSTEM_PROMPT,
+      messages: [
+        {
+          role: "user",
+          content: buildTriviaUserMessage(topic, difficulty, focusCategories, attempt),
+        },
+      ],
+    });
+
+    if (response.stop_reason === "max_tokens") {
+      throw new Error(
+        "Response was truncated. The topic may be too broad — try a more specific topic."
+      );
+    }
+
+    const text =
+      response.content[0].type === "text" ? response.content[0].text : "";
+
+    try {
+      let cleaned = text.trim();
+      cleaned = cleaned
+        .replace(/^```(?:json)?\s*\n?/i, "")
+        .replace(/\n?```\s*$/i, "");
+      const jsonStart = cleaned.indexOf("{");
+      if (jsonStart > 0) cleaned = cleaned.slice(jsonStart);
+      const jsonEnd = cleaned.lastIndexOf("}");
+      if (jsonEnd >= 0) cleaned = cleaned.slice(0, jsonEnd + 1);
+
+      const parsed = JSON.parse(cleaned);
+      const validated = validateTriviaQuestions(parsed.questions ?? [], config.questionCount);
+
+      if (validated.length >= config.questionCount) {
+        return {
+          title: parsed.title || `${topic} Trivia`,
+          questions: validated.slice(0, config.questionCount),
+          funFact: parsed.funFact || "",
+        };
+      }
+    } catch {
+      if (attempt === 3) throw new Error("Failed to parse trivia data after 3 attempts");
+    }
+  }
+
+  throw new Error(
+    "Couldn't generate enough questions for that topic. Try something broader."
   );
 }

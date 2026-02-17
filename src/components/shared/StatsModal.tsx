@@ -147,6 +147,7 @@ export function StatsModal({ onClose }: StatsModalProps) {
                 { label: "Word Search", key: "wordsearch" },
                 { label: "Crossword", key: "crossword" },
                 { label: "Anagram", key: "anagram" },
+                { label: "Trivia", key: "trivia" },
               ] as const).map((game, idx) => (
                 <div
                   key={game.key}

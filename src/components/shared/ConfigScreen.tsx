@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { X, Shield, Flame, Skull, Sparkles, Search, Grid3X3, Shuffle, Info, Check } from "lucide-react";
+import { X, Shield, Flame, Skull, Sparkles, Search, Grid3X3, Shuffle, Brain, Info, Check } from "lucide-react";
 import type { Difficulty, GameType, CategorySuggestion } from "@/lib/types";
 import { LoadingOverlay } from "@/components/shared/LoadingOverlay";
 import { STORAGE_KEYS, puzzleKeyForGameType } from "@/lib/storage-keys";
@@ -144,7 +144,9 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
         ? "/puzzle/crossword"
         : gameType === "anagram"
           ? "/puzzle/anagram"
-          : "/puzzle/wordsearch";
+          : gameType === "trivia"
+            ? "/puzzle/trivia"
+            : "/puzzle/wordsearch";
       try {
         sessionStorage.setItem(storageKey, JSON.stringify(puzzle));
       } catch {
@@ -268,11 +270,12 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
             <label className="block font-heading text-sm mb-3 text-white/70">
               Game Type
             </label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {([
                 { value: "wordsearch" as GameType, label: "Word Search", desc: "Find hidden words in a grid", icon: <Search className="w-7 h-7" /> },
                 { value: "crossword" as GameType, label: "Crossword", desc: "Solve clues in a mini grid", icon: <Grid3X3 className="w-7 h-7" /> },
                 { value: "anagram" as GameType, label: "Anagram", desc: "Unscramble jumbled words", icon: <Shuffle className="w-7 h-7" /> },
+                { value: "trivia" as GameType, label: "Trivia", desc: "Answer topic-based questions", icon: <Brain className="w-7 h-7" /> },
               ]).map((g) => (
                 <button
                   key={g.value}
