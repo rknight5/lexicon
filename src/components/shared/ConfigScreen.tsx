@@ -61,7 +61,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
   useEffect(() => {
     if (prefetchedCategories && prefetchedCategories.length > 0) {
       setCategories(prefetchedCategories);
-      setSelectedCategories(prefetchedCategories.map((c) => c.name));
+      setSelectedCategories([]);
       setLoadingCategories(false);
       return;
     }
@@ -83,7 +83,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
       const data = await res.json();
       if (data.categories && data.categories.length > 0) {
         setCategories(data.categories);
-        setSelectedCategories(data.categories.map((c: CategorySuggestion) => c.name));
+        setSelectedCategories([]);
       } else {
         setCategoryError(true);
       }
