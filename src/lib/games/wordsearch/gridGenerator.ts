@@ -89,12 +89,15 @@ function shuffle<T>(array: T[]): T[] {
 
 export function generateGrid(
   words: string[],
-  gridSize: number,
+  gridCols: number,
   allowedDirections: Direction[],
-  weightedFill: boolean = true
+  weightedFill: boolean = true,
+  gridRows?: number
 ): GridResult {
-  const grid: string[][] = Array.from({ length: gridSize }, () =>
-    Array(gridSize).fill("")
+  const rows = gridRows ?? gridCols;
+  const cols = gridCols;
+  const grid: string[][] = Array.from({ length: rows }, () =>
+    Array(cols).fill("")
   );
   const placedWords: PlacementResult[] = [];
 
@@ -111,8 +114,8 @@ export function generateGrid(
 
     for (let attempt = 0; attempt < MAX_PLACEMENT_ATTEMPTS && !placed; attempt++) {
       const direction = shuffledDirs[attempt % shuffledDirs.length];
-      const startRow = Math.floor(Math.random() * gridSize);
-      const startCol = Math.floor(Math.random() * gridSize);
+      const startRow = Math.floor(Math.random() * rows);
+      const startCol = Math.floor(Math.random() * cols);
 
       if (canPlaceWord(grid, word, startRow, startCol, direction)) {
         placeWord(grid, word, startRow, startCol, direction);
@@ -125,8 +128,8 @@ export function generateGrid(
   }
 
   // Fill remaining empty cells
-  for (let row = 0; row < gridSize; row++) {
-    for (let col = 0; col < gridSize; col++) {
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
       if (grid[row][col] === "") {
         grid[row][col] = getRandomFillLetter(weightedFill);
       }

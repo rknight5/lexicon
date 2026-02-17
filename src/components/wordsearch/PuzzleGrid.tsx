@@ -6,6 +6,8 @@ import type { CellPosition } from "@/lib/types";
 interface PuzzleGridProps {
   grid: string[][];
   gridSize: number;
+  gridCols?: number;
+  gridRows?: number;
   selectedCells: CellPosition[];
   foundPaths: CellPosition[][];
   gameStatus: string;
@@ -33,8 +35,12 @@ function isCellFound(foundPaths: CellPosition[][], row: number, col: number): bo
 export function getSnappedCells(
   start: CellPosition,
   current: CellPosition,
-  gridSize: number
+  gridSize: number,
+  gridCols?: number,
+  gridRows?: number
 ): CellPosition[] {
+  const cols = gridCols ?? gridSize;
+  const rows = gridRows ?? gridSize;
   const dr = current.row - start.row;
   const dc = current.col - start.col;
 
@@ -57,7 +63,7 @@ export function getSnappedCells(
   for (let i = 0; i <= distance; i++) {
     const row = start.row + i * dirR;
     const col = start.col + i * dirC;
-    if (row < 0 || row >= gridSize || col < 0 || col >= gridSize) break;
+    if (row < 0 || row >= rows || col < 0 || col >= cols) break;
     cells.push({ row, col });
   }
 
@@ -67,6 +73,8 @@ export function getSnappedCells(
 export function PuzzleGrid({
   grid,
   gridSize,
+  gridCols,
+  gridRows,
   selectedCells,
   foundPaths,
   gameStatus,
@@ -77,30 +85,47 @@ export function PuzzleGrid({
   lastMissTimestamp = 0,
   lastFoundTimestamp = 0,
 }: PuzzleGridProps) {
+  const cols = gridCols ?? gridSize;
+  const rows = gridRows ?? gridSize;
   const [shaking, setShaking] = useState(false);
   const [flashingGreen, setFlashingGreen] = useState(false);
   const isDragging = useRef(false);
   const startCell = useRef<CellPosition | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [cellSize, setCellSize] = useState(28);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Dynamically compute cell size to fit within the container
   useEffect(() => {
     const measure = () => {
       if (!containerRef.current?.parentElement) return;
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
       const parentWidth = containerRef.current.parentElement.clientWidth;
-      const padding = 24; // p-3 = 12px each side
-      const available = parentWidth - padding;
-      const maxSize = gridSize <= 15 ? 40 : 32; // desktop max
-      const computed = Math.floor(available / gridSize);
-      setCellSize(Math.max(16, Math.min(maxSize, computed)));
+
+      if (mobile) {
+        // Mobile: fit grid width with padding, account for gap
+        const wrapperPadding = 28; // 14px each side
+        const containerPadding = 10; // 5px each side
+        const gapTotal = (cols - 1) * 2; // 2px gap
+        const available = parentWidth - wrapperPadding - containerPadding - gapTotal;
+        const computed = Math.floor(available / cols);
+        setCellSize(Math.max(16, Math.min(36, computed)));
+      } else {
+        // Desktop: original behavior
+        const padding = 24;
+        const available = parentWidth - padding;
+        const maxSize = cols <= 15 ? 40 : 32;
+        const computed = Math.floor(available / cols);
+        setCellSize(Math.max(16, Math.min(maxSize, computed)));
+      }
     };
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
-  }, [gridSize]);
+  }, [cols]);
 
-  const fontSize = Math.max(12, Math.floor(cellSize * 0.7));
+  const fontSize = isMobile ? 13 : Math.max(12, Math.floor(cellSize * 0.7));
 
   useEffect(() => {
     if (lastMissTimestamp > 0) {
@@ -131,10 +156,10 @@ export function PuzzleGrid({
   const handlePointerEnter = useCallback(
     (row: number, col: number) => {
       if (!isDragging.current || !startCell.current) return;
-      const snapped = getSnappedCells(startCell.current, { row, col }, gridSize);
+      const snapped = getSnappedCells(startCell.current, { row, col }, gridSize, cols, rows);
       onSelectionChange(snapped);
     },
-    [gridSize, onSelectionChange]
+    [gridSize, cols, rows, onSelectionChange]
   );
 
   const handlePointerUp = useCallback(() => {
@@ -151,14 +176,20 @@ export function PuzzleGrid({
     }
   }, [onPointerLeave]);
 
+  const cellClass = isMobile ? "ws-grid-cell" : "grid-cell";
+  const selectingClass = isMobile ? "ws-grid-cell--selecting" : "grid-cell--selecting";
+  const foundClass = isMobile ? "ws-grid-cell--found" : "grid-cell--found";
+
   return (
     <div
       ref={containerRef}
-      className={`inline-grid gap-0 p-3 rounded-xl select-none ${shaking ? "animate-shake" : ""}`}
+      className={`inline-grid select-none ${shaking ? "animate-shake" : ""}`}
       style={{
-        gridTemplateColumns: `repeat(${gridSize}, ${cellSize}px)`,
-        background: "#FFFFFF",
-        borderRadius: "12px",
+        gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
+        gap: isMobile ? "2px" : "0px",
+        padding: isMobile ? "5px" : "12px",
+        background: isMobile ? "rgba(255, 255, 255, 0.015)" : "#FFFFFF",
+        borderRadius: isMobile ? "10px" : "12px",
         touchAction: "none",
       }}
       onPointerUp={handlePointerUp}
@@ -174,13 +205,19 @@ export function PuzzleGrid({
             <div
               key={`${rowIdx}-${colIdx}`}
               className={`
-                grid-cell
-                ${isSelected ? "grid-cell--selecting" : ""}
-                ${isFound ? "grid-cell--found" : ""}
+                ${cellClass}
+                ${isSelected ? selectingClass : ""}
+                ${isFound ? foundClass : ""}
                 flex items-center justify-center
-                font-grid cursor-pointer
+                cursor-pointer
               `}
-              style={{ width: cellSize, height: cellSize, fontSize }}
+              style={{
+                width: cellSize,
+                height: cellSize,
+                fontSize,
+                fontFamily: isMobile ? "var(--font-ws-mono)" : "var(--font-grid)",
+                aspectRatio: "1",
+              }}
               onPointerDown={() => handlePointerDown(rowIdx, colIdx)}
               onPointerEnter={() => handlePointerEnter(rowIdx, colIdx)}
             >

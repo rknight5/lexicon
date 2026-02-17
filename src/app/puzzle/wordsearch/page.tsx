@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { PuzzleGrid } from "@/components/wordsearch/PuzzleGrid";
 import { WordProgress } from "@/components/wordsearch/WordProgress";
 import { WordList } from "@/components/wordsearch/WordList";
+import { WordSearchHeader } from "@/components/wordsearch/WordSearchHeader";
+import { WordSearchStatsRow } from "@/components/wordsearch/WordSearchStatsRow";
+import { WordSearchGameOver } from "@/components/wordsearch/WordSearchGameOver";
+import { WordSearchCompletion } from "@/components/wordsearch/WordSearchCompletion";
 import { GameBar } from "@/components/shared/GameBar";
 import { GameStatsBar } from "@/components/shared/GameStatsBar";
 import { PauseMenu } from "@/components/shared/PauseMenu";
@@ -17,7 +21,7 @@ import { saveResult, savePuzzle } from "@/lib/storage";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { Toast } from "@/components/shared/Toast";
 import { SessionExpiredModal } from "@/components/shared/SessionExpiredModal";
-import { Bookmark, Shield, Flame, Skull, Heart, Pencil } from "lucide-react";
+import { Bookmark } from "lucide-react";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
 import type { PuzzleData } from "@/lib/types";
 
@@ -196,22 +200,29 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
   const canHint = (state.gameStatus === "playing" || state.gameStatus === "idle") && state.livesRemaining > 1 &&
     puzzle.words.some((w) => !state.foundWords.includes(w.word) && !state.hintedWords[w.word]);
 
+  const hintsRemaining = 3 - state.hintsUsed;
+
+  const missedWords = puzzle.words.filter((w) => !state.foundWords.includes(w.word));
+
   return (
     <div className="min-h-screen lg:h-screen flex flex-col lg:overflow-hidden">
-      <GameBar
-        difficulty={puzzle.difficulty}
-        onPause={pause}
-        onBack={handleNewTopic}
-        gameStatus={state.gameStatus}
-        title={puzzleTitle}
-        onTitleChange={setPuzzleTitle}
-        onStats={() => setShowStats(true)}
-        onSave={handleSave}
-        isSaved={isSaved || isSaving}
-        onHint={handleRandomHint}
-        canHint={canHint}
-        hintsUsed={state.hintsUsed}
-      />
+      {/* Desktop: GameBar header */}
+      <div className="hidden lg:block">
+        <GameBar
+          difficulty={puzzle.difficulty}
+          onPause={pause}
+          onBack={handleNewTopic}
+          gameStatus={state.gameStatus}
+          title={puzzleTitle}
+          onTitleChange={setPuzzleTitle}
+          onStats={() => setShowStats(true)}
+          onSave={handleSave}
+          isSaved={isSaved || isSaving}
+          onHint={handleRandomHint}
+          canHint={canHint}
+          hintsUsed={state.hintsUsed}
+        />
+      </div>
 
       {/* Desktop: unified game panel */}
       <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pt-0 pb-6">
@@ -225,7 +236,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
             <p>1. Drag across letters to form words</p>
             <p>2. Words can go in any direction</p>
             <p>3. Wrong words cost 1 life</p>
-            <p>4. Hints reveal a word's direction</p>
+            <p>4. Hints reveal a word&apos;s direction</p>
             <p>5. Find all words to win</p>
           </div>
 
@@ -266,6 +277,8 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
               <PuzzleGrid
                 grid={puzzle.grid}
                 gridSize={puzzle.gridSize}
+                gridCols={puzzle.gridCols}
+                gridRows={puzzle.gridRows}
                 selectedCells={state.selectedCells}
                 foundPaths={state.foundPaths}
                 gameStatus={state.gameStatus}
@@ -312,67 +325,71 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
         </div>
       </div>
 
-      {/* Mobile: stacked layout */}
-      <div className="lg:hidden flex-1 flex flex-col items-center px-3 py-3 gap-3">
-        {/* Title + pencil */}
-        <div className="flex items-center justify-center gap-2 w-full">
-          <span className="font-heading font-bold truncate" style={{ fontSize: "1.05rem" }}>{puzzleTitle}</span>
-          <button
-            onClick={() => {
-              const newTitle = prompt("Edit title", puzzleTitle);
-              if (newTitle?.trim()) setPuzzleTitle(newTitle.trim());
-            }}
-            className="flex-shrink-0 text-white/50 hover:text-white/80 transition-colors p-0.5"
-          >
-            <Pencil className="w-3.5 h-3.5" />
-          </button>
-        </div>
+      {/* ═══ Mobile: redesigned layout ═══ */}
+      <div
+        className="lg:hidden flex-1 flex flex-col"
+        style={{ background: "var(--ws-bg)" }}
+      >
+        {/* Fixed header */}
+        <WordSearchHeader
+          title={puzzleTitle}
+          onTitleChange={setPuzzleTitle}
+          onBack={handleNewTopic}
+          onHint={handleRandomHint}
+          canHint={canHint}
+          hintsRemaining={Math.max(0, hintsRemaining)}
+          onPause={pause}
+          gameStatus={state.gameStatus}
+        />
 
-        {/* Lives | score */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5">
-            {[0, 1, 2].map((i) => (
-              <Heart
-                key={i}
-                className={`w-4 h-4 transition-all ${
-                  i < state.livesRemaining ? "text-red-400" : "text-gray-600"
-                }`}
-                fill={i < state.livesRemaining ? "currentColor" : "none"}
-              />
-            ))}
+        {/* Spacer for fixed header + 36px gap */}
+        <div style={{ paddingTop: "calc(env(safe-area-inset-top, 40px) + 50px + 36px)" }} />
+
+        {/* Stats row: hearts + score */}
+        <WordSearchStatsRow
+          livesRemaining={state.livesRemaining}
+          score={score}
+          lastMissTimestamp={lastMissTimestamp}
+        />
+
+        {/* Grid — fixed zone */}
+        <div style={{ padding: "4px 14px" }}>
+          <div className="w-full flex justify-center">
+            <PuzzleGrid
+              grid={puzzle.grid}
+              gridSize={puzzle.gridSize}
+              gridCols={puzzle.gridCols}
+              gridRows={puzzle.gridRows}
+              selectedCells={state.selectedCells}
+              foundPaths={state.foundPaths}
+              gameStatus={state.gameStatus}
+              onCellPointerDown={(cell) => {
+                handleFirstInteraction();
+                startSelection(cell);
+              }}
+              onSelectionChange={setSelection}
+              onPointerUp={completeSelection}
+              onPointerLeave={cancelSelection}
+              lastMissTimestamp={lastMissTimestamp}
+              lastFoundTimestamp={lastFoundTimestamp}
+            />
           </div>
-          <span className="text-white/25">|</span>
-          <span className="text-xs font-heading font-bold text-gold-primary">{score} pts</span>
         </div>
 
-        {/* Grid */}
-        <div className="w-full flex justify-center">
-          <PuzzleGrid
-            grid={puzzle.grid}
-            gridSize={puzzle.gridSize}
-            selectedCells={state.selectedCells}
-            foundPaths={state.foundPaths}
-            gameStatus={state.gameStatus}
-            onCellPointerDown={(cell) => {
-              handleFirstInteraction();
-              startSelection(cell);
-            }}
-            onSelectionChange={setSelection}
-            onPointerUp={completeSelection}
-            onPointerLeave={cancelSelection}
-            lastMissTimestamp={lastMissTimestamp}
-            lastFoundTimestamp={lastFoundTimestamp}
-          />
-        </div>
-
-        {/* Progress below grid */}
+        {/* Progress bar */}
         <WordProgress
           found={state.foundWords.length}
           total={puzzle.words.length}
         />
 
-        {/* Word list — columns */}
-        <div className="w-full px-2">
+        {/* Word pills — scrollable zone */}
+        <div
+          className="flex-1 overflow-y-auto ws-pills-scroll"
+          style={{
+            padding: "4px 18px 12px",
+            paddingBottom: "calc(env(safe-area-inset-bottom, 34px) + 12px)",
+          }}
+        >
           <WordList
             words={puzzle.words}
             foundWords={state.foundWords}
@@ -381,7 +398,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
         </div>
       </div>
 
-      {/* Modals */}
+      {/* ═══ Modals ═══ */}
       {state.gameStatus === "paused" && (
         <PauseMenu
           onResume={resume}
@@ -389,31 +406,70 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
         />
       )}
 
+      {/* Mobile game over */}
       {state.gameStatus === "lost" && (
-        <GameOverModal
-          wordsFound={state.foundWords.length}
-          wordsTotal={puzzle.words.length}
-          elapsedSeconds={state.elapsedSeconds}
-          onTryAgain={handlePlayAgain}
-          onNewTopic={handleNewTopic}
-          onSaveToLibrary={handleSave}
-          isSavedToLibrary={isSaved}
-        />
+        <>
+          <div className="lg:hidden">
+            <WordSearchGameOver
+              wordsFound={state.foundWords.length}
+              wordsTotal={puzzle.words.length}
+              missedWords={missedWords}
+              elapsedSeconds={state.elapsedSeconds}
+              score={score}
+              onTryAgain={handlePlayAgain}
+              onChangeTopic={handleNewTopic}
+              onHome={handleNewTopic}
+              onSaveToLibrary={handleSave}
+              isSavedToLibrary={isSaved}
+            />
+          </div>
+          <div className="hidden lg:block">
+            <GameOverModal
+              wordsFound={state.foundWords.length}
+              wordsTotal={puzzle.words.length}
+              elapsedSeconds={state.elapsedSeconds}
+              onTryAgain={handlePlayAgain}
+              onNewTopic={handleNewTopic}
+              onSaveToLibrary={handleSave}
+              isSavedToLibrary={isSaved}
+            />
+          </div>
+        </>
       )}
 
+      {/* Mobile completion */}
       {state.gameStatus === "won" && (
-        <CompletionModal
-          wordsFound={state.foundWords.length}
-          wordsTotal={puzzle.words.length}
-          elapsedSeconds={state.elapsedSeconds}
-          livesRemaining={state.livesRemaining}
-          score={score}
-          funFact={puzzle.funFact}
-          onPlayAgain={handlePlayAgain}
-          onNewTopic={handleNewTopic}
-          onSaveToLibrary={handleSave}
-          isSavedToLibrary={isSaved}
-        />
+        <>
+          <div className="lg:hidden">
+            <WordSearchCompletion
+              wordsFound={state.foundWords.length}
+              wordsTotal={puzzle.words.length}
+              elapsedSeconds={state.elapsedSeconds}
+              livesRemaining={state.livesRemaining}
+              score={score}
+              funFact={puzzle.funFact}
+              onPlayAgain={handlePlayAgain}
+              onChangeTopic={handleNewTopic}
+              onHome={handleNewTopic}
+              onSaveToLibrary={handleSave}
+              isSavedToLibrary={isSaved}
+            />
+          </div>
+          <div className="hidden lg:block">
+            <CompletionModal
+              wordsFound={state.foundWords.length}
+              wordsTotal={puzzle.words.length}
+              elapsedSeconds={state.elapsedSeconds}
+              livesRemaining={state.livesRemaining}
+              score={score}
+              funFact={puzzle.funFact}
+              onPlayAgain={handlePlayAgain}
+              onNewTopic={handleNewTopic}
+              onSaveToLibrary={handleSave}
+              isSavedToLibrary={isSaved}
+            />
+          </div>
+        </>
       )}
 
       {showStats && <StatsModal onClose={() => setShowStats(false)} />}

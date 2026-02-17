@@ -18,10 +18,18 @@
 
   --color-pink-accent: #FF4081;
 
+  --color-ws-accent: #f7c948;
+  --color-ws-danger: #ff4d6a;
+  --color-ws-success: #34d399;
+  --color-ws-purple: #a78bfa;
+
   --font-display: var(--font-nunito), sans-serif;
   --font-heading: var(--font-nunito), sans-serif;
   --font-body: var(--font-inter), sans-serif;
   --font-grid: var(--font-jetbrains), monospace;
+  --font-ws-body: var(--font-dm-sans), sans-serif;
+  --font-ws-mono: var(--font-space-mono), monospace;
+  --font-ws-serif: var(--font-serif), serif;
 
   --radius-card: 24px;
   --radius-pill: 50px;
@@ -42,6 +50,12 @@
   --glass-bg: rgba(255, 255, 255, 0.08);
   --glass-border: rgba(255, 255, 255, 0.15);
   --glass-hover: rgba(255, 255, 255, 0.15);
+  --ws-bg: #0c0a14;
+  --ws-surface: #161225;
+  --ws-text: #e8e4f0;
+  --ws-text-muted: #8b82a0;
+  --ws-text-dim: #5a5272;
+  --ws-header-bg: rgba(22, 14, 42, 0.85);
 }
 
 html {
@@ -88,6 +102,35 @@ body {
   border-color: rgba(0, 230, 118, 0.4);
 }
 
+/* ── Word search dark grid cells ── */
+
+.ws-grid-cell {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  border: none;
+  border-radius: 2px;
+  transition: all 0.12s ease;
+  font-weight: 700;
+}
+
+.ws-grid-cell:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.ws-grid-cell--selecting,
+.ws-grid-cell--selecting:hover {
+  background: #a78bfa;
+  color: #FFFFFF;
+  box-shadow: 0 0 8px rgba(167, 139, 250, 0.4);
+  transform: scale(1.04);
+}
+
+.ws-grid-cell--found,
+.ws-grid-cell--found:hover {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+}
+
 /* ── Word bank scrollbar ── */
 
 .word-bank-scroll {
@@ -107,6 +150,25 @@ body {
 .word-bank-scroll::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
   border-radius: 2px;
+}
+
+.ws-pills-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ws-pills-scroll::-webkit-scrollbar {
+  width: 2px;
+}
+
+.ws-pills-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ws-pills-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 1px;
 }
 
 /* ── Animations ── */

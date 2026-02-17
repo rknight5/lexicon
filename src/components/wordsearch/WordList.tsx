@@ -21,27 +21,56 @@ interface WordListProps {
 
 export function WordList({ words, foundWords, hintedWords }: WordListProps) {
   return (
-    <div className="grid grid-cols-3 gap-x-4 gap-y-1">
+    <div
+      className="grid"
+      style={{
+        gridTemplateColumns: "1fr 1fr 1fr",
+        gap: 6,
+      }}
+    >
       {words.map((word) => {
         const isFound = foundWords.includes(word.word);
         const hintDirection = hintedWords[word.word];
 
         return (
-          <span
+          <div
             key={word.word}
-            className={`font-bold text-xs tracking-wide font-body flex items-center gap-1.5 ${isFound ? "text-green-accent line-through opacity-50" : "text-white"}`}
+            className="flex items-center justify-center transition-all duration-200"
+            style={{
+              fontFamily: "var(--font-ws-mono)",
+              fontSize: "11.5px",
+              letterSpacing: "0.2px",
+              padding: "7px 6px",
+              borderRadius: 7,
+              background: isFound
+                ? "rgba(52, 211, 153, 0.08)"
+                : "rgba(255, 255, 255, 0.04)",
+              border: `1px solid ${
+                isFound
+                  ? "rgba(52, 211, 153, 0.18)"
+                  : "rgba(255, 255, 255, 0.06)"
+              }`,
+              color: isFound ? "#34d399" : "#e8e4f0",
+              textDecoration: isFound ? "line-through" : "none",
+              textDecorationColor: isFound
+                ? "rgba(52, 211, 153, 0.3)"
+                : undefined,
+              textAlign: "center",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
           >
             {word.word}
-            {isFound && <span className="text-green-accent text-xs no-underline inline-block" style={{ textDecoration: "none" }}>{"\u2713"}</span>}
             {!isFound && hintDirection && (
               <span
-                className="text-sm"
-                style={{ color: "var(--color-gold-primary)" }}
+                className="ml-1"
+                style={{ color: "#f7c948", fontSize: "13px" }}
               >
                 {DIRECTION_ARROWS[hintDirection]}
               </span>
             )}
-          </span>
+          </div>
         );
       })}
     </div>

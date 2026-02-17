@@ -6,15 +6,38 @@ interface WordProgressProps {
 }
 
 export function WordProgress({ found, total }: WordProgressProps) {
+  const pct = total > 0 ? (found / total) * 100 : 0;
+
   return (
-    <div className="flex items-center gap-4">
-      <div className="h-1.5 w-20 bg-white/10 rounded-full overflow-hidden">
+    <div
+      className="flex items-center"
+      style={{ gap: 10, padding: "10px 18px 6px" }}
+    >
+      <div
+        className="flex-1 overflow-hidden"
+        style={{
+          height: 3,
+          background: "rgba(255, 255, 255, 0.06)",
+          borderRadius: 2,
+        }}
+      >
         <div
-          className="h-full bg-green-accent rounded-full transition-all duration-300"
-          style={{ width: `${total > 0 ? (found / total) * 100 : 0}%` }}
+          className="h-full transition-all duration-300"
+          style={{
+            width: `${pct}%`,
+            background: "linear-gradient(90deg, #a78bfa, #f7c948)",
+            borderRadius: 2,
+          }}
         />
       </div>
-      <span className="text-xs font-bold text-white/70 font-body">
+      <span
+        style={{
+          fontFamily: "var(--font-ws-mono)",
+          fontSize: 10,
+          color: "var(--ws-text-dim)",
+          whiteSpace: "nowrap",
+        }}
+      >
         {found}/{total}
       </span>
     </div>

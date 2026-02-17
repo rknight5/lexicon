@@ -139,9 +139,10 @@ export async function POST(request: NextRequest) {
 
     const { grid, placedWords } = generateGrid(
       words.map((w) => w.word),
-      config.gridSize,
+      config.gridCols,
       [...config.directions],
-      config.weightedFill
+      config.weightedFill,
+      config.gridRows
     );
 
     const mergedWords: PlacedWord[] = placedWords.map((pw) => {
@@ -159,6 +160,8 @@ export async function POST(request: NextRequest) {
       grid,
       words: mergedWords,
       gridSize: config.gridSize,
+      gridCols: config.gridCols,
+      gridRows: config.gridRows,
       funFact,
       difficulty,
     };

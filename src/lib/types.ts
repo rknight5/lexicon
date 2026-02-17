@@ -51,6 +51,8 @@ export interface PuzzleData {
   grid: string[][];
   words: PlacedWord[];
   gridSize: number;
+  gridCols?: number;
+  gridRows?: number;
   funFact: string;
   difficulty: Difficulty;
 }
@@ -241,15 +243,19 @@ export interface GeneratePuzzleResponse extends PuzzleData {}
 export const DIFFICULTY_CONFIG = {
   easy: {
     gridSize: 12,
+    gridCols: 10,
+    gridRows: 12,
     minWords: 10,
     maxWords: 12,
     directions: ["right", "down"] as Direction[],
     label: "Easy",
-    description: "12×12 grid, 10-12 words, horizontal and vertical only",
+    description: "10×12 grid, 10-12 words, horizontal and vertical only",
     weightedFill: true,
   },
   medium: {
     gridSize: 15,
+    gridCols: 12,
+    gridRows: 15,
     minWords: 15,
     maxWords: 18,
     directions: [
@@ -257,11 +263,13 @@ export const DIFFICULTY_CONFIG = {
       "downRight", "downLeft", "upRight", "upLeft",
     ] as Direction[],
     label: "Medium",
-    description: "15×15 grid, 15-18 words, all 8 directions",
+    description: "12×15 grid, 15-18 words, all 8 directions",
     weightedFill: true,
   },
   hard: {
     gridSize: 18,
+    gridCols: 14,
+    gridRows: 18,
     minWords: 18,
     maxWords: 22,
     directions: [
@@ -269,7 +277,7 @@ export const DIFFICULTY_CONFIG = {
       "downRight", "downLeft", "upRight", "upLeft",
     ] as Direction[],
     label: "Hard",
-    description: "18×18 grid, 18-22 words, all 8 directions, includes obscure terms",
+    description: "14×18 grid, 18-22 words, all 8 directions, includes obscure terms",
     weightedFill: false,
   },
 } as const;
