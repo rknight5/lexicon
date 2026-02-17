@@ -1,4 +1,4 @@
-import type { Difficulty, GameType, CrosswordCell } from "@/lib/types";
+import type { Difficulty, GameType } from "@/lib/types";
 
 interface ShareCardBase {
   gameType: GameType;
@@ -16,8 +16,6 @@ interface WordSearchShareCard extends ShareCardBase {
 
 interface CrosswordShareCard extends ShareCardBase {
   gameType: "crossword";
-  grid: CrosswordCell[][];
-  solvedClues: number[];
 }
 
 interface AnagramShareCard extends ShareCardBase {
@@ -43,43 +41,33 @@ const DIFFICULTY_LABELS: Record<Difficulty, string> = {
   hard: "Hard",
 };
 
-function buildEmojiRow(found: number, total: number): string {
-  return "\ud83d\udfe9".repeat(found) + "\u2b1b".repeat(total - found);
-}
+const COUNT_LABELS: Record<GameType, string> = {
+  wordsearch: "found",
+  crossword: "solved",
+  anagram: "unscrambled",
+  trivia: "correct",
+};
 
-function buildCrosswordGrid(grid: CrosswordCell[][], solvedClues: number[]): string {
-  const solvedSet = new Set(solvedClues);
-  return grid
-    .map((row) => {
-      const cells = row.map((cell) => {
-        if (cell.letter === null) return "\u2b1c"; // white square for black cells
-        const solved =
-          (cell.acrossClueNum !== undefined && solvedSet.has(cell.acrossClueNum)) ||
-          (cell.downClueNum !== undefined && solvedSet.has(cell.downClueNum));
-        return solved ? "\ud83d\udfe9" : "\u2b1b";
-      });
-      return cells.join("");
-    })
-    .join("\n");
+function buildProgressRow(found: number, total: number, gameType: GameType): string {
+  if (gameType === "trivia") {
+    return "\u2705".repeat(found) + "\u274c".repeat(total - found);
+  }
+  return "\ud83d\udfe9".repeat(found) + "\u2b1b".repeat(total - found);
 }
 
 export function generateShareCard(data: ShareCardData): string {
   const gameLabel = GAME_LABELS[data.gameType];
   const diffLabel = DIFFICULTY_LABELS[data.difficulty];
+  const countLabel = COUNT_LABELS[data.gameType];
 
-  let emojiGrid: string;
-  if (data.gameType === "crossword") {
-    emojiGrid = buildCrosswordGrid(data.grid, data.solvedClues);
-  } else {
-    emojiGrid = buildEmojiRow(data.wordsFound, data.wordsTotal);
-  }
+  const progressRow = buildProgressRow(data.wordsFound, data.wordsTotal, data.gameType);
 
   const lines = [
     `LEXICON \ud83e\udde9 ${data.topic}`,
     `${gameLabel} \u00b7 ${diffLabel}`,
     "",
-    emojiGrid,
-    `\u2b50 ${data.wordsFound}/${data.wordsTotal} \u00b7 \u2764\ufe0f ${data.livesRemaining} \u00b7 \ud83c\udfc6 ${data.score}pts`,
+    progressRow,
+    `${data.wordsFound}/${data.wordsTotal} ${countLabel} \u00b7 \u2764\ufe0f ${data.livesRemaining} \u00b7 ${data.score}pts`,
   ];
 
   return lines.join("\n");

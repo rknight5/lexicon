@@ -170,8 +170,6 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
     wordsTotal: puzzle.clues.length,
     livesRemaining: state.livesRemaining,
     score,
-    grid: puzzle.grid,
-    solvedClues: state.solvedClues,
   };
   const handleShare = () => setShowShareSheet(true);
 
