@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CrosswordCell } from "@/lib/types";
 
 interface CrosswordGridProps {
@@ -110,6 +110,42 @@ export function CrosswordGrid({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [gameStatus, cursorRow, cursorCol, gridSize, grid, onTypeLetter, onDeleteLetter, onCheckWord, onToggleDirection, onSelectCell]);
+
+  // Track recently solved clue for sequential fill stagger
+  const [recentSolvedClue, setRecentSolvedClue] = useState<number | null>(null);
+  const prevSolvedCount = useRef(solvedClues.length);
+
+  useEffect(() => {
+    if (solvedClues.length > prevSolvedCount.current) {
+      const newClue = solvedClues[solvedClues.length - 1];
+      setRecentSolvedClue(newClue);
+      const t = setTimeout(() => setRecentSolvedClue(null), 600);
+      prevSolvedCount.current = solvedClues.length;
+      return () => clearTimeout(t);
+    }
+    prevSolvedCount.current = solvedClues.length;
+  }, [solvedClues]);
+
+  // Precompute stagger delays for recently solved clue cells
+  const recentSolvedStagger = useMemo(() => {
+    if (recentSolvedClue === null) return new Map<string, number>();
+    const acrossCells: { row: number; col: number }[] = [];
+    const downCells: { row: number; col: number }[] = [];
+    for (let r = 0; r < gridSize; r++) {
+      for (let c = 0; c < gridSize; c++) {
+        const cell = grid[r][c];
+        if (cell.acrossClueNum === recentSolvedClue) acrossCells.push({ row: r, col: c });
+        if (cell.downClueNum === recentSolvedClue) downCells.push({ row: r, col: c });
+      }
+    }
+    // Use the direction with more cells (the actual solved word)
+    const isAcross = acrossCells.length >= downCells.length;
+    const cells = isAcross ? acrossCells : downCells;
+    cells.sort((a, b) => isAcross ? a.col - b.col : a.row - b.row);
+    const map = new Map<string, number>();
+    cells.forEach((c, i) => map.set(`${c.row},${c.col}`, i * 50));
+    return map;
+  }, [recentSolvedClue, grid, gridSize]);
 
   const isInActiveWord = (row: number, col: number): boolean => {
     if (activeClueNum === undefined) return false;
@@ -263,6 +299,9 @@ export function CrosswordGrid({
                   boxShadow: cellShadow,
                   fontFamily: mobile ? "var(--font-ws-mono)" : "var(--font-grid)",
                   transition: "all 0.15s ease",
+                  transitionDelay: recentSolvedStagger.has(`${rowIdx},${colIdx}`)
+                    ? `${recentSolvedStagger.get(`${rowIdx},${colIdx}`)}ms`
+                    : undefined,
                 }}
                 onClick={(e) => {
                   e.stopPropagation();

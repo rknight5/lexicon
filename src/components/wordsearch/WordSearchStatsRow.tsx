@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 interface WordSearchStatsRowProps {
   livesRemaining: number;
@@ -15,11 +15,33 @@ export function WordSearchStatsRow({
 }: WordSearchStatsRowProps) {
   const [heartBreaking, setHeartBreaking] = useState(false);
   const prevLives = useRef(livesRemaining);
+  const [displayScore, setDisplayScore] = useState(score);
+  const animRef = useRef<number>(0);
+
+  const animateScore = useCallback((from: number, to: number) => {
+    cancelAnimationFrame(animRef.current);
+    const start = performance.now();
+    const duration = 400;
+    const step = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - (1 - t) * (1 - t); // ease-out quad
+      setDisplayScore(Math.round(from + (to - from) * eased));
+      if (t < 1) animRef.current = requestAnimationFrame(step);
+    };
+    animRef.current = requestAnimationFrame(step);
+  }, []);
+
+  useEffect(() => {
+    if (score !== displayScore) {
+      animateScore(displayScore, score);
+    }
+    return () => cancelAnimationFrame(animRef.current);
+  }, [score]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (lastMissTimestamp > 0) {
       setHeartBreaking(true);
-      const t = setTimeout(() => setHeartBreaking(false), 300);
+      const t = setTimeout(() => setHeartBreaking(false), 200);
       return () => clearTimeout(t);
     }
   }, [lastMissTimestamp]);
@@ -80,7 +102,7 @@ export function WordSearchStatsRow({
             color: "#f7c948",
           }}
         >
-          {score}
+          {displayScore}
         </span>
       </div>
     </div>

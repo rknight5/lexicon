@@ -136,13 +136,16 @@ export function PuzzleGrid({
     }
   }, [lastMissTimestamp]);
 
+  const lastFoundPathRef = useRef<CellPosition[]>([]);
+
   useEffect(() => {
-    if (lastFoundTimestamp > 0) {
+    if (lastFoundTimestamp > 0 && foundPaths.length > 0) {
+      lastFoundPathRef.current = foundPaths[foundPaths.length - 1];
       setFlashingGreen(true);
-      const t = setTimeout(() => setFlashingGreen(false), 500);
+      const t = setTimeout(() => setFlashingGreen(false), 200);
       return () => clearTimeout(t);
     }
-  }, [lastFoundTimestamp]);
+  }, [lastFoundTimestamp]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Convert client coordinates to grid row/col via coordinate math.
   // Works for both mouse and touch — no elementFromPoint needed.
@@ -234,6 +237,7 @@ export function PuzzleGrid({
         row.map((letter, colIdx) => {
           const isSelected = isCellInList(selectedCells, rowIdx, colIdx);
           const isFound = isCellFound(foundPaths, rowIdx, colIdx);
+          const isJustFound = flashingGreen && isCellInList(lastFoundPathRef.current, rowIdx, colIdx);
 
           return (
             <div
@@ -246,6 +250,7 @@ export function PuzzleGrid({
                 ${isFound ? foundClass : ""}
                 flex items-center justify-center
                 cursor-pointer
+                relative
               `}
               style={{
                 width: cellSize,
@@ -256,6 +261,12 @@ export function PuzzleGrid({
               }}
             >
               {letter}
+              {isJustFound && (
+                <div
+                  className="absolute inset-0 rounded-[inherit] animate-flash-found pointer-events-none"
+                  style={{ background: "white" }}
+                />
+              )}
             </div>
           );
         })

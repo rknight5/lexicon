@@ -195,9 +195,21 @@ body {
 }
 
 @keyframes heart-break {
-  0% { transform: scale(1); }
-  50% { transform: scale(0.6); }
-  100% { transform: scale(1); }
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+@keyframes flash-found {
+  0% { opacity: 0.3; }
+  100% { opacity: 0; }
+}
+
+@keyframes tile-pop {
+  0% { transform: scale(0.85); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .animate-shake {
@@ -209,5 +221,13 @@ body {
 }
 
 .animate-heart-break {
-  animation: heart-break 0.3s ease-in-out;
+  animation: heart-break 0.2s ease-in-out;
+}
+
+.animate-flash-found {
+  animation: flash-found 0.2s ease-out forwards;
+}
+
+.animate-tile-pop {
+  animation: tile-pop 0.15s ease-out;
 }
