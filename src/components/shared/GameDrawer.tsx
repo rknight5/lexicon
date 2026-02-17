@@ -2,32 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Info, Share2, BarChart2, Settings } from "lucide-react";
+import { HowToPlayModal } from "@/components/shared/HowToPlayModal";
 import type { GameType } from "@/lib/types";
-
-const RULES: Record<GameType, string[]> = {
-  wordsearch: [
-    "Drag across letters to form words",
-    "Words can go in any direction",
-    "Wrong words cost 1 life",
-    "Hints reveal a word\u2019s direction",
-    "Find all words to win",
-  ],
-  crossword: [
-    "Tap a cell, type your answer",
-    "Press Check to verify a word",
-    "Tap again to toggle direction",
-    "Wrong checks cost 1 life",
-    "Hints reveal a letter",
-    "Solve all clues to win",
-  ],
-  anagram: [
-    "Tap scrambled letters to spell",
-    "Tap answer slots to remove",
-    "Wrong answers & skips cost 1 life",
-    "Hints lock a letter in place",
-    "Unscramble all words to win",
-  ],
-};
 
 interface GameDrawerProps {
   gameType: GameType;
@@ -63,7 +39,7 @@ export function GameDrawer({
   onSettings,
 }: GameDrawerProps) {
   const [visible, setVisible] = useState(false);
-  const [showRules, setShowRules] = useState(false);
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -139,7 +115,7 @@ export function GameDrawer({
         <div className="py-1">
           {/* How to Play */}
           <button
-            onClick={() => setShowRules(!showRules)}
+            onClick={() => setShowHowToPlay(true)}
             className="w-full flex items-center gap-2.5 transition-colors cursor-pointer"
             style={{ padding: "11px 14px" }}
             onMouseEnter={(e) => applyHover(e.currentTarget)}
@@ -154,23 +130,6 @@ export function GameDrawer({
               How to Play
             </span>
           </button>
-
-          {showRules && (
-            <div
-              className="pb-2 space-y-0.5"
-              style={{ paddingLeft: 46, paddingRight: 14 }}
-            >
-              {RULES[gameType].map((rule, i) => (
-                <p
-                  key={i}
-                  className="font-body"
-                  style={{ fontSize: 11, color: "rgba(255, 255, 255, 0.4)" }}
-                >
-                  {i + 1}. {rule}
-                </p>
-              ))}
-            </div>
-          )}
 
           {/* Divider */}
           <div style={{ height: 1, background: "rgba(255, 255, 255, 0.06)", margin: "2px 12px" }} />
@@ -233,6 +192,10 @@ export function GameDrawer({
           </button>
         </div>
       </div>
+
+      {showHowToPlay && (
+        <HowToPlayModal gameType={gameType} onClose={() => setShowHowToPlay(false)} />
+      )}
     </div>
   );
 }
