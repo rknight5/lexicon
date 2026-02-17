@@ -113,9 +113,8 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
   };
 
   const handlePlayAgain = () => {
-    sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_CROSSWORD);
     sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
-    router.push("/");
+    window.location.reload();
   };
 
   const [isSaving, setIsSaving] = useState(false);

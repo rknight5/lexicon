@@ -155,9 +155,8 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
   };
 
   const handlePlayAgain = () => {
-    sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_WORDSEARCH);
     sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
-    router.push("/");
+    window.location.reload();
   };
 
   const [isSaving, setIsSaving] = useState(false);

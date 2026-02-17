@@ -78,7 +78,7 @@ export function CompletionModal({
               boxShadow: "0 4px 15px rgba(255, 215, 0, 0.4)",
             }}
           >
-            New Puzzle
+            Try Again
           </button>
           <button
             onClick={onNewTopic}

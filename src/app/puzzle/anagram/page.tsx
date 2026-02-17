@@ -156,9 +156,8 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
   };
 
   const handlePlayAgain = () => {
-    sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_ANAGRAM);
     sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
-    router.push("/");
+    window.location.reload();
   };
 
   const [isSaving, setIsSaving] = useState(false);

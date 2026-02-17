@@ -172,7 +172,7 @@ export function WordSearchCompletion({
               boxShadow: "0 4px 20px rgba(247, 201, 72, 0.25)",
             }}
           >
-            New Puzzle
+            Try Again
           </button>
 
           {/* Secondary row */}
