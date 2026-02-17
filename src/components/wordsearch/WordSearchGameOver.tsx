@@ -228,7 +228,7 @@ export function WordSearchGameOver({
                 fontWeight: 500,
               }}
             >
-              Change Topic
+              New Game
             </button>
             <button
               onClick={onHome}

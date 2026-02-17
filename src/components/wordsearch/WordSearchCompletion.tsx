@@ -191,7 +191,7 @@ export function WordSearchCompletion({
                 fontWeight: 500,
               }}
             >
-              Change Topic
+              New Game
             </button>
             <button
               onClick={onHome}

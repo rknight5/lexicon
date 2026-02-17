@@ -335,14 +335,22 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
               Focus Areas
             </label>
             {loadingCategories ? (
-              <div className="grid grid-cols-2 gap-2">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div
-                    key={i}
-                    className="h-10 rounded-xl animate-pulse"
-                    style={{ background: "var(--glass-bg)" }}
-                  />
-                ))}
+              <div className="flex flex-col items-center gap-3 py-4">
+                <svg
+                  className="animate-spin"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="rgba(255, 255, 255, 0.35)"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                >
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                </svg>
+                <span className="text-xs font-body" style={{ color: "var(--ws-text-muted)" }}>
+                  Loading focus areas...
+                </span>
               </div>
             ) : categories.length > 0 ? (
               <div className="grid grid-cols-2 gap-2">
