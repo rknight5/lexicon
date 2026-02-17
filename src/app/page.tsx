@@ -160,34 +160,36 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-5 pb-20 relative" style={{ paddingTop: "8vh" }}>
-      {/* Top-right buttons */}
-      <div className="absolute top-6 right-6 flex items-center gap-3">
-        <button
-          onClick={() => router.push("/saved")}
-          className="relative flex items-center justify-center text-white/50 hover:text-white/80 transition-colors"
-          style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(255, 255, 255, 0.08)" }}
-          title="Saved puzzles"
-        >
-          <Bookmark className="w-5 h-5" />
-          {hasUnseenSaves && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-gold-primary" />
-          )}
-        </button>
-        <button
-          onClick={() => setShowStats(true)}
-          className="flex items-center justify-center text-white/50 hover:text-white/80 transition-colors"
-          style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(255, 255, 255, 0.08)" }}
-          title="Stats"
-        >
-          <BarChart2 className="w-5 h-5" />
-        </button>
+      {/* Nav icons — bookmark & stats left, logout right */}
+      <div className="absolute top-6 left-5 right-5 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => router.push("/saved")}
+            className="relative flex items-center justify-center text-white/40 hover:text-white/70 transition-colors"
+            style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(255, 255, 255, 0.06)" }}
+            title="Saved puzzles"
+          >
+            <Bookmark className="w-4 h-4" />
+            {hasUnseenSaves && (
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-gold-primary" />
+            )}
+          </button>
+          <button
+            onClick={() => setShowStats(true)}
+            className="flex items-center justify-center text-white/40 hover:text-white/70 transition-colors"
+            style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(255, 255, 255, 0.06)" }}
+            title="Stats"
+          >
+            <BarChart2 className="w-4 h-4" />
+          </button>
+        </div>
         <button
           onClick={handleLogout}
-          className="flex items-center justify-center text-white/50 hover:text-white/80 transition-colors"
-          style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(255, 255, 255, 0.08)" }}
+          className="flex items-center justify-center text-white/40 hover:text-white/70 transition-colors"
+          style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(255, 255, 255, 0.06)" }}
           title="Log out"
         >
-          <LogOut className="w-5 h-5" />
+          <LogOut className="w-4 h-4" />
         </button>
       </div>
 
