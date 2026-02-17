@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Home, Lightbulb, Heart, Bookmark } from "lucide-react";
+import { Home, Heart, Bookmark } from "lucide-react";
 import { CountdownTimer } from "@/components/trivia/CountdownTimer";
 import { PauseMenu } from "@/components/shared/PauseMenu";
 import { GameDrawer } from "@/components/shared/GameDrawer";
@@ -305,9 +305,9 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
                 border: "1px solid rgba(247, 201, 72, 0.18)",
               }}
             >
-              <Lightbulb
-                style={{ width: 15, height: 15, color: "#f7c948" }}
-              />
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f7c948" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
               {(3 - state.hintsUsed) > 0 && (
                 <span
                   className="absolute flex items-center justify-center"
@@ -506,6 +506,36 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
                 })}
               </div>
             )}
+
+            {/* Progress bar */}
+            <div className="w-full max-w-md mt-6">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="font-body text-[11px]" style={{ color: "rgba(255, 255, 255, 0.4)" }}>
+                  {state.answers.filter((a) => a === "correct").length}/{puzzle.questions.length} correct
+                </span>
+                <span className="font-body text-[11px]" style={{ color: "rgba(255, 255, 255, 0.4)" }}>
+                  Q{state.currentIndex + 1} of {puzzle.questions.length}
+                </span>
+              </div>
+              <div
+                style={{
+                  height: 4,
+                  borderRadius: 2,
+                  background: "rgba(255, 255, 255, 0.08)",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    height: "100%",
+                    width: `${((state.currentIndex + (hasAnswered ? 1 : 0)) / puzzle.questions.length) * 100}%`,
+                    borderRadius: 2,
+                    background: "linear-gradient(90deg, #a78bfa, #c084fc)",
+                    transition: "width 0.3s ease",
+                  }}
+                />
+              </div>
+            </div>
 
             {/* Feedback message + Next button */}
             {hasAnswered && (

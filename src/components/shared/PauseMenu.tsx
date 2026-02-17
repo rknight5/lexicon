@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { HowToPlayModal } from "@/components/shared/HowToPlayModal";
 import { ShareSheet } from "@/components/shared/ShareSheet";
 import { generateShareCard, type ShareCardData } from "@/lib/share";
 import type { GameType } from "@/lib/types";
@@ -16,12 +15,7 @@ interface PauseMenuProps {
 
 export function PauseMenu({ onResume, onQuit, gameType, shareData, onToast }: PauseMenuProps) {
   const [confirmQuit, setConfirmQuit] = useState(false);
-  const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [showShare, setShowShare] = useState(false);
-
-  if (showHowToPlay) {
-    return <HowToPlayModal gameType={gameType} onClose={() => setShowHowToPlay(false)} />;
-  }
 
   if (showShare && shareData && onToast) {
     return (
@@ -83,17 +77,6 @@ export function PauseMenu({ onResume, onQuit, gameType, shareData, onToast }: Pa
             >
               Resume
             </button>
-            <button
-              onClick={() => setShowHowToPlay(true)}
-              className="w-full h-10 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97]"
-              style={{
-                background: "rgba(255, 255, 255, 0.06)",
-                border: "1px solid rgba(255, 255, 255, 0.12)",
-                color: "rgba(255, 255, 255, 0.7)",
-              }}
-            >
-              How to Play
-            </button>
             {shareData && (
               <button
                 onClick={() => setShowShare(true)}
@@ -107,9 +90,6 @@ export function PauseMenu({ onResume, onQuit, gameType, shareData, onToast }: Pa
                 Share Progress
               </button>
             )}
-            <p className="text-center text-xs font-body" style={{ color: "var(--ws-text-muted)" }}>
-              Progress saved automatically
-            </p>
             <button
               onClick={() => setConfirmQuit(true)}
               className="w-full h-10 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97]"
@@ -121,6 +101,9 @@ export function PauseMenu({ onResume, onQuit, gameType, shareData, onToast }: Pa
             >
               Exit Game
             </button>
+            <p className="text-center text-xs font-body" style={{ color: "var(--ws-text-muted)" }}>
+              Progress saved automatically
+            </p>
           </div>
         )}
       </div>

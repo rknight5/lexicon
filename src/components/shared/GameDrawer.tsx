@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Info, Share2, BarChart2, Settings } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Info, Share2, BarChart2, Settings, LogOut } from "lucide-react";
 import { HowToPlayModal } from "@/components/shared/HowToPlayModal";
 import type { GameType } from "@/lib/types";
 
@@ -38,6 +39,7 @@ export function GameDrawer({
   onShare,
   onSettings,
 }: GameDrawerProps) {
+  const router = useRouter();
   const [visible, setVisible] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -77,6 +79,13 @@ export function GameDrawer({
       onSettings();
     }, 200);
   }, [onClose, onSettings]);
+
+  const handleLogout = useCallback(async () => {
+    setVisible(false);
+    setTimeout(onClose, 200);
+    await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+    router.push("/login");
+  }, [onClose, router]);
 
   if (!open) return null;
 
@@ -188,6 +197,27 @@ export function GameDrawer({
               style={{ color: "rgba(255, 255, 255, 0.8)" }}
             >
               Settings
+            </span>
+          </button>
+
+          {/* Divider */}
+          <div style={{ height: 1, background: "rgba(255, 255, 255, 0.06)", margin: "2px 12px" }} />
+
+          {/* Log Out */}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-2.5 transition-colors cursor-pointer"
+            style={{ padding: "11px 14px" }}
+            onMouseEnter={(e) => applyHover(e.currentTarget)}
+            onMouseLeave={(e) => clearHover(e.currentTarget)}
+          >
+            <LogOut data-menu-icon="" style={{ width: 18, height: 18, color: "rgba(255, 255, 255, 0.45)" }} />
+            <span
+              data-menu-label=""
+              className="font-body text-[13px] font-medium"
+              style={{ color: "rgba(255, 255, 255, 0.8)" }}
+            >
+              Log Out
             </span>
           </button>
         </div>
