@@ -23,6 +23,8 @@ import { useAutoSave } from "@/hooks/useAutoSave";
 import { Toast } from "@/components/shared/Toast";
 import { SessionExpiredModal } from "@/components/shared/SessionExpiredModal";
 import { Bookmark } from "lucide-react";
+import { ShareSheet } from "@/components/shared/ShareSheet";
+import { generateShareCard, type ShareCardData } from "@/lib/share";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
 import type { PuzzleData } from "@/lib/types";
 
@@ -204,6 +206,18 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
   const hintsRemaining = 3 - state.hintsUsed;
 
   const missedWords = puzzle.words.filter((w) => !state.foundWords.includes(w.word));
+
+  const [showShareSheet, setShowShareSheet] = useState(false);
+  const shareData: ShareCardData = {
+    gameType: "wordsearch",
+    topic: puzzleTitle,
+    difficulty: puzzle.difficulty,
+    wordsFound: state.foundWords.length,
+    wordsTotal: puzzle.words.length,
+    livesRemaining: state.livesRemaining,
+    score,
+  };
+  const handleShare = () => setShowShareSheet(true);
 
   return (
     <div className="min-h-screen lg:h-screen flex flex-col lg:overflow-hidden">
@@ -409,6 +423,8 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
           onResume={resume}
           onQuit={handleNewTopic}
           gameType="wordsearch"
+          shareData={shareData}
+          onToast={setToastMessage}
         />
       )}
 
@@ -417,12 +433,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         onStats={() => { setDrawerOpen(false); setShowStats(true); }}
-        onShare={() => {
-          const msg = `I'm playing Word Search on Lexicon!\nTopic: ${puzzleTitle}\nDifficulty: ${puzzle.difficulty}`;
-          navigator.clipboard.writeText(msg).then(() => {
-            setToastMessage("Copied to clipboard!");
-          });
-        }}
+        onShare={handleShare}
         onSettings={() => { setDrawerOpen(false); setToastMessage("Coming soon"); }}
       />
 
@@ -439,6 +450,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
               onTryAgain={handlePlayAgain}
               onChangeTopic={handleNewTopic}
               onHome={handleNewTopic}
+              onShare={handleShare}
               onSaveToLibrary={handleSave}
               isSavedToLibrary={isSaved}
             />
@@ -450,6 +462,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
               elapsedSeconds={state.elapsedSeconds}
               onTryAgain={handlePlayAgain}
               onNewTopic={handleNewTopic}
+              onShare={handleShare}
               onSaveToLibrary={handleSave}
               isSavedToLibrary={isSaved}
             />
@@ -471,6 +484,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
               onPlayAgain={handlePlayAgain}
               onChangeTopic={handleNewTopic}
               onHome={handleNewTopic}
+              onShare={handleShare}
               onSaveToLibrary={handleSave}
               isSavedToLibrary={isSaved}
             />
@@ -485,6 +499,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
               funFact={puzzle.funFact}
               onPlayAgain={handlePlayAgain}
               onNewTopic={handleNewTopic}
+              onShare={handleShare}
               onSaveToLibrary={handleSave}
               isSavedToLibrary={isSaved}
             />
@@ -495,6 +510,14 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
       {showStats && <StatsModal onClose={() => setShowStats(false)} />}
 
       {sessionExpired && <SessionExpiredModal />}
+
+      {showShareSheet && (
+        <ShareSheet
+          text={generateShareCard(shareData)}
+          onClose={() => setShowShareSheet(false)}
+          onToast={(msg) => { setToastMessage(msg); setShowShareSheet(false); }}
+        />
+      )}
 
       {toastMessage && (
         <Toast

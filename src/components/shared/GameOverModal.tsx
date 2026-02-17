@@ -7,6 +7,7 @@ interface GameOverModalProps {
   elapsedSeconds: number;
   onTryAgain: () => void;
   onNewTopic: () => void;
+  onShare?: () => void;
   onSaveToLibrary?: () => void;
   isSavedToLibrary?: boolean;
 }
@@ -17,6 +18,7 @@ export function GameOverModal({
   elapsedSeconds,
   onTryAgain,
   onNewTopic,
+  onShare,
   onSaveToLibrary,
   isSavedToLibrary,
 }: GameOverModalProps) {
@@ -71,6 +73,19 @@ export function GameOverModal({
           >
             Try Again
           </button>
+          {onShare && (
+            <button
+              onClick={onShare}
+              className="w-4/5 h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+              style={{
+                background: "rgba(255, 255, 255, 0.08)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                color: "rgba(255, 255, 255, 0.8)",
+              }}
+            >
+              Share Results
+            </button>
+          )}
           <button
             onClick={onNewTopic}
             className="w-4/5 h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97]"

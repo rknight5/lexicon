@@ -12,6 +12,7 @@ interface WordSearchCompletionProps {
   onPlayAgain: () => void;
   onChangeTopic: () => void;
   onHome: () => void;
+  onShare?: () => void;
   onSaveToLibrary?: () => void;
   isSavedToLibrary?: boolean;
 }
@@ -26,6 +27,7 @@ export function WordSearchCompletion({
   onPlayAgain,
   onChangeTopic,
   onHome,
+  onShare,
   onSaveToLibrary,
   isSavedToLibrary,
 }: WordSearchCompletionProps) {
@@ -177,6 +179,24 @@ export function WordSearchCompletion({
 
           {/* Secondary row */}
           <div className="flex" style={{ gap: 8 }}>
+            {onShare && (
+              <button
+                onClick={onShare}
+                className="flex-1 cursor-pointer transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+                style={{
+                  padding: 12,
+                  borderRadius: 12,
+                  background: "rgba(255, 255, 255, 0.04)",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  color: "var(--ws-text)",
+                  fontFamily: "var(--font-ws-body)",
+                  fontSize: 13,
+                  fontWeight: 500,
+                }}
+              >
+                Share
+              </button>
+            )}
             <button
               onClick={onChangeTopic}
               className="flex-1 cursor-pointer transition-all hover:-translate-y-0.5 active:scale-[0.97]"

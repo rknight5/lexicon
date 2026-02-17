@@ -21,6 +21,8 @@ import { WordSearchHeader } from "@/components/wordsearch/WordSearchHeader";
 import { WordSearchStatsRow } from "@/components/wordsearch/WordSearchStatsRow";
 import { WordProgress } from "@/components/wordsearch/WordProgress";
 import { Bookmark } from "lucide-react";
+import { ShareSheet } from "@/components/shared/ShareSheet";
+import { generateShareCard, type ShareCardData } from "@/lib/share";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
 import type { CrosswordPuzzleData, CrosswordClue } from "@/lib/types";
 
@@ -157,6 +159,20 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
     state.livesRemaining,
     puzzle.difficulty
   );
+
+  const [showShareSheet, setShowShareSheet] = useState(false);
+  const shareData: ShareCardData = {
+    gameType: "crossword",
+    topic: puzzleTitle,
+    difficulty: puzzle.difficulty,
+    wordsFound: state.solvedClues.length,
+    wordsTotal: puzzle.clues.length,
+    livesRemaining: state.livesRemaining,
+    score,
+    grid: puzzle.grid,
+    solvedClues: state.solvedClues,
+  };
+  const handleShare = () => setShowShareSheet(true);
 
   // Save result when game ends
   const savedRef = useRef(false);
@@ -392,6 +408,8 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
           onResume={resume}
           onQuit={handleNewTopic}
           gameType="crossword"
+          shareData={shareData}
+          onToast={setToastMessage}
         />
       )}
 
@@ -400,12 +418,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         onStats={() => { setDrawerOpen(false); setShowStats(true); }}
-        onShare={() => {
-          const msg = `I'm playing Crossword on Lexicon!\nTopic: ${puzzleTitle}\nDifficulty: ${puzzle.difficulty}`;
-          navigator.clipboard.writeText(msg).then(() => {
-            setToastMessage("Copied to clipboard!");
-          });
-        }}
+        onShare={handleShare}
         onSettings={() => { setDrawerOpen(false); setToastMessage("Coming soon"); }}
       />
 
@@ -416,6 +429,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
           elapsedSeconds={state.elapsedSeconds}
           onTryAgain={handlePlayAgain}
           onNewTopic={handleNewTopic}
+          onShare={handleShare}
           onSaveToLibrary={handleSave}
           isSavedToLibrary={isSaved}
         />
@@ -431,6 +445,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
           funFact={puzzle.funFact}
           onPlayAgain={handlePlayAgain}
           onNewTopic={handleNewTopic}
+          onShare={handleShare}
           onSaveToLibrary={handleSave}
           isSavedToLibrary={isSaved}
         />
@@ -439,6 +454,14 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
       {showStats && <StatsModal onClose={() => setShowStats(false)} />}
 
       {sessionExpired && <SessionExpiredModal />}
+
+      {showShareSheet && (
+        <ShareSheet
+          text={generateShareCard(shareData)}
+          onClose={() => setShowShareSheet(false)}
+          onToast={(msg) => { setToastMessage(msg); setShowShareSheet(false); }}
+        />
+      )}
 
       {toastMessage && (
         <Toast

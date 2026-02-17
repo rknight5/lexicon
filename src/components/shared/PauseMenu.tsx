@@ -2,20 +2,35 @@
 
 import { useState } from "react";
 import { HowToPlayModal } from "@/components/shared/HowToPlayModal";
+import { ShareSheet } from "@/components/shared/ShareSheet";
+import { generateShareCard, type ShareCardData } from "@/lib/share";
 import type { GameType } from "@/lib/types";
 
 interface PauseMenuProps {
   onResume: () => void;
   onQuit: () => void;
   gameType: GameType;
+  shareData?: ShareCardData;
+  onToast?: (message: string) => void;
 }
 
-export function PauseMenu({ onResume, onQuit, gameType }: PauseMenuProps) {
+export function PauseMenu({ onResume, onQuit, gameType, shareData, onToast }: PauseMenuProps) {
   const [confirmQuit, setConfirmQuit] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
+  const [showShare, setShowShare] = useState(false);
 
   if (showHowToPlay) {
     return <HowToPlayModal gameType={gameType} onClose={() => setShowHowToPlay(false)} />;
+  }
+
+  if (showShare && shareData && onToast) {
+    return (
+      <ShareSheet
+        text={generateShareCard(shareData)}
+        onClose={() => setShowShare(false)}
+        onToast={(msg) => { onToast(msg); setShowShare(false); }}
+      />
+    );
   }
 
   return (
@@ -79,6 +94,19 @@ export function PauseMenu({ onResume, onQuit, gameType }: PauseMenuProps) {
             >
               How to Play
             </button>
+            {shareData && (
+              <button
+                onClick={() => setShowShare(true)}
+                className="w-full h-10 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+                style={{
+                  background: "rgba(255, 255, 255, 0.06)",
+                  border: "1px solid rgba(255, 255, 255, 0.12)",
+                  color: "rgba(255, 255, 255, 0.7)",
+                }}
+              >
+                Share Progress
+              </button>
+            )}
             <p className="text-center text-xs font-body" style={{ color: "var(--ws-text-muted)" }}>
               Progress saved automatically
             </p>

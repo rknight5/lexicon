@@ -20,6 +20,8 @@ import { WordSearchStatsRow } from "@/components/wordsearch/WordSearchStatsRow";
 import { WordProgress } from "@/components/wordsearch/WordProgress";
 import { Bookmark } from "lucide-react";
 import { ANAGRAM_DIFFICULTY_CONFIG } from "@/lib/types";
+import { ShareSheet } from "@/components/shared/ShareSheet";
+import { generateShareCard, type ShareCardData } from "@/lib/share";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
 import type { AnagramPuzzleData } from "@/lib/types";
 
@@ -189,6 +191,18 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
     state.livesRemaining,
     puzzle.difficulty
   );
+
+  const [showShareSheet, setShowShareSheet] = useState(false);
+  const shareData: ShareCardData = {
+    gameType: "anagram",
+    topic: puzzleTitle,
+    difficulty: puzzle.difficulty,
+    wordsFound: state.solvedWords.length,
+    wordsTotal: puzzle.words.length,
+    livesRemaining: state.livesRemaining,
+    score,
+  };
+  const handleShare = () => setShowShareSheet(true);
 
   const canHint =
     (state.gameStatus === "playing" || state.gameStatus === "idle") &&
@@ -671,6 +685,8 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
           onResume={resume}
           onQuit={handleNewTopic}
           gameType="anagram"
+          shareData={shareData}
+          onToast={setToastMessage}
         />
       )}
 
@@ -679,12 +695,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         onStats={() => { setDrawerOpen(false); setShowStats(true); }}
-        onShare={() => {
-          const msg = `I'm playing Anagram on Lexicon!\nTopic: ${puzzleTitle}\nDifficulty: ${puzzle.difficulty}`;
-          navigator.clipboard.writeText(msg).then(() => {
-            setToastMessage("Copied to clipboard!");
-          });
-        }}
+        onShare={handleShare}
         onSettings={() => { setDrawerOpen(false); setToastMessage("Coming soon"); }}
       />
 
@@ -695,6 +706,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
           elapsedSeconds={state.elapsedSeconds}
           onTryAgain={handlePlayAgain}
           onNewTopic={handleNewTopic}
+          onShare={handleShare}
           onSaveToLibrary={handleSave}
           isSavedToLibrary={isSaved}
         />
@@ -710,6 +722,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
           funFact={puzzle.funFact}
           onPlayAgain={handlePlayAgain}
           onNewTopic={handleNewTopic}
+          onShare={handleShare}
           onSaveToLibrary={handleSave}
           isSavedToLibrary={isSaved}
         />
@@ -718,6 +731,14 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
       {showStats && <StatsModal onClose={() => setShowStats(false)} />}
 
       {sessionExpired && <SessionExpiredModal />}
+
+      {showShareSheet && (
+        <ShareSheet
+          text={generateShareCard(shareData)}
+          onClose={() => setShowShareSheet(false)}
+          onToast={(msg) => { setToastMessage(msg); setShowShareSheet(false); }}
+        />
+      )}
 
       {toastMessage && (
         <Toast
