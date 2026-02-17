@@ -379,7 +379,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
         </div>
 
         {/* Progress bar — clean divider between grid and pills */}
-        <div style={{ padding: "12px 18px 10px" }}>
+        <div style={{ padding: "4px 18px 10px" }}>
           <WordProgress
             found={state.foundWords.length}
             total={puzzle.words.length}

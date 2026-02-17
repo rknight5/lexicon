@@ -204,6 +204,47 @@ export function PuzzleGrid({
     }
   }, [onPointerLeave]);
 
+  // Touch event handlers — reliable on mobile Safari where pointer events fail
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      const touch = e.touches[0];
+      const pos = cellToRowCol(touch.clientX, touch.clientY);
+      if (!pos || pos.row < 0 || pos.row >= rows || pos.col < 0 || pos.col >= cols) return;
+      if (gameStatus !== "playing" && gameStatus !== "idle") return;
+      e.preventDefault();
+      isDragging.current = true;
+      startCell.current = pos;
+      lastCell.current = null;
+      onCellPointerDown(pos);
+    },
+    [gameStatus, cols, rows, cellToRowCol, onCellPointerDown]
+  );
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      if (!isDragging.current || !startCell.current) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+      const pos = cellToRowCol(touch.clientX, touch.clientY);
+      if (!pos) return;
+      const row = Math.max(0, Math.min(rows - 1, pos.row));
+      const col = Math.max(0, Math.min(cols - 1, pos.col));
+      if (lastCell.current?.row === row && lastCell.current?.col === col) return;
+      lastCell.current = { row, col };
+      const snapped = getSnappedCells(startCell.current, { row, col }, gridSize, cols, rows);
+      onSelectionChange(snapped);
+    },
+    [gridSize, cols, rows, cellToRowCol, onSelectionChange]
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    startCell.current = null;
+    lastCell.current = null;
+    onPointerUp();
+  }, [onPointerUp]);
+
   const cellClass = mobile ? "ws-grid-cell" : "grid-cell";
   const selectingClass = mobile ? "ws-grid-cell--selecting" : "grid-cell--selecting";
   const foundClass = mobile ? "ws-grid-cell--found" : "grid-cell--found";
@@ -225,6 +266,10 @@ export function PuzzleGrid({
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerLeaveGrid}
       onPointerCancel={handlePointerLeaveGrid}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
     >
       {grid.map((row, rowIdx) =>
         row.map((letter, colIdx) => {
