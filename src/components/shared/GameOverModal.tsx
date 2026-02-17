@@ -95,7 +95,7 @@ export function GameOverModal({
               color: "rgba(255, 255, 255, 0.8)",
             }}
           >
-            Create Puzzle
+            New Puzzle
           </button>
           {onSaveToLibrary && (
             <button
