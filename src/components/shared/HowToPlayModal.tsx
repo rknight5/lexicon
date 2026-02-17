@@ -108,7 +108,7 @@ export function HowToPlayModal({ gameType, onClose }: HowToPlayModalProps) {
           }}
         >
           <p className="font-body text-xs leading-relaxed" style={{ color: "var(--white-muted)" }}>
-            <span className="mr-1">\u26a1</span>
+            <span className="mr-1">{"\u26a1"}</span>
             Use hints to reveal a letter (3 per game). Earn bonus points for completing puzzles with all 3 lives.
           </p>
         </div>
