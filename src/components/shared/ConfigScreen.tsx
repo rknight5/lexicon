@@ -57,6 +57,35 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
   const abortRef = useRef<AbortController | null>(null);
   const cancelledRef = useRef(false);
 
+  async function fetchCategories(signal?: AbortSignal) {
+    setLoadingCategories(true);
+    setCategoryError(false);
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic }),
+        credentials: "include",
+        signal,
+      });
+      if (!res.ok) throw new Error("API error");
+      const data = await res.json();
+      if (signal?.aborted) return;
+      if (data.categories && data.categories.length > 0) {
+        setCategories(data.categories);
+        setSelectedCategories([]);
+      } else {
+        setCategoryError(true);
+      }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
+      setCategories([]);
+      setCategoryError(true);
+    } finally {
+      if (!signal?.aborted) setLoadingCategories(false);
+    }
+  }
+
   // Use prefetched categories if available, otherwise fetch on mount
   useEffect(() => {
     if (prefetchedCategories && prefetchedCategories.length > 0) {
@@ -66,34 +95,10 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
       return;
     }
 
-    fetchCategories();
+    const controller = new AbortController();
+    fetchCategories(controller.signal);
+    return () => controller.abort();
   }, [topic, prefetchedCategories]);
-
-  async function fetchCategories() {
-    setLoadingCategories(true);
-    setCategoryError(false);
-    try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic }),
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("API error");
-      const data = await res.json();
-      if (data.categories && data.categories.length > 0) {
-        setCategories(data.categories);
-        setSelectedCategories([]);
-      } else {
-        setCategoryError(true);
-      }
-    } catch {
-      setCategories([]);
-      setCategoryError(true);
-    } finally {
-      setLoadingCategories(false);
-    }
-  }
 
   const toggleCategory = (name: string) => {
     setSelectedCategories((prev) =>
