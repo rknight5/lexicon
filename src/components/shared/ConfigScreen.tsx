@@ -232,7 +232,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
       } else {
         setError(err instanceof Error ? err.message : "Something went wrong — try again");
       }
-    } finally {
+      // Only reset on error — on success, keep LoadingOverlay visible until navigation completes
       setGenerating(false);
       abortRef.current = null;
     }
