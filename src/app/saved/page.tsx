@@ -155,18 +155,16 @@ export default function SavedPage() {
                     borderLeft: "3px solid #FFD700",
                   }}
                 >
-                  <div className="flex-shrink-0">
+                  <div className="hidden md:flex flex-shrink-0">
                     {GAME_TYPE_ICON[puzzle.gameType]}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-heading text-sm font-bold text-white truncate">
-                        {puzzle.title}
-                      </span>
-                      {DIFFICULTY_ICON[puzzle.difficulty]}
+                    <div className="font-heading text-sm font-bold text-white max-w-[60%] md:max-w-none">
+                      {puzzle.title}
                     </div>
                     <div className="text-[11px] text-white/50 font-body mt-1 flex items-center gap-2">
                       <span>{GAME_TYPE_LABEL[puzzle.gameType] ?? puzzle.gameType}</span>
+                      {DIFFICULTY_ICON[puzzle.difficulty]}
                       {puzzle.createdAt && (
                         <>
                           <span className="text-white/25">·</span>
@@ -176,19 +174,53 @@ export default function SavedPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
+                    {/* Mobile Play */}
                     <button
                       onClick={() => handleLoad(puzzle)}
                       disabled={loadingPuzzleId === puzzle.id}
-                      className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-heading font-bold px-3 py-1.5 rounded-pill transition-all hover:brightness-125 active:scale-95 disabled:opacity-50"
+                      className="md:hidden flex items-center gap-1 font-heading font-bold uppercase transition-all hover:brightness-125 active:scale-95 disabled:opacity-50"
+                      style={{
+                        padding: "6px 12px",
+                        fontSize: "10px",
+                        borderRadius: "7px",
+                        background: "linear-gradient(135deg, #f7c948, #e5b52e)",
+                        color: "#1a1430",
+                        letterSpacing: "0.05em",
+                      }}
+                      title="Play puzzle"
+                    >
+                      <Play style={{ width: "10px", height: "10px" }} fill="currentColor" />
+                      Play
+                    </button>
+                    {/* Web Play */}
+                    <button
+                      onClick={() => handleLoad(puzzle)}
+                      disabled={loadingPuzzleId === puzzle.id}
+                      className="hidden md:flex items-center gap-1 text-[10px] uppercase tracking-wider font-heading font-bold px-3 py-1.5 rounded-pill transition-all hover:brightness-125 active:scale-95 disabled:opacity-50"
                       style={{ background: "rgba(255, 215, 0, 0.15)", color: "#FFD700" }}
                       title="Play puzzle"
                     >
                       <Play className="w-3 h-3" fill="currentColor" />
                       Play
                     </button>
+                    {/* Mobile Delete */}
                     <button
                       onClick={(e) => handleDelete(e, puzzle.id)}
-                      className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-heading font-bold px-3 py-1.5 rounded-pill transition-all hover:brightness-125 active:scale-95"
+                      className="md:hidden flex items-center justify-center transition-all hover:brightness-125 active:scale-95"
+                      style={{
+                        width: "28px",
+                        height: "28px",
+                        borderRadius: "7px",
+                        background: deletingId === puzzle.id ? "rgba(255, 77, 106, 0.3)" : "rgba(255, 255, 255, 0.04)",
+                      }}
+                      title={deletingId === puzzle.id ? "Click again to confirm" : "Delete puzzle"}
+                    >
+                      <Trash2 style={{ width: "13px", height: "13px", color: "rgba(255, 77, 106, 0.5)" }} />
+                    </button>
+                    {/* Web Delete */}
+                    <button
+                      onClick={(e) => handleDelete(e, puzzle.id)}
+                      className="hidden md:flex items-center gap-1 text-[10px] uppercase tracking-wider font-heading font-bold px-3 py-1.5 rounded-pill transition-all hover:brightness-125 active:scale-95"
                       style={{
                         background: deletingId === puzzle.id ? "rgba(255, 64, 129, 0.3)" : "rgba(255, 64, 129, 0.15)",
                         color: "#FF4081",
