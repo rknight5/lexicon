@@ -378,11 +378,11 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetry }: { puzzle: CrosswordPu
           </div>
 
           {/* Submit button — below grid panel */}
-          <div className="flex justify-center" style={{ marginTop: -2 }}>
+          <div className="flex justify-center" style={{ marginTop: -6 }}>
             <button
               onClick={checkWord}
               disabled={state.gameStatus !== "playing"}
-              className="px-8 h-10 font-heading text-[21px] font-bold tracking-wider transition-all active:scale-[0.97] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+              className="px-8 h-10 font-heading text-[17px] font-bold tracking-wider transition-all active:scale-[0.97] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
               style={{
                 background: "linear-gradient(135deg, #f7c948, #e5b52e)",
                 color: "#1a1430",
@@ -460,11 +460,11 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetry }: { puzzle: CrosswordPu
         </div>
 
         {/* Submit button — below grid */}
-        <div className="flex justify-center" style={{ padding: "0 18px" }}>
+        <div className="flex justify-center" style={{ padding: "0 18px", marginTop: -4 }}>
           <button
             onClick={checkWord}
             disabled={state.gameStatus !== "playing"}
-            className="px-7 h-9 font-heading text-[19px] font-bold tracking-wider transition-all active:scale-[0.97] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            className="px-7 h-9 font-heading text-[16px] font-bold tracking-wider transition-all active:scale-[0.97] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             style={{
               background: "linear-gradient(135deg, #f7c948, #e5b52e)",
               color: "#1a1430",
