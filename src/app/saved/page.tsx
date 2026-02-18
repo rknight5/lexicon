@@ -36,6 +36,7 @@ const GAME_TYPE_LABEL: Record<string, string> = {
   wordsearch: "Word Search",
   crossword: "Crossword",
   anagram: "Anagram",
+  trivia: "Trivia",
 };
 
 export default function SavedPage() {
