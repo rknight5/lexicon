@@ -330,7 +330,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
 
           {/* Main game panel */}
           <div
-            className="flex flex-col items-center gap-8 rounded-3xl p-10 min-w-[480px]"
+            className="flex flex-col items-center gap-8 rounded-3xl p-10 w-[600px]"
             style={{
               background: "rgba(255, 255, 255, 0.05)",
               border: "1px solid rgba(255, 255, 255, 0.1)",
@@ -353,7 +353,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
                 </div>
 
                 {/* Question text */}
-                <div className="w-full max-w-md text-center">
+                <div className="w-full text-center">
                   <p
                     className="font-body text-base font-semibold leading-snug"
                     style={{ color: "rgba(255, 255, 255, 0.9)" }}
@@ -364,7 +364,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
 
                 {/* Answer options */}
                 {currentQuestion.type === "mc" ? (
-                  <div className="w-full max-w-md space-y-3">
+                  <div className="w-full space-y-3">
                     {currentQuestion.options.map((option, i) => {
                       const isEliminated = eliminated.includes(i);
                       const isSelected = feedbackIndex === i;
@@ -422,7 +422,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
                     })}
                   </div>
                 ) : (
-                  <div className="w-full max-w-md flex gap-3">
+                  <div className="w-full flex gap-3">
                     {currentQuestion.options.map((option, i) => {
                       const isSelected = feedbackIndex === i;
                       const isCorrectOption = i === currentQuestion.correctIndex;
@@ -465,7 +465,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
                 )}
 
                 {/* Progress bar */}
-                <div className="w-full max-w-md">
+                <div className="w-full">
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="font-body text-[11px]" style={{ color: "rgba(255, 255, 255, 0.4)" }}>
                       {state.answers.filter((a) => a === "correct").length}/{puzzle.questions.length} correct
@@ -496,7 +496,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
 
                 {/* Feedback message + Next button */}
                 {hasAnswered && (
-                  <div className="w-full max-w-md flex flex-col items-center gap-3">
+                  <div className="w-full flex flex-col items-center gap-3">
                     {feedbackResult === "correct" && (
                       <span className="font-heading text-sm font-bold" style={{ color: "#34D399" }}>
                         Correct!
@@ -515,11 +515,13 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
                     {feedbackResult === "skipped" && (
                       <button
                         onClick={handleNext}
-                        className="px-8 h-10 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.97]"
+                        className="px-8 h-10 font-ws-body text-sm font-bold uppercase tracking-wider transition-all active:scale-[0.97] cursor-pointer"
                         style={{
-                          background: "rgba(255, 255, 255, 0.08)",
-                          border: "1px solid rgba(255, 255, 255, 0.15)",
-                          color: "rgba(255, 255, 255, 0.7)",
+                          background: "linear-gradient(135deg, #f7c948, #e5b52e)",
+                          color: "#1a1430",
+                          borderRadius: 12,
+                          border: "none",
+                          boxShadow: "0 4px 15px rgba(247, 201, 72, 0.3)",
                         }}
                       >
                         Next
@@ -531,16 +533,15 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
             )}
           </div>
 
-          {/* Stats pill below panel */}
-          <div className="flex justify-center mt-4">
-            <GameStatsBar
-              score={state.score}
-              livesRemaining={state.livesRemaining}
-              hintsUsed={state.hintsUsed}
-              elapsedSeconds={state.elapsedSeconds}
-              gameStatus={state.gameStatus}
-            />
-          </div>
+          {/* Spacer for fixed bottom stats bar */}
+          <div style={{ height: 60 }} />
+          <GameStatsBar
+            score={state.score}
+            livesRemaining={state.livesRemaining}
+            hintsUsed={state.hintsUsed}
+            elapsedSeconds={state.elapsedSeconds}
+            gameStatus={state.gameStatus}
+          />
         </div>
       </div>
 

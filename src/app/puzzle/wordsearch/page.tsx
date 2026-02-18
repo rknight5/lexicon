@@ -338,17 +338,16 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
             </div>
           </div>
 
-          {/* Stats pill below panel */}
-          <div className="flex justify-center mt-4">
-            <GameStatsBar
-              score={score}
-              livesRemaining={state.livesRemaining}
-              hintsUsed={state.hintsUsed}
-              elapsedSeconds={state.elapsedSeconds}
-              gameStatus={state.gameStatus}
-              lastMissTimestamp={lastMissTimestamp}
-            />
-          </div>
+          {/* Spacer for fixed bottom stats bar */}
+          <div style={{ height: 60 }} />
+          <GameStatsBar
+            score={score}
+            livesRemaining={state.livesRemaining}
+            hintsUsed={state.hintsUsed}
+            elapsedSeconds={state.elapsedSeconds}
+            gameStatus={state.gameStatus}
+            lastMissTimestamp={lastMissTimestamp}
+          />
         </div>
       </div>
 

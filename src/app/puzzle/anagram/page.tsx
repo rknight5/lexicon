@@ -360,7 +360,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
 
           {/* Main game panel */}
           <div
-            className="flex flex-col items-center gap-8 rounded-3xl p-10 min-w-[480px]"
+            className="flex flex-col items-center gap-8 rounded-3xl p-10 w-[600px]"
             style={{
               background: "rgba(255, 255, 255, 0.05)",
               border: "1px solid rgba(255, 255, 255, 0.1)",
@@ -500,17 +500,16 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
             </div>
           </div>
 
-          {/* Stats pill below panel */}
-          <div className="flex justify-center mt-4">
-            <GameStatsBar
-              score={score}
-              livesRemaining={state.livesRemaining}
-              hintsUsed={state.hintsUsed}
-              elapsedSeconds={state.elapsedSeconds}
-              gameStatus={state.gameStatus}
-              lastMissTimestamp={lastMissTimestamp}
-            />
-          </div>
+          {/* Spacer for fixed bottom stats bar */}
+          <div style={{ height: 60 }} />
+          <GameStatsBar
+            score={score}
+            livesRemaining={state.livesRemaining}
+            hintsUsed={state.hintsUsed}
+            elapsedSeconds={state.elapsedSeconds}
+            gameStatus={state.gameStatus}
+            lastMissTimestamp={lastMissTimestamp}
+          />
         </div>
       </div>
 
