@@ -13,11 +13,11 @@ import { isProfane } from "@/lib/content-filter";
 import { Toast } from "@/components/shared/Toast";
 
 const EXAMPLE_TOPICS = [
-  "80s Rock",
+  "Classic Movies",
   "Italian Cuisine",
   "Marvel Universe",
   "Ancient Egypt",
-  "Dog Breeds",
+  "Ocean Life",
   "Space Exploration",
 ];
 
