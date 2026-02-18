@@ -350,7 +350,7 @@ function TriviaGame({ puzzle, onRetry }: { puzzle: TriviaPuzzleData; onRetry: ()
       </div>
 
       {/* ═══ Desktop layout ═══ */}
-      <div className="hidden lg:flex flex-1 min-h-0 items-start justify-center pt-[14vh] pb-6">
+      <div className="hidden lg:flex flex-1 min-h-0 items-center justify-center pb-6">
         <div className="relative">
           {/* How to Play sidebar */}
           <div
