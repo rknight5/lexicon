@@ -58,6 +58,8 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
   const [errorRetryable, setErrorRetryable] = useState(true);
   const [topicError, setTopicError] = useState<string | null>(null);
   const [shakeInput, setShakeInput] = useState(false);
+  const [remaining, setRemaining] = useState<number | null>(null);
+  const [limitReached, setLimitReached] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const cancelledRef = useRef(false);
 
@@ -157,6 +159,19 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
     return () => clearTimeout(timer);
   }, [topic]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Fetch daily generation remaining count
+  useEffect(() => {
+    fetch("/api/generate/remaining", { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          setRemaining(data.remaining);
+          setLimitReached(data.remaining <= 0);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const toggleCategory = (name: string) => {
     setSelectedCategories((prev) =>
       prev.includes(name) ? prev.filter((c) => c !== name) : [...prev, name]
@@ -200,10 +215,27 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
         if (res.status === 422) {
           setErrorRetryable(false);
         }
+        if (res.status === 429 && data.remaining === 0) {
+          setRemaining(0);
+          setLimitReached(true);
+          setGenerating(false);
+          abortRef.current = null;
+          return;
+        }
         throw new Error(data.error || "Failed to generate puzzle");
       }
 
       const puzzle = await res.json();
+
+      // Update remaining count from response metadata
+      if (puzzle._meta) {
+        setRemaining(puzzle._meta.remaining);
+        setLimitReached(puzzle._meta.remaining <= 0);
+      }
+
+      // Strip _meta before storing
+      const { _meta, ...puzzleData } = puzzle;
+
       // Store puzzle in sessionStorage and navigate
       const storageKey = puzzleKeyForGameType(gameType);
 
@@ -215,7 +247,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
             ? "/puzzle/trivia"
             : "/puzzle/wordsearch";
       try {
-        sessionStorage.setItem(storageKey, JSON.stringify(puzzle));
+        sessionStorage.setItem(storageKey, JSON.stringify(puzzleData));
       } catch {
         // sessionStorage may be unavailable in private browsing
         throw new Error("Unable to save puzzle data. Try disabling private browsing.");
@@ -535,17 +567,22 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
             disabled={
               generating ||
               selectedCategories.length < 2 ||
-              !topic.trim()
+              !topic.trim() ||
+              limitReached
             }
             className="w-full max-w-md mx-auto flex items-center justify-center gap-2 h-12 rounded-pill font-heading text-sm font-bold uppercase tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed active:enabled:scale-[0.97]"
             style={{
-              background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
-              boxShadow: "0 4px 15px rgba(255, 215, 0, 0.4)",
-              color: "#1a0a2e",
+              background: limitReached
+                ? "rgba(255, 255, 255, 0.12)"
+                : "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
+              boxShadow: limitReached ? "none" : "0 4px 15px rgba(255, 215, 0, 0.4)",
+              color: limitReached ? "rgba(255, 255, 255, 0.4)" : "#1a0a2e",
             }}
           >
             {generating ? (
               <span className="animate-pulse">Generating...</span>
+            ) : limitReached ? (
+              "Daily Limit Reached"
             ) : (
               <>
                 <Sparkles className="w-5 h-5" />
@@ -553,6 +590,21 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
               </>
             )}
           </button>
+          {limitReached ? (
+            <p
+              className="text-center font-body mt-2 max-w-md mx-auto"
+              style={{ fontSize: 12, color: "var(--ws-text-muted)" }}
+            >
+              You&apos;ve used all 10 puzzles for today. Come back tomorrow!
+            </p>
+          ) : remaining !== null ? (
+            <p
+              className="text-center font-body mt-2 max-w-md mx-auto"
+              style={{ fontSize: 12, color: "var(--ws-text-muted)" }}
+            >
+              {remaining} of 10 puzzles remaining today
+            </p>
+          ) : null}
         </div>
       </div>
     </main>

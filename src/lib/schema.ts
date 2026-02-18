@@ -46,3 +46,12 @@ export const autoSaves = pgTable("auto_saves", {
   gameState: text("game_state").notNull(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export const DAILY_GENERATION_LIMIT = 10;
+
+export const generationLog = pgTable("generation_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  username: text("username").notNull(),
+  gameType: text("game_type").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});

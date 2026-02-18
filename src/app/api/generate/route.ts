@@ -5,6 +5,10 @@ import { generateCrosswordGrid } from "@/lib/games/crossword/gridGenerator";
 import { DIFFICULTY_CONFIG, CROSSWORD_DIFFICULTY_CONFIG, ANAGRAM_DIFFICULTY_CONFIG, TRIVIA_DIFFICULTY_CONFIG } from "@/lib/types";
 import type { Difficulty, GameType, PlacedWord, PuzzleData, CrosswordPuzzleData, AnagramPuzzleData, TriviaPuzzleData } from "@/lib/types";
 import { isProfane, filterProfaneItems } from "@/lib/content-filter";
+import { requireAuth } from "@/lib/session";
+import { db } from "@/lib/db";
+import { generationLog, DAILY_GENERATION_LIMIT } from "@/lib/schema";
+import { eq, and, gte, sql } from "drizzle-orm";
 
 function scrambleWord(word: string): string {
   const letters = word.split("");
@@ -18,12 +22,38 @@ function scrambleWord(word: string): string {
   return letters.join("");
 }
 
+async function getGenerationCount(username: string): Promise<number> {
+  const todayUtc = new Date();
+  todayUtc.setUTCHours(0, 0, 0, 0);
+  const [{ count }] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(generationLog)
+    .where(
+      and(
+        eq(generationLog.username, username),
+        gte(generationLog.createdAt, todayUtc)
+      )
+    );
+  return count;
+}
+
+async function recordGeneration(username: string, gameType: string) {
+  await db.insert(generationLog).values({ username, gameType });
+}
+
 export async function POST(request: NextRequest) {
   let body: Record<string, unknown>;
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+
+  let username: string;
+  try {
+    username = await requireAuth();
+  } catch {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   }
 
   try {
@@ -41,6 +71,15 @@ export async function POST(request: NextRequest) {
       const categories = await suggestCategories(body.topic as string);
       const filtered = filterProfaneItems(categories, (c) => [c.name, c.description]);
       return NextResponse.json({ categories: filtered });
+    }
+
+    // Check daily generation limit
+    const count = await getGenerationCount(username);
+    if (count >= DAILY_GENERATION_LIMIT) {
+      return NextResponse.json(
+        { error: "Daily limit reached", remaining: 0, limit: DAILY_GENERATION_LIMIT },
+        { status: 429 }
+      );
     }
 
     // Route 2: Full puzzle generation
@@ -92,6 +131,7 @@ export async function POST(request: NextRequest) {
           clues.some((c) => isProfane(c.answer) || isProfane(c.clue));
 
         if (!hasProfanity) {
+          await recordGeneration(username, gameType as string);
           const puzzle: CrosswordPuzzleData = {
             title,
             grid,
@@ -100,7 +140,7 @@ export async function POST(request: NextRequest) {
             funFact,
             difficulty,
           };
-          return NextResponse.json(puzzle);
+          return NextResponse.json({ ...puzzle, _meta: { remaining: DAILY_GENERATION_LIMIT - count - 1, limit: DAILY_GENERATION_LIMIT } });
         }
       }
 
@@ -131,6 +171,7 @@ export async function POST(request: NextRequest) {
           words.some((w) => isProfane(w.word) || isProfane(w.clue));
 
         if (!hasProfanity) {
+          await recordGeneration(username, gameType as string);
           const anagramWords = words.map((w) => ({
             ...w,
             word: w.word.toUpperCase(),
@@ -143,7 +184,7 @@ export async function POST(request: NextRequest) {
             funFact,
             difficulty,
           };
-          return NextResponse.json(puzzle);
+          return NextResponse.json({ ...puzzle, _meta: { remaining: DAILY_GENERATION_LIMIT - count - 1, limit: DAILY_GENERATION_LIMIT } });
         }
       }
 
@@ -174,13 +215,14 @@ export async function POST(request: NextRequest) {
           questions.some((q) => isProfane(q.question) || q.options.some((o) => isProfane(o)));
 
         if (!hasProfanity) {
+          await recordGeneration(username, gameType as string);
           const puzzle: TriviaPuzzleData = {
             title,
             questions,
             funFact,
             difficulty,
           };
-          return NextResponse.json(puzzle);
+          return NextResponse.json({ ...puzzle, _meta: { remaining: DAILY_GENERATION_LIMIT - count - 1, limit: DAILY_GENERATION_LIMIT } });
         }
       }
 
@@ -210,6 +252,7 @@ export async function POST(request: NextRequest) {
         words.some((w) => isProfane(w.word) || isProfane(w.clue));
 
       if (!hasProfanity) {
+        await recordGeneration(username, gameType as string);
         const { grid, placedWords } = generateGrid(
           words.map((w) => w.word),
           config.gridCols,
@@ -238,7 +281,7 @@ export async function POST(request: NextRequest) {
           funFact,
           difficulty,
         };
-        return NextResponse.json(puzzle);
+        return NextResponse.json({ ...puzzle, _meta: { remaining: DAILY_GENERATION_LIMIT - count - 1, limit: DAILY_GENERATION_LIMIT } });
       }
     }
 
