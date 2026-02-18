@@ -60,10 +60,12 @@ export function CrosswordGrid({
     }
   }, [gameStatus, focusInput]);
 
-  // Keyboard handler
+  // Keyboard handler (fallback for when hidden input is not focused)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (gameStatus !== "playing") return;
+      // Skip if the hidden input is focused — its own onKeyDown handles everything
+      if (document.activeElement === hiddenInputRef.current) return;
 
       if (e.key === "Backspace" || e.key === "Delete") {
         e.preventDefault();
@@ -172,11 +174,19 @@ export function CrosswordGrid({
       const parentWidth = containerRef.current.parentElement.clientWidth;
 
       if (mobile) {
-        const containerPadding = 48; // 24px each side
         const gapTotal = (gridSize - 1) * 2;
-        const available = parentWidth - containerPadding - gapTotal;
-        const computed = Math.floor(available / gridSize);
-        setCellPx(Math.max(20, Math.min(36, computed)));
+        // Tiered padding: reduce side padding as grid grows
+        let sidePad = 24;
+        let computed = Math.floor((parentWidth - sidePad * 2 - gapTotal) / gridSize);
+        if (computed < 32) {
+          sidePad = 16;
+          computed = Math.floor((parentWidth - sidePad * 2 - gapTotal) / gridSize);
+        }
+        if (computed < 32) {
+          sidePad = 12;
+          computed = Math.floor((parentWidth - sidePad * 2 - gapTotal) / gridSize);
+        }
+        setCellPx(Math.max(24, computed));
       } else {
         const gapTotal = (gridSize - 1) * 2 + 4; // 2px gaps + 2px padding each side
         const available = parentWidth - gapTotal;
@@ -190,27 +200,66 @@ export function CrosswordGrid({
     return () => window.removeEventListener("resize", measure);
   }, [gridSize, mobile]);
 
-  const fontSize = mobile ? 13 : Math.max(12, Math.floor(cellPx * 0.45));
+  const fontSize = mobile ? Math.max(13, Math.floor(cellPx * 0.42)) : Math.max(12, Math.floor(cellPx * 0.45));
   const clueNumSize = Math.max(7, Math.floor(cellPx * 0.22));
 
   return (
-    <div className="flex flex-col items-center gap-3 w-full">
-      {/* Hidden input for mobile keyboard */}
+    <div className="flex flex-col items-center gap-3 w-full relative">
+      {/* Hidden input for keyboard capture (positioned invisible, not sr-only for mobile compat) */}
       <input
         ref={hiddenInputRef}
         type="text"
-        className="sr-only"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: "50%",
+          width: 1,
+          height: 1,
+          opacity: 0,
+          border: "none",
+          padding: 0,
+          margin: 0,
+          outline: "none",
+          fontSize: 16, // Prevents iOS zoom on focus
+          caretColor: "transparent",
+        }}
         autoCapitalize="characters"
         autoComplete="off"
         autoCorrect="off"
+        spellCheck={false}
         inputMode="text"
         aria-label="Crossword input"
-        onInput={(e) => {
-          const value = (e.target as HTMLInputElement).value;
-          if (value && /^[a-zA-Z]$/.test(value)) {
-            onTypeLetter(value);
+        onKeyDown={(e) => {
+          if (gameStatus !== "playing") return;
+          if (e.key === "Backspace" || e.key === "Delete") {
+            e.preventDefault();
+            onDeleteLetter();
+          } else if (e.key === "Tab" || e.key === "Enter") {
+            e.preventDefault();
+            onCheckWord();
+          } else if (e.key === " ") {
+            e.preventDefault();
+            onToggleDirection();
+          } else if (e.key.startsWith("Arrow")) {
+            e.preventDefault();
+            const dr = e.key === "ArrowDown" ? 1 : e.key === "ArrowUp" ? -1 : 0;
+            const dc = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+            const nr = cursorRow + dr;
+            const nc = cursorCol + dc;
+            if (nr >= 0 && nr < gridSize && nc >= 0 && nc < gridSize && grid[nr][nc].letter !== null) {
+              onSelectCell(nr, nc);
+            }
           }
-          (e.target as HTMLInputElement).value = "";
+          // Letters: don't preventDefault — let the character enter the input so onInput fires
+        }}
+        onInput={(e) => {
+          const input = e.target as HTMLInputElement;
+          const value = input.value;
+          const lastChar = value.slice(-1);
+          if (lastChar && /^[a-zA-Z]$/.test(lastChar)) {
+            onTypeLetter(lastChar);
+          }
+          requestAnimationFrame(() => { input.value = ""; });
         }}
       />
 

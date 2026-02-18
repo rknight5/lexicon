@@ -157,6 +157,11 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
       ? activeCell?.acrossClueNum
       : activeCell?.downClueNum;
 
+  // Active clue for the hint bar
+  const activeClue = puzzle.clues.find(
+    (c) => c.number === activeClueNum && c.direction === state.cursorDirection
+  );
+
   const score = calculateScore(
     state.solvedClues.length,
     state.livesRemaining,
@@ -334,7 +339,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
 
       {/* ═══ Mobile: dark layout matching word search ═══ */}
       <div
-        className="lg:hidden flex-1 flex flex-col"
+        className="lg:hidden flex-1 flex flex-col overflow-y-auto"
         style={{ background: "var(--ws-bg)" }}
       >
         {/* Fixed header */}
@@ -358,8 +363,8 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
           score={score}
         />
 
-        {/* Grid — centered with 24px side padding */}
-        <div style={{ padding: "4px 24px" }}>
+        {/* Grid — no side padding, grid component handles sizing with tiered padding */}
+        <div style={{ padding: "4px 0" }}>
           <div className="w-full flex justify-center" onClick={handleFirstInteraction}>
             <CrosswordGrid
               grid={puzzle.grid}
@@ -384,6 +389,34 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
           </div>
         </div>
 
+        {/* Active clue hint bar */}
+        {activeClue && (
+          <div style={{ padding: "6px 24px 0" }}>
+            <div
+              className="flex items-center gap-1.5 truncate"
+              style={{
+                padding: "7px 10px",
+                background: "rgba(167, 139, 250, 0.08)",
+                border: "1px solid rgba(167, 139, 250, 0.12)",
+                borderRadius: 8,
+              }}
+            >
+              <span
+                className="font-ws-mono flex-shrink-0"
+                style={{ fontSize: 10, color: "rgba(167, 139, 250, 0.7)", textTransform: "uppercase", letterSpacing: "0.5px" }}
+              >
+                {activeClue.number} {activeClue.direction}
+              </span>
+              <span
+                className="font-ws-body truncate"
+                style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.75)" }}
+              >
+                {activeClue.clue}
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Progress bar */}
         <div style={{ padding: "8px 24px 0" }}>
           <WordProgress
@@ -392,9 +425,8 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
           />
         </div>
 
-        {/* Clues — independently scrollable */}
+        {/* Clues — two columns, scrolls naturally with page */}
         <div
-          className="flex-1 overflow-y-auto ws-pills-scroll"
           style={{
             padding: "8px 18px 12px",
             paddingBottom: "calc(env(safe-area-inset-bottom, 34px) + 12px)",
