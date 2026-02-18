@@ -117,6 +117,46 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
     return () => controller.abort();
   }, [prefetchedCategories]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Re-fetch categories when topic changes (debounced)
+  const mountedRef = useRef(false);
+  const refetchRef = useRef<AbortController | null>(null);
+  useEffect(() => {
+    // Skip the initial mount render (handled by the effect above)
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
+
+    // Abort any in-flight refetch from a previous keystroke
+    refetchRef.current?.abort();
+
+    if (!topic.trim()) {
+      setCategories([]);
+      setSelectedCategories([]);
+      setLoadingCategories(false);
+      setCategoryError(false);
+      return;
+    }
+
+    setLoadingCategories(true);
+
+    const timer = setTimeout(() => {
+      if (isProfane(topic)) {
+        setTopicError("This topic isn't available. Try something else.");
+        setShakeInput(true);
+        setTimeout(() => setShakeInput(false), 300);
+        setCategories([]);
+        setLoadingCategories(false);
+        return;
+      }
+      const controller = new AbortController();
+      refetchRef.current = controller;
+      fetchCategories(controller.signal);
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [topic]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const toggleCategory = (name: string) => {
     setSelectedCategories((prev) =>
       prev.includes(name) ? prev.filter((c) => c !== name) : [...prev, name]
