@@ -307,15 +307,11 @@ function buildAnagramUserMessage(
   const config = ANAGRAM_DIFFICULTY_CONFIG[difficulty];
   let message = `Topic: ${topic}
 Difficulty: ${difficulty}
-Word count: ${config.minWords}-${config.maxWords}
+Word count: ${config.candidateWords}
 Word length: ${config.minWordLength}-${config.maxWordLength} letters
 Focus categories: ${focusCategories.join(", ")}`;
 
   if (attempt === 2) {
-    message +=
-      "\n\nNote: If the topic is narrow, broaden to include related topics, influences, and cultural references.";
-  }
-  if (attempt === 3) {
     message +=
       "\n\nNote: Generate any words broadly related to this topic area. Ignore category restrictions — just produce enough valid puzzle words.";
   }
@@ -330,7 +326,7 @@ export async function generateAnagramWords(
 ): Promise<{ title: string; words: WordEntry[]; funFact: string }> {
   const config = ANAGRAM_DIFFICULTY_CONFIG[difficulty];
 
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  for (let attempt = 1; attempt <= 2; attempt++) {
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-5-20250929",
       max_tokens: 4096,
@@ -356,7 +352,7 @@ export async function generateAnagramWords(
     try {
       const parsed = parseClaudeResponse(text);
       const categoriesToFilter =
-        attempt === 3 ? parsed.words.map((w) => w.category) : focusCategories;
+        attempt === 2 ? parsed.words.map((w) => w.category) : focusCategories;
       const validated = validateAndFilterWords(parsed.words, {
         minWords: config.minWords,
         maxWords: config.maxWords,
@@ -373,7 +369,7 @@ export async function generateAnagramWords(
         };
       }
     } catch {
-      if (attempt === 3) throw new Error("Failed to parse anagram data after 3 attempts");
+      if (attempt === 2) throw new Error("Failed to parse anagram data after 2 attempts");
     }
   }
 
