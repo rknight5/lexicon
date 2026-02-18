@@ -44,7 +44,7 @@ export default function SavedPage() {
   const [puzzles, setPuzzles] = useState<SavedPuzzleSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingPuzzleId, setLoadingPuzzleId] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string } | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -87,19 +87,15 @@ export default function SavedPage() {
     router.push(route);
   };
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    if (deletingId === id) {
-      const ok = await deleteSavedPuzzle(id);
-      if (ok) {
-        setPuzzles((prev) => prev.filter((p) => p.id !== id));
-      } else {
-        setErrorMessage("Couldn't delete puzzle — check your connection");
-      }
-      setDeletingId(null);
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    const ok = await deleteSavedPuzzle(pendingDelete.id);
+    if (ok) {
+      setPuzzles((prev) => prev.filter((p) => p.id !== pendingDelete.id));
     } else {
-      setDeletingId(id);
+      setErrorMessage("Couldn't delete puzzle — check your connection");
     }
+    setPendingDelete(null);
   };
 
   return (
@@ -127,7 +123,7 @@ export default function SavedPage() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col items-center px-5 py-6" onClick={() => setDeletingId(null)}>
+      <div className="flex-1 flex flex-col items-center px-5 py-6">
         <div className="w-full max-w-xl">
           {loading ? (
             <div className="space-y-3">
@@ -206,30 +202,30 @@ export default function SavedPage() {
                     </button>
                     {/* Mobile Delete */}
                     <button
-                      onClick={(e) => handleDelete(e, puzzle.id)}
+                      onClick={() => setPendingDelete({ id: puzzle.id, title: puzzle.title })}
                       className="md:hidden flex items-center justify-center transition-all hover:brightness-125 active:scale-95"
                       style={{
                         width: "28px",
                         height: "28px",
                         borderRadius: "7px",
-                        background: deletingId === puzzle.id ? "rgba(255, 77, 106, 0.3)" : "rgba(255, 255, 255, 0.04)",
+                        background: "rgba(255, 255, 255, 0.04)",
                       }}
-                      title={deletingId === puzzle.id ? "Click again to confirm" : "Delete puzzle"}
+                      title="Delete puzzle"
                     >
                       <Trash2 style={{ width: "13px", height: "13px", color: "rgba(255, 77, 106, 0.5)" }} />
                     </button>
                     {/* Web Delete */}
                     <button
-                      onClick={(e) => handleDelete(e, puzzle.id)}
+                      onClick={() => setPendingDelete({ id: puzzle.id, title: puzzle.title })}
                       className="hidden md:flex items-center gap-1 text-[10px] uppercase tracking-wider font-heading font-bold px-3 py-1.5 rounded-pill transition-all hover:brightness-125 active:scale-95"
                       style={{
-                        background: deletingId === puzzle.id ? "rgba(255, 64, 129, 0.3)" : "rgba(255, 64, 129, 0.15)",
+                        background: "rgba(255, 64, 129, 0.15)",
                         color: "#FF4081",
                       }}
-                      title={deletingId === puzzle.id ? "Click again to confirm" : "Delete puzzle"}
+                      title="Delete puzzle"
                     >
                       <Trash2 className="w-3 h-3" />
-                      {deletingId === puzzle.id ? "Confirm" : "Delete"}
+                      Delete
                     </button>
                   </div>
                 </div>
@@ -238,6 +234,87 @@ export default function SavedPage() {
           )}
         </div>
       </div>
+
+      {/* Delete confirmation modal */}
+      {pendingDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Dark overlay */}
+          <div
+            className="absolute inset-0"
+            style={{ background: "rgba(0, 0, 0, 0.6)" }}
+            onClick={() => setPendingDelete(null)}
+          />
+          {/* Modal card */}
+          <div
+            className="relative flex flex-col items-center mx-4"
+            style={{
+              width: "100%",
+              maxWidth: 320,
+              padding: 28,
+              background: "rgba(22, 14, 42, 0.95)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              border: "1px solid rgba(167, 139, 250, 0.15)",
+              borderRadius: 18,
+              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
+            }}
+          >
+            {/* Red-tinted trash icon circle */}
+            <div
+              className="flex items-center justify-center"
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: "50%",
+                background: "rgba(255, 77, 106, 0.1)",
+                border: "1px solid rgba(255, 77, 106, 0.2)",
+              }}
+            >
+              <Trash2 style={{ width: 22, height: 22, color: "#ff4d6a" }} />
+            </div>
+
+            {/* Title */}
+            <span className="font-heading text-[16px] font-semibold text-white mt-4">
+              Delete Puzzle?
+            </span>
+
+            {/* Puzzle name */}
+            <span className="font-body text-[13px] mt-1.5" style={{ color: "#f7c948" }}>
+              {pendingDelete.title}
+            </span>
+
+            {/* Description */}
+            <span
+              className="font-body text-[13px] text-center mt-2"
+              style={{ color: "rgba(255, 255, 255, 0.5)" }}
+            >
+              This will permanently remove the puzzle from your library.
+            </span>
+
+            {/* DELETE button */}
+            <button
+              onClick={confirmDelete}
+              className="w-full h-10 rounded-xl font-heading text-[13px] font-bold uppercase tracking-wider text-white transition-all hover:brightness-110 active:scale-[0.97] cursor-pointer mt-5"
+              style={{ background: "#ff4d6a" }}
+            >
+              Delete
+            </button>
+
+            {/* CANCEL button */}
+            <button
+              onClick={() => setPendingDelete(null)}
+              className="w-full h-10 rounded-xl font-heading text-[13px] font-bold uppercase tracking-wider transition-all hover:brightness-125 active:scale-[0.97] cursor-pointer mt-2"
+              style={{
+                background: "transparent",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                color: "rgba(255, 255, 255, 0.5)",
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {errorMessage && (
         <Toast
