@@ -75,9 +75,11 @@ export function anagramReducer(
 
       if (playerAnswer === correctAnswer) {
         const newSolvedWords = [...state.solvedWords, currentWord.word];
-        const allDone = newSolvedWords.length === state.puzzle.words.length;
+        const allSolved = newSolvedWords.length === state.puzzle.words.length;
+        const nextIndex = state.currentWordIndex + 1;
+        const isLastWord = nextIndex >= state.puzzle.words.length;
 
-        if (allDone) {
+        if (allSolved) {
           return {
             ...state,
             solvedWords: newSolvedWords,
@@ -87,11 +89,22 @@ export function anagramReducer(
           };
         }
 
+        if (isLastWord) {
+          // Reached the end but skipped words — loss
+          return {
+            ...state,
+            solvedWords: newSolvedWords,
+            selectedIndices: [],
+            gameStatus: "lost",
+            timerRunning: false,
+          };
+        }
+
         // Advance to next word
         return {
           ...state,
           solvedWords: newSolvedWords,
-          currentWordIndex: state.currentWordIndex + 1,
+          currentWordIndex: nextIndex,
           selectedIndices: [],
         };
       }
