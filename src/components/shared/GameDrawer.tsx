@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Info, PlusCircle, Share2, BarChart2, Settings, LogOut } from "lucide-react";
+import { Info, PlusCircle, Share2, Bookmark, BarChart2, Settings, LogOut } from "lucide-react";
 import { HowToPlayModal } from "@/components/shared/HowToPlayModal";
 import type { GameType } from "@/lib/types";
 
@@ -14,6 +14,8 @@ interface GameDrawerProps {
   onStats: () => void;
   onShare: () => void;
   onSettings: () => void;
+  onSave?: () => void;
+  isSaved?: boolean;
 }
 
 function applyHover(btn: HTMLButtonElement) {
@@ -40,6 +42,8 @@ export function GameDrawer({
   onStats,
   onShare,
   onSettings,
+  onSave,
+  isSaved,
 }: GameDrawerProps) {
   const router = useRouter();
   const [visible, setVisible] = useState(false);
@@ -81,6 +85,11 @@ export function GameDrawer({
     onShare();
     handleClose();
   }, [onShare, handleClose]);
+
+  const handleSave = useCallback(() => {
+    if (onSave) onSave();
+    handleClose();
+  }, [onSave, handleClose]);
 
   const handleSettings = useCallback(() => {
     setVisible(false);
@@ -194,6 +203,38 @@ export function GameDrawer({
 
           {/* Divider */}
           <div style={{ height: 1, background: "rgba(255, 255, 255, 0.06)", margin: "2px 12px" }} />
+
+          {/* Save Puzzle */}
+          {onSave && (
+            <>
+              <button
+                onClick={handleSave}
+                disabled={isSaved}
+                className={`w-full flex items-center gap-2.5 transition-colors ${isSaved ? "cursor-default opacity-50" : "cursor-pointer"}`}
+                style={{ padding: "11px 14px" }}
+                onMouseEnter={(e) => !isSaved && applyHover(e.currentTarget)}
+                onMouseLeave={(e) => !isSaved && clearHover(e.currentTarget)}
+              >
+                <Bookmark
+                  data-menu-icon=""
+                  style={{
+                    width: 18,
+                    height: 18,
+                    color: isSaved ? "#f7c948" : "rgba(255, 255, 255, 0.45)",
+                  }}
+                  fill={isSaved ? "currentColor" : "none"}
+                />
+                <span
+                  data-menu-label=""
+                  className="font-body text-[13px] font-medium"
+                  style={{ color: isSaved ? "rgba(255, 255, 255, 0.5)" : "rgba(255, 255, 255, 0.8)" }}
+                >
+                  {isSaved ? "Saved" : "Save Puzzle"}
+                </span>
+              </button>
+              <div style={{ height: 1, background: "rgba(255, 255, 255, 0.06)", margin: "2px 12px" }} />
+            </>
+          )}
 
           {/* Stats */}
           <button

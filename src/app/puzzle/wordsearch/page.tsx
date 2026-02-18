@@ -452,6 +452,8 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
         onStats={() => { setDrawerOpen(false); setShowStats(true); }}
         onShare={handleShare}
         onSettings={() => { setDrawerOpen(false); setToastMessage("Coming soon"); }}
+        onSave={handleSave}
+        isSaved={isSaved || isSaving}
       />
 
       {/* Mobile game over */}

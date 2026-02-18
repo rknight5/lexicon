@@ -1012,6 +1012,8 @@ function TriviaGame({ puzzle, onRetry }: { puzzle: TriviaPuzzleData; onRetry: ()
         onStats={() => { setDrawerOpen(false); setShowStats(true); }}
         onShare={handleShare}
         onSettings={() => { setDrawerOpen(false); setToastMessage("Coming soon"); }}
+        onSave={handleSave}
+        isSaved={isSaved || isSaving}
       />
 
       {state.gameStatus === "lost" && (

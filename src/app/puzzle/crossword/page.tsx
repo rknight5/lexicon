@@ -377,6 +377,24 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetry }: { puzzle: CrosswordPu
             </div>
           </div>
 
+          {/* Check button — below grid panel */}
+          <div className="flex justify-center" style={{ marginTop: 16 }}>
+            <button
+              onClick={checkWord}
+              disabled={state.gameStatus !== "playing"}
+              className="px-8 h-10 font-heading text-sm font-bold uppercase tracking-wider transition-all active:scale-[0.97] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+              style={{
+                background: "linear-gradient(135deg, #f7c948, #e5b52e)",
+                color: "#1a1430",
+                borderRadius: 12,
+                border: "none",
+                boxShadow: "0 4px 15px rgba(247, 201, 72, 0.3)",
+              }}
+            >
+              Check
+            </button>
+          </div>
+
           {/* Spacer for fixed bottom stats bar */}
           <div style={{ height: 60 }} />
           <GameStatsBar
@@ -441,6 +459,24 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetry }: { puzzle: CrosswordPu
           </div>
         </div>
 
+        {/* Check button — below grid */}
+        <div className="flex justify-center" style={{ padding: "8px 18px 0" }}>
+          <button
+            onClick={checkWord}
+            disabled={state.gameStatus !== "playing"}
+            className="px-7 h-9 font-heading text-[13px] font-bold uppercase tracking-wider transition-all active:scale-[0.97] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{
+              background: "linear-gradient(135deg, #f7c948, #e5b52e)",
+              color: "#1a1430",
+              borderRadius: 12,
+              border: "none",
+              boxShadow: "0 4px 15px rgba(247, 201, 72, 0.3)",
+            }}
+          >
+            Check
+          </button>
+        </div>
+
         {/* Progress bar */}
         <div style={{ padding: "10px 18px 0" }}>
           <WordProgress
@@ -486,6 +522,8 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetry }: { puzzle: CrosswordPu
         onStats={() => { setDrawerOpen(false); setShowStats(true); }}
         onShare={handleShare}
         onSettings={() => { setDrawerOpen(false); setToastMessage("Coming soon"); }}
+        onSave={handleSave}
+        isSaved={isSaved || isSaving}
       />
 
       {state.gameStatus === "lost" && (
