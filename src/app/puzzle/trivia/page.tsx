@@ -354,7 +354,7 @@ function TriviaGame({ puzzle, onRetry }: { puzzle: TriviaPuzzleData; onRetry: ()
         <div className="relative">
           {/* How to Play sidebar */}
           <div
-            className="absolute right-full top-0 mr-24 flex flex-col gap-2.5 whitespace-nowrap"
+            className="absolute right-full top-0 mr-32 flex flex-col gap-2.5 whitespace-nowrap"
             style={{
               background: "rgba(255, 255, 255, 0.04)",
               border: "1px solid rgba(255, 255, 255, 0.06)",
@@ -373,7 +373,7 @@ function TriviaGame({ puzzle, onRetry }: { puzzle: TriviaPuzzleData; onRetry: ()
           </div>
 
           {/* Hint sidebar */}
-          <div className="absolute left-full top-0 ml-24 flex flex-col items-center whitespace-nowrap">
+          <div className="absolute left-full top-0 ml-32 flex flex-col items-center whitespace-nowrap">
             <div className="flex flex-col items-center gap-3">
               <div>
                 <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold">
