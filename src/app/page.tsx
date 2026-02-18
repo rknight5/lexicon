@@ -9,6 +9,7 @@ import { ResumeCard } from "@/components/shared/ResumeCard";
 import { getAutoSave, deleteAutoSave, savePuzzle, type AutoSaveSummary } from "@/lib/storage";
 import type { CategorySuggestion } from "@/lib/types";
 import { STORAGE_KEYS, puzzleKeyForGameType } from "@/lib/storage-keys";
+import { isProfane } from "@/lib/content-filter";
 
 const EXAMPLE_TOPICS = [
   "80s Rock",
@@ -28,6 +29,8 @@ export default function HomePage() {
   const prefetchTopicRef = useRef("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [topicError, setTopicError] = useState<string | null>(null);
+  const [shakeInput, setShakeInput] = useState(false);
   const [autoSave, setAutoSave] = useState<AutoSaveSummary | null>(null);
   const [hasUnseenSaves, setHasUnseenSaves] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
@@ -72,7 +75,7 @@ export default function HomePage() {
   // Prefetch categories as the user types (debounced 600ms)
   const prefetchCategories = useCallback((value: string) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (!value.trim()) {
+    if (!value.trim() || isProfane(value)) {
       setPrefetchedCategories(null);
       return;
     }
@@ -106,11 +109,18 @@ export default function HomePage() {
   const handleTopicChange = (value: string) => {
     const trimmed = value.slice(0, 200);
     setTopic(trimmed);
+    if (topicError) setTopicError(null);
     prefetchCategories(trimmed);
   };
 
   const handleSubmit = () => {
     if (!topic.trim()) return;
+    if (isProfane(topic)) {
+      setTopicError("This topic isn't available. Try something else.");
+      setShakeInput(true);
+      setTimeout(() => setShakeInput(false), 300);
+      return;
+    }
     setShowConfig(true);
   };
 
@@ -229,13 +239,18 @@ export default function HomePage() {
           onChange={(e) => handleTopicChange(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
           placeholder="What are you into? Try '90s grunge' or 'classic jazz piano'"
-          className="w-full h-[52px] px-5 rounded-2xl text-base font-body text-white placeholder:text-white/50 outline-none transition-all"
+          className={`w-full h-[52px] px-5 rounded-2xl text-base font-body text-white placeholder:text-white/50 outline-none transition-all${shakeInput ? " animate-shake" : ""}`}
           style={{
             background: "var(--glass-bg)",
             border: "2px solid var(--glass-border)",
           }}
           autoFocus
         />
+        {topicError && (
+          <p className="font-body" style={{ fontSize: 13, color: "rgba(255, 77, 106, 0.8)", marginTop: 6 }}>
+            {topicError}
+          </p>
+        )}
         <button
           onClick={handleSubmit}
           disabled={!topic.trim() || isOffline}

@@ -14,6 +14,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.73.0",
     "@serwist/next": "^9.5.5",
+    "bad-words": "^4.0.0",
     "drizzle-kit": "^0.31.9",
     "drizzle-orm": "^0.45.1",
     "idb-keyval": "^6.2.2",

@@ -6,6 +6,7 @@ import { X, Shield, Flame, Skull, Sparkles, Search, Grid3X3, Shuffle, Brain, Inf
 import type { Difficulty, GameType, CategorySuggestion } from "@/lib/types";
 import { LoadingOverlay } from "@/components/shared/LoadingOverlay";
 import { STORAGE_KEYS, puzzleKeyForGameType } from "@/lib/storage-keys";
+import { isProfane } from "@/lib/content-filter";
 
 interface ConfigScreenProps {
   topic: string;
@@ -54,6 +55,8 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
   const [categoryError, setCategoryError] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [topicError, setTopicError] = useState<string | null>(null);
+  const [shakeInput, setShakeInput] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const cancelledRef = useRef(false);
 
@@ -113,6 +116,12 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
 
   const handleGenerate = async () => {
     if (selectedCategories.length < 2) return;
+    if (isProfane(topic)) {
+      setTopicError("This topic isn't available. Try something else.");
+      setShakeInput(true);
+      setTimeout(() => setShakeInput(false), 300);
+      return;
+    }
     setGenerating(true);
     setError(null);
     cancelledRef.current = false;
@@ -244,13 +253,21 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
             <input
               type="text"
               value={topic}
-              onChange={(e) => onTopicChange(e.target.value.slice(0, 200))}
-              className="w-full h-11 px-4 rounded-xl text-base font-body text-white placeholder:text-white/50 outline-none transition-all"
+              onChange={(e) => {
+                onTopicChange(e.target.value.slice(0, 200));
+                if (topicError) setTopicError(null);
+              }}
+              className={`w-full h-11 px-4 rounded-xl text-base font-body text-white placeholder:text-white/50 outline-none transition-all${shakeInput ? " animate-shake" : ""}`}
               style={{
                 background: "var(--glass-bg)",
                 border: "1px solid var(--glass-border)",
               }}
             />
+            {topicError && (
+              <p className="font-body" style={{ fontSize: 13, color: "rgba(255, 77, 106, 0.8)", marginTop: 6 }}>
+                {topicError}
+              </p>
+            )}
             {/* Tip card */}
             <div
               className="flex items-start gap-2.5 mt-3 px-3 py-2.5 rounded-xl"

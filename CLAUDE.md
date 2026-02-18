@@ -34,6 +34,8 @@ Purple gradient `#2D1B69` → `#1A0A2E` | Gold `#FFD700` | Green `#00E676` | Cya
 ## Reference docs (local only, not in git)
 - `.claude/docs/architecture.md` — game flow, API, state management, grid gen, hints, scoring, storage
 
-## Mobile
-- All 3 game pages share `WordSearchHeader` and `WordSearchStatsRow`. `WordProgress` used by wordsearch and anagram only. Update all when changing layout
+## Mobile / Desktop Components
+- All game pages share `GameBar` (header) and `GameStatsBar` (fixed bottom bar, desktop). `WordProgress` used by wordsearch, anagram, crossword. Update all when changing layout
+- Desktop game panels (trivia, anagram): `w-[600px]` centered. Crossword/wordsearch use flexible grid sizing
+- Primary action buttons: gold gradient `linear-gradient(135deg, #f7c948, #e5b52e)`, dark text `#1a1430`, `borderRadius: 12`
 - Interstitials: `fixed inset-0 overflow-hidden`, not `min-h-screen`. Messages escalate (exploratory → constructive → conclusive), never loop

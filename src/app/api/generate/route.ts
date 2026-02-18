@@ -4,6 +4,7 @@ import { generateGrid } from "@/lib/games/wordsearch/gridGenerator";
 import { generateCrosswordGrid } from "@/lib/games/crossword/gridGenerator";
 import { DIFFICULTY_CONFIG, CROSSWORD_DIFFICULTY_CONFIG, ANAGRAM_DIFFICULTY_CONFIG, TRIVIA_DIFFICULTY_CONFIG } from "@/lib/types";
 import type { Difficulty, GameType, PlacedWord, PuzzleData, CrosswordPuzzleData, AnagramPuzzleData, TriviaPuzzleData } from "@/lib/types";
+import { isProfane, filterProfaneItems } from "@/lib/content-filter";
 
 function scrambleWord(word: string): string {
   const letters = word.split("");
@@ -27,10 +28,19 @@ export async function POST(request: NextRequest) {
 
   try {
 
+    // Block profane topics server-side
+    if (body.topic && isProfane(body.topic as string)) {
+      return NextResponse.json(
+        { error: "This topic isn't available. Try something else." },
+        { status: 422 }
+      );
+    }
+
     // Route 1: Category suggestion (topic only, no difficulty)
     if (body.topic && !body.difficulty) {
       const categories = await suggestCategories(body.topic as string);
-      return NextResponse.json({ categories });
+      const filtered = filterProfaneItems(categories, (c) => [c.name, c.description]);
+      return NextResponse.json({ categories: filtered });
     }
 
     // Route 2: Full puzzle generation
@@ -65,28 +75,39 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const { title, words, funFact } = await generateCrosswordWords(
-        topic,
-        difficulty,
-        focusCategories
+      for (let contentAttempt = 0; contentAttempt < 3; contentAttempt++) {
+        const { title, words, funFact } = await generateCrosswordWords(
+          topic,
+          difficulty,
+          focusCategories
+        );
+
+        const { grid, clues } = generateCrosswordGrid(
+          words,
+          config.gridSize,
+          config.minWords
+        );
+
+        const hasProfanity = isProfane(title) || isProfane(funFact) ||
+          clues.some((c) => isProfane(c.answer) || isProfane(c.clue));
+
+        if (!hasProfanity) {
+          const puzzle: CrosswordPuzzleData = {
+            title,
+            grid,
+            clues,
+            gridSize: config.gridSize,
+            funFact,
+            difficulty,
+          };
+          return NextResponse.json(puzzle);
+        }
+      }
+
+      return NextResponse.json(
+        { error: "Couldn't generate a puzzle for this topic. Try a different one." },
+        { status: 422 }
       );
-
-      const { grid, clues } = generateCrosswordGrid(
-        words,
-        config.gridSize,
-        config.minWords
-      );
-
-      const puzzle: CrosswordPuzzleData = {
-        title,
-        grid,
-        clues,
-        gridSize: config.gridSize,
-        funFact,
-        difficulty,
-      };
-
-      return NextResponse.json(puzzle);
     }
 
     // ---- Anagram generation ----
@@ -99,27 +120,37 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const { title, words, funFact } = await generateAnagramWords(
-        topic,
-        difficulty,
-        focusCategories
+      for (let contentAttempt = 0; contentAttempt < 3; contentAttempt++) {
+        const { title, words, funFact } = await generateAnagramWords(
+          topic,
+          difficulty,
+          focusCategories
+        );
+
+        const hasProfanity = isProfane(title) || isProfane(funFact) ||
+          words.some((w) => isProfane(w.word) || isProfane(w.clue));
+
+        if (!hasProfanity) {
+          const anagramWords = words.map((w) => ({
+            ...w,
+            word: w.word.toUpperCase(),
+            scrambled: scrambleWord(w.word.toUpperCase()),
+          }));
+
+          const puzzle: AnagramPuzzleData = {
+            title,
+            words: anagramWords,
+            funFact,
+            difficulty,
+          };
+          return NextResponse.json(puzzle);
+        }
+      }
+
+      return NextResponse.json(
+        { error: "Couldn't generate a puzzle for this topic. Try a different one." },
+        { status: 422 }
       );
-
-      // Scramble each word
-      const anagramWords = words.map((w) => ({
-        ...w,
-        word: w.word.toUpperCase(),
-        scrambled: scrambleWord(w.word.toUpperCase()),
-      }));
-
-      const puzzle: AnagramPuzzleData = {
-        title,
-        words: anagramWords,
-        funFact,
-        difficulty,
-      };
-
-      return NextResponse.json(puzzle);
     }
 
     // ---- Trivia generation ----
@@ -132,20 +163,31 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const { title, questions, funFact } = await generateTriviaQuestions(
-        topic,
-        difficulty,
-        focusCategories
+      for (let contentAttempt = 0; contentAttempt < 3; contentAttempt++) {
+        const { title, questions, funFact } = await generateTriviaQuestions(
+          topic,
+          difficulty,
+          focusCategories
+        );
+
+        const hasProfanity = isProfane(title) || isProfane(funFact) ||
+          questions.some((q) => isProfane(q.question) || q.options.some((o) => isProfane(o)));
+
+        if (!hasProfanity) {
+          const puzzle: TriviaPuzzleData = {
+            title,
+            questions,
+            funFact,
+            difficulty,
+          };
+          return NextResponse.json(puzzle);
+        }
+      }
+
+      return NextResponse.json(
+        { error: "Couldn't generate a puzzle for this topic. Try a different one." },
+        { status: 422 }
       );
-
-      const puzzle: TriviaPuzzleData = {
-        title,
-        questions,
-        funFact,
-        difficulty,
-      };
-
-      return NextResponse.json(puzzle);
     }
 
     // ---- Word search generation ----
@@ -157,42 +199,53 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { title, words, funFact } = await generatePuzzleWords(
-      topic,
-      difficulty,
-      focusCategories
+    for (let contentAttempt = 0; contentAttempt < 3; contentAttempt++) {
+      const { title, words, funFact } = await generatePuzzleWords(
+        topic,
+        difficulty,
+        focusCategories
+      );
+
+      const hasProfanity = isProfane(title) || isProfane(funFact) ||
+        words.some((w) => isProfane(w.word) || isProfane(w.clue));
+
+      if (!hasProfanity) {
+        const { grid, placedWords } = generateGrid(
+          words.map((w) => w.word),
+          config.gridCols,
+          [...config.directions],
+          config.weightedFill,
+          config.gridRows
+        );
+
+        const mergedWords: PlacedWord[] = placedWords.map((pw) => {
+          const wordEntry = words.find((w) => w.word === pw.word)!;
+          return {
+            ...wordEntry,
+            startRow: pw.startRow,
+            startCol: pw.startCol,
+            direction: pw.direction,
+          };
+        });
+
+        const puzzle: PuzzleData = {
+          title,
+          grid,
+          words: mergedWords,
+          gridSize: config.gridSize,
+          gridCols: config.gridCols,
+          gridRows: config.gridRows,
+          funFact,
+          difficulty,
+        };
+        return NextResponse.json(puzzle);
+      }
+    }
+
+    return NextResponse.json(
+      { error: "Couldn't generate a puzzle for this topic. Try a different one." },
+      { status: 422 }
     );
-
-    const { grid, placedWords } = generateGrid(
-      words.map((w) => w.word),
-      config.gridCols,
-      [...config.directions],
-      config.weightedFill,
-      config.gridRows
-    );
-
-    const mergedWords: PlacedWord[] = placedWords.map((pw) => {
-      const wordEntry = words.find((w) => w.word === pw.word)!;
-      return {
-        ...wordEntry,
-        startRow: pw.startRow,
-        startCol: pw.startCol,
-        direction: pw.direction,
-      };
-    });
-
-    const puzzle: PuzzleData = {
-      title,
-      grid,
-      words: mergedWords,
-      gridSize: config.gridSize,
-      gridCols: config.gridCols,
-      gridRows: config.gridRows,
-      funFact,
-      difficulty,
-    };
-
-    return NextResponse.json(puzzle);
   } catch (error: unknown) {
     console.error("Generate error:", error);
 
