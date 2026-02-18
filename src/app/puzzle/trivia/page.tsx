@@ -28,6 +28,7 @@ export default function TriviaPage() {
   useEffect(() => {
     const stored = sessionStorage.getItem(puzzleKeyForGameType("trivia"));
     if (!stored) {
+      sessionStorage.setItem(STORAGE_KEYS.REDIRECT_REASON, "No puzzle data found. Generate a new puzzle to play.");
       router.push("/");
       return;
     }
@@ -35,6 +36,8 @@ export default function TriviaPage() {
       setPuzzle(JSON.parse(stored));
     } catch {
       sessionStorage.removeItem(puzzleKeyForGameType("trivia"));
+      sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
+      sessionStorage.setItem(STORAGE_KEYS.REDIRECT_REASON, "Puzzle data was corrupted. Generate a new puzzle.");
       router.push("/");
     }
   }, [router]);

@@ -55,6 +55,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
   const [categoryError, setCategoryError] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorRetryable, setErrorRetryable] = useState(true);
   const [topicError, setTopicError] = useState<string | null>(null);
   const [shakeInput, setShakeInput] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
@@ -71,6 +72,14 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
         credentials: "include",
         signal,
       });
+      if (res.status === 422) {
+        // Topic blocked by server-side profanity check
+        setTopicError("This topic isn't available. Try something else.");
+        setShakeInput(true);
+        setTimeout(() => setShakeInput(false), 300);
+        setCategories([]);
+        return;
+      }
       if (!res.ok) throw new Error("API error");
       const data = await res.json();
       if (signal?.aborted) return;
@@ -124,6 +133,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
     }
     setGenerating(true);
     setError(null);
+    setErrorRetryable(true);
     cancelledRef.current = false;
 
     let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -147,6 +157,9 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
 
       if (!res.ok) {
         const data = await res.json();
+        if (res.status === 422) {
+          setErrorRetryable(false);
+        }
         throw new Error(data.error || "Failed to generate puzzle");
       }
 
@@ -423,6 +436,10 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
                   Retry
                 </button>
               </div>
+            ) : categories.length === 0 && !loadingCategories ? (
+              <p className="text-sm" style={{ color: "rgba(255, 77, 106, 0.8)" }}>
+                Couldn&apos;t find suitable categories. Try a different topic.
+              </p>
             ) : (
               <p className="text-sm" style={{ color: "var(--ws-text-muted)" }}>
                 Categories will be auto-selected based on your topic.
@@ -440,13 +457,15 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
           {error && (
             <div className="flex items-center justify-between gap-3 text-sm text-pink-accent bg-pink-accent/10 p-3 rounded-xl">
               <p>{error}</p>
-              <button
-                onClick={handleGenerate}
-                className="shrink-0 font-heading font-bold underline"
-                style={{ color: "var(--color-gold-primary)" }}
-              >
-                Retry
-              </button>
+              {errorRetryable && (
+                <button
+                  onClick={handleGenerate}
+                  className="shrink-0 font-heading font-bold underline"
+                  style={{ color: "var(--color-gold-primary)" }}
+                >
+                  Retry
+                </button>
+              )}
             </div>
           )}
         </div>

@@ -10,6 +10,7 @@ import { getAutoSave, deleteAutoSave, savePuzzle, type AutoSaveSummary } from "@
 import type { CategorySuggestion } from "@/lib/types";
 import { STORAGE_KEYS, puzzleKeyForGameType } from "@/lib/storage-keys";
 import { isProfane } from "@/lib/content-filter";
+import { Toast } from "@/components/shared/Toast";
 
 const EXAMPLE_TOPICS = [
   "80s Rock",
@@ -31,9 +32,19 @@ export default function HomePage() {
 
   const [topicError, setTopicError] = useState<string | null>(null);
   const [shakeInput, setShakeInput] = useState(false);
+  const [redirectToast, setRedirectToast] = useState<string | null>(null);
   const [autoSave, setAutoSave] = useState<AutoSaveSummary | null>(null);
   const [hasUnseenSaves, setHasUnseenSaves] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
+
+  // Check for redirect reason from game pages
+  useEffect(() => {
+    const reason = sessionStorage.getItem(STORAGE_KEYS.REDIRECT_REASON);
+    if (reason) {
+      sessionStorage.removeItem(STORAGE_KEYS.REDIRECT_REASON);
+      setRedirectToast(reason);
+    }
+  }, []);
 
   // Auto-open config screen if returning from a game via "New Game"
   useEffect(() => {
@@ -311,6 +322,9 @@ export default function HomePage() {
       )}
 
       {showStats && <StatsModal onClose={() => setShowStats(false)} />}
+      {redirectToast && (
+        <Toast message={redirectToast} duration={4000} onDismiss={() => setRedirectToast(null)} />
+      )}
     </main>
   );
 }

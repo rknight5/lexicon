@@ -35,6 +35,7 @@ export default function WordSearchPage() {
   useEffect(() => {
     const stored = sessionStorage.getItem(STORAGE_KEYS.PUZZLE_WORDSEARCH);
     if (!stored) {
+      sessionStorage.setItem(STORAGE_KEYS.REDIRECT_REASON, "No puzzle data found. Generate a new puzzle to play.");
       router.push("/");
       return;
     }
@@ -42,6 +43,8 @@ export default function WordSearchPage() {
       setPuzzle(JSON.parse(stored));
     } catch {
       sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_WORDSEARCH);
+      sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
+      sessionStorage.setItem(STORAGE_KEYS.REDIRECT_REASON, "Puzzle data was corrupted. Generate a new puzzle.");
       router.push("/");
     }
   }, [router]);

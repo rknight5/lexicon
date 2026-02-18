@@ -1,13 +1,23 @@
 import { Filter } from "bad-words";
 
-const filter = new Filter();
+let filter: Filter | null = null;
+try {
+  filter = new Filter();
+} catch {
+  // Permissive fallback — if bad-words fails to load, allow all content through
+  console.error("Failed to initialize profanity filter");
+}
 
 /**
  * Check if a string contains profane/inappropriate content.
  */
 export function isProfane(text: string): boolean {
-  if (!text.trim()) return false;
-  return filter.isProfane(text);
+  if (!filter || !text.trim()) return false;
+  try {
+    return filter.isProfane(text);
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -25,6 +35,7 @@ export function filterProfaneItems<T>(
   items: T[],
   textExtractor: (item: T) => string[]
 ): T[] {
+  if (!filter) return items;
   return items.filter((item) => {
     const texts = textExtractor(item);
     return !texts.some((t) => isProfane(t));
