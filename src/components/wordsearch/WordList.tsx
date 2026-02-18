@@ -40,7 +40,7 @@ export function WordList({ words, foundWords, hintedWords }: WordListProps) {
               fontFamily: "var(--font-ws-mono)",
               fontSize: "11.5px",
               letterSpacing: "0.2px",
-              padding: "7px 6px",
+              padding: "7px 12px",
               borderRadius: 7,
               background: isFound
                 ? "rgba(52, 211, 153, 0.08)"
@@ -50,7 +50,7 @@ export function WordList({ words, foundWords, hintedWords }: WordListProps) {
                   ? "rgba(52, 211, 153, 0.18)"
                   : "rgba(255, 255, 255, 0.06)"
               }`,
-              color: isFound ? "#34d399" : "#e8e4f0",
+              color: isFound ? "#34d399" : "rgba(255, 255, 255, 0.5)",
               textDecoration: isFound ? "line-through" : "none",
               textDecorationColor: isFound
                 ? "rgba(52, 211, 153, 0.3)"
