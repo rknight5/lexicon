@@ -40,7 +40,9 @@ interface LoadingOverlayProps {
 
 export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
   const [messageIndex, setMessageIndex] = useState(0);
+  const [showSlowWarning, setShowSlowWarning] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const slowRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const advance = (index: number) => {
@@ -51,8 +53,10 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
       }, MESSAGE_DURATIONS[index]);
     };
     advance(0);
+    slowRef.current = setTimeout(() => setShowSlowWarning(true), 45000);
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (slowRef.current) clearTimeout(slowRef.current);
     };
   }, []);
 
@@ -250,6 +254,12 @@ export function LoadingOverlay({ onCancel }: LoadingOverlayProps) {
           {MESSAGES[messageIndex]}
         </p>
       </div>
+
+      {showSlowWarning && (
+        <p className="mt-4 font-body text-xs" style={{ color: "rgba(255, 77, 106, 0.7)" }}>
+          This is taking longer than usual
+        </p>
+      )}
 
       {onCancel && (
         <button

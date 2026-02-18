@@ -88,6 +88,7 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
     gameStatus: state.gameStatus,
     getGameState,
     onSessionExpired: () => setSessionExpired(true),
+    onSaveFailed: () => setToastMessage("Auto-save failed — check your connection"),
   });
 
   // Restore saved game state if present

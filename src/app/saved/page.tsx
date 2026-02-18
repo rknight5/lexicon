@@ -92,6 +92,8 @@ export default function SavedPage() {
       const ok = await deleteSavedPuzzle(id);
       if (ok) {
         setPuzzles((prev) => prev.filter((p) => p.id !== id));
+      } else {
+        setErrorMessage("Couldn't delete puzzle — check your connection");
       }
       setDeletingId(null);
     } else {

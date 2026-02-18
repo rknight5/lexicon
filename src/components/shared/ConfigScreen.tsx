@@ -190,7 +190,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
       } else if (err instanceof TypeError && err.message === "Failed to fetch") {
         setError("No internet connection. Check your network and try again.");
       } else {
-        setError(err instanceof Error ? err.message : "Something went wrong");
+        setError(err instanceof Error ? err.message : "Something went wrong — try again");
       }
     } finally {
       setGenerating(false);

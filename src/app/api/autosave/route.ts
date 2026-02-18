@@ -22,12 +22,24 @@ export async function GET() {
       return NextResponse.json(null);
     }
 
+    let puzzleData: unknown;
+    let gameState: unknown;
+    try {
+      puzzleData = JSON.parse(save.puzzleData);
+      gameState = JSON.parse(save.gameState);
+    } catch {
+      // Corrupted data — delete the record and return null
+      console.error("Corrupted auto-save data for user:", username);
+      await db.delete(autoSaves).where(eq(autoSaves.username, username));
+      return NextResponse.json(null);
+    }
+
     return NextResponse.json({
       gameType: save.gameType,
       title: save.title,
       difficulty: save.difficulty,
-      puzzleData: JSON.parse(save.puzzleData),
-      gameState: JSON.parse(save.gameState),
+      puzzleData,
+      gameState,
       updatedAt: save.updatedAt,
     });
   } catch (err) {

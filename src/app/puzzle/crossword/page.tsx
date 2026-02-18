@@ -103,6 +103,7 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
     gameStatus: state.gameStatus,
     getGameState,
     onSessionExpired: () => setSessionExpired(true),
+    onSaveFailed: () => setToastMessage("Auto-save failed — check your connection"),
   });
 
   const handleFirstInteraction = () => {

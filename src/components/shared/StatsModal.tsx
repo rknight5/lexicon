@@ -59,7 +59,16 @@ export function StatsModal({ onClose }: StatsModalProps) {
             />
           ))}
         </div>
-      ) : stats && stats.totalPuzzles > 0 ? (
+      ) : !stats ? (
+        <div className="text-center py-6">
+          <p
+            className="font-body text-sm"
+            style={{ color: "rgba(255, 77, 106, 0.8)" }}
+          >
+            Couldn&apos;t load stats &mdash; check your connection and try again.
+          </p>
+        </div>
+      ) : stats.totalPuzzles > 0 ? (
         <>
           {/* Achievement row — Wins + Best Streak (larger, gold) */}
           <div className="grid grid-cols-2 gap-3">

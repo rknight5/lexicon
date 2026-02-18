@@ -98,6 +98,7 @@ function AnagramGame({ puzzle: initialPuzzle }: { puzzle: AnagramPuzzleData }) {
     gameStatus: state.gameStatus,
     getGameState,
     onSessionExpired: () => setSessionExpired(true),
+    onSaveFailed: () => setToastMessage("Auto-save failed — check your connection"),
   });
 
   const [lastMissTimestamp, setLastMissTimestamp] = useState(0);

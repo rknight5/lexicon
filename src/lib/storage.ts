@@ -37,25 +37,13 @@ export interface PlayerStats {
   bestScores: Record<GameType, Record<Difficulty, number>>;
 }
 
-export async function getStats(): Promise<PlayerStats> {
-  const empty: PlayerStats = {
-    totalPuzzles: 0,
-    totalWins: 0,
-    currentStreak: 0,
-    bestStreak: 0,
-    bestScores: {
-      wordsearch: { easy: 0, medium: 0, hard: 0 },
-      crossword: { easy: 0, medium: 0, hard: 0 },
-      anagram: { easy: 0, medium: 0, hard: 0 },
-      trivia: { easy: 0, medium: 0, hard: 0 },
-    },
-  };
+export async function getStats(): Promise<PlayerStats | null> {
   try {
     const res = await fetch("/api/stats", { credentials: "include" });
-    if (!res.ok) return empty;
+    if (!res.ok) return null;
     return await res.json();
   } catch {
-    return empty;
+    return null;
   }
 }
 

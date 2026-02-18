@@ -18,6 +18,7 @@ interface UseAutoSaveOptions {
   gameStatus: string;
   getGameState: () => Record<string, unknown>;
   onSessionExpired?: () => void;
+  onSaveFailed?: () => void;
 }
 
 const AUTO_SAVE_INTERVAL = 30_000; // 30 seconds
@@ -30,15 +31,17 @@ export function useAutoSave({
   gameStatus,
   getGameState,
   onSessionExpired,
+  onSaveFailed,
 }: UseAutoSaveOptions): void {
   const savingRef = useRef(false);
   const deletedRef = useRef(false);
   const gameStatusRef = useRef(gameStatus);
+  const failNotifiedRef = useRef(false);
 
   // Keep stable refs for values used in doSave so the callback identity stays fixed
-  const optionsRef = useRef({ gameType, title, difficulty, puzzleData, getGameState, onSessionExpired });
+  const optionsRef = useRef({ gameType, title, difficulty, puzzleData, getGameState, onSessionExpired, onSaveFailed });
   useEffect(() => {
-    optionsRef.current = { gameType, title, difficulty, puzzleData, getGameState, onSessionExpired };
+    optionsRef.current = { gameType, title, difficulty, puzzleData, getGameState, onSessionExpired, onSaveFailed };
     gameStatusRef.current = gameStatus;
   });
 
@@ -51,6 +54,12 @@ export function useAutoSave({
       const result = await upsertAutoSave(gt, t, d, pd, gs());
       if (result.error === "session-expired") {
         optionsRef.current.onSessionExpired?.();
+      } else if (result.error === "network" && !failNotifiedRef.current) {
+        failNotifiedRef.current = true;
+        optionsRef.current.onSaveFailed?.();
+      }
+      if (result.ok) {
+        failNotifiedRef.current = false;
       }
     } catch {
       // swallow — auto-save is best-effort

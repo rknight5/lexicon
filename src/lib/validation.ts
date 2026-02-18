@@ -24,22 +24,29 @@ export function parseClaudeResponse(rawText: string): PuzzleContent {
     cleaned = cleaned.slice(0, jsonEnd + 1);
   }
 
-  const parsed = JSON.parse(cleaned);
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(cleaned);
+  } catch {
+    throw new Error("AI response was not valid JSON — please retry");
+  }
+
+  const obj = parsed as Record<string, unknown>;
 
   // Validate shape
-  if (!parsed.title || typeof parsed.title !== "string") {
+  if (!obj.title || typeof obj.title !== "string") {
     throw new Error("Missing or invalid 'title' field");
   }
-  if (!Array.isArray(parsed.words) || parsed.words.length === 0) {
+  if (!Array.isArray(obj.words) || obj.words.length === 0) {
     throw new Error("Missing or empty 'words' array");
   }
-  for (const word of parsed.words) {
+  for (const word of obj.words) {
     if (!word.word || !word.clue || !word.category || !word.difficulty) {
       throw new Error(`Invalid word entry: ${JSON.stringify(word)}`);
     }
   }
 
-  return parsed as PuzzleContent;
+  return obj as unknown as PuzzleContent;
 }
 
 export function validateAndFilterWords(

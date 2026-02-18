@@ -276,6 +276,11 @@ export default function HomePage() {
           <Sparkles className="w-5 h-5" />
           Generate Puzzle
         </button>
+        {isOffline && (
+          <p className="text-center font-body text-xs" style={{ color: "rgba(255, 77, 106, 0.7)" }}>
+            You&apos;re offline — connect to the internet to generate puzzles
+          </p>
+        )}
       </div>
 
       {/* Resume Card (replaces Quick Starts when auto-save exists) */}
