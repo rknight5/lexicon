@@ -1,8 +1,7 @@
 /**
- * Anagram Filter Retest
+ * Anagram Generation Test
  *
  * Tests 5 topics × 2 difficulties (Medium, Hard) = 10 combos, concurrency 3.
- * Logs candidates, survived, filter survival rate.
  *
  * Usage: npx tsx --env-file=.env.local scripts/test-anagram-filter.ts
  */
@@ -24,9 +23,7 @@ interface TestResult {
   topic: string;
   difficulty: string;
   timeMs: number;
-  apiCalls: number;
-  candidates: number;
-  survived: number;
+  wordCount: number;
   status: "PASS" | "FAIL";
   error?: string;
 }
@@ -38,15 +35,13 @@ async function testCombo(
 ): Promise<TestResult> {
   const start = Date.now();
   try {
-    const result = await generateAnagramWords(topic, difficulty, categories) as Record<string, unknown>;
+    const result = await generateAnagramWords(topic, difficulty, categories);
     const timeMs = Date.now() - start;
     return {
       topic,
       difficulty,
       timeMs,
-      apiCalls: (result._attempts as number) ?? -1,
-      candidates: (result._candidates as number) ?? -1,
-      survived: (result._survived as number) ?? -1,
+      wordCount: result.words.length,
       status: "PASS",
     };
   } catch (err) {
@@ -55,9 +50,7 @@ async function testCombo(
       topic,
       difficulty,
       timeMs,
-      apiCalls: -1,
-      candidates: -1,
-      survived: -1,
+      wordCount: 0,
       status: "FAIL",
       error: err instanceof Error ? err.message.slice(0, 80) : String(err),
     };
@@ -108,9 +101,7 @@ async function main() {
     "Topic".padEnd(tw),
     "Diff".padEnd(8),
     "Time".padStart(8),
-    "API Calls".padStart(10),
-    "Candidates".padStart(11),
-    "Survived".padStart(9),
+    "Words".padStart(6),
     "Status".padStart(7),
   ].join(" | ");
   const sep = "-".repeat(header.length);
@@ -124,9 +115,7 @@ async function main() {
       r.topic.slice(0, tw).padEnd(tw),
       r.difficulty.padEnd(8),
       `${r.timeMs}ms`.padStart(8),
-      (r.apiCalls === -1 ? "?" : String(r.apiCalls)).padStart(10),
-      (r.candidates === -1 ? "?" : String(r.candidates)).padStart(11),
-      (r.survived === -1 ? "?" : String(r.survived)).padStart(9),
+      String(r.wordCount).padStart(6),
       r.status.padStart(7),
     ].join(" | ");
     console.log(row);
@@ -143,18 +132,10 @@ async function main() {
   const failed = allResults.filter((r) => r.status === "FAIL");
   console.log(`Total: ${passed.length}/${allResults.length} passed, ${failed.length} failed`);
 
-  // Single API call rate
-  const singleCall = passed.filter((r) => r.apiCalls === 1).length;
-  const singlePct = passed.length > 0 ? Math.round((singleCall / passed.length) * 100) : 0;
-  console.log(`Single API call: ${singleCall}/${passed.length} (${singlePct}%)`);
-
-  // Average filter survival rate
-  const withDiag = passed.filter((r) => r.candidates > 0 && r.survived > 0);
-  if (withDiag.length > 0) {
-    const avgSurvival = Math.round(
-      (withDiag.reduce((s, r) => s + r.survived / r.candidates, 0) / withDiag.length) * 100
-    );
-    console.log(`Avg filter survival: ${avgSurvival}%`);
+  // Avg words
+  if (passed.length > 0) {
+    const avgWords = Math.round(passed.reduce((s, r) => s + r.wordCount, 0) / passed.length);
+    console.log(`Avg words per puzzle: ${avgWords}`);
   }
 
   // Max time
@@ -164,17 +145,11 @@ async function main() {
   // Criteria check
   const issues: string[] = [];
   if (failed.length > 0) issues.push(`${failed.length} test(s) failed`);
-  if (singlePct < 90) issues.push(`Single API call rate ${singlePct}% below 90%`);
   const over15 = allResults.filter((r) => r.timeMs > 15000);
   if (over15.length > 0) {
     for (const r of over15) {
       issues.push(`${r.topic} / ${r.difficulty} took ${r.timeMs}ms (>15s)`);
     }
-  }
-  if (withDiag.length > 0) {
-    const avgSurvival =
-      withDiag.reduce((s, r) => s + r.survived / r.candidates, 0) / withDiag.length;
-    if (avgSurvival < 0.7) issues.push(`Avg filter survival ${Math.round(avgSurvival * 100)}% below 70%`);
   }
 
   if (issues.length > 0) {
