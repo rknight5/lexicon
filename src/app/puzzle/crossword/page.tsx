@@ -361,8 +361,8 @@ function CrosswordGame({ puzzle: initialPuzzle }: { puzzle: CrosswordPuzzleData 
           score={score}
         />
 
-        {/* Grid — no side padding, grid component handles sizing with tiered padding */}
-        <div style={{ padding: "4px 0" }}>
+        {/* Grid — centered with small horizontal padding */}
+        <div style={{ padding: "4px 12px" }}>
           <div className="w-full flex justify-center" onClick={handleFirstInteraction}>
             <CrosswordGrid
               grid={puzzle.grid}
