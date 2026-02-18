@@ -183,27 +183,6 @@ export function GameDrawer({
           {/* Divider */}
           <div style={{ height: 1, background: "rgba(255, 255, 255, 0.06)", margin: "2px 12px" }} />
 
-          {/* Share Puzzle */}
-          <button
-            onClick={handleShare}
-            className="w-full flex items-center gap-2.5 transition-colors cursor-pointer"
-            style={{ padding: "11px 14px" }}
-            onMouseEnter={(e) => applyHover(e.currentTarget)}
-            onMouseLeave={(e) => clearHover(e.currentTarget)}
-          >
-            <Share2 data-menu-icon="" style={{ width: 18, height: 18, color: "rgba(255, 255, 255, 0.45)" }} />
-            <span
-              data-menu-label=""
-              className="font-body text-[13px] font-medium"
-              style={{ color: "rgba(255, 255, 255, 0.8)" }}
-            >
-              Share Puzzle
-            </span>
-          </button>
-
-          {/* Divider */}
-          <div style={{ height: 1, background: "rgba(255, 255, 255, 0.06)", margin: "2px 12px" }} />
-
           {/* Save Puzzle */}
           {onSave && (
             <>
@@ -235,6 +214,27 @@ export function GameDrawer({
               <div style={{ height: 1, background: "rgba(255, 255, 255, 0.06)", margin: "2px 12px" }} />
             </>
           )}
+
+          {/* Share Puzzle */}
+          <button
+            onClick={handleShare}
+            className="w-full flex items-center gap-2.5 transition-colors cursor-pointer"
+            style={{ padding: "11px 14px" }}
+            onMouseEnter={(e) => applyHover(e.currentTarget)}
+            onMouseLeave={(e) => clearHover(e.currentTarget)}
+          >
+            <Share2 data-menu-icon="" style={{ width: 18, height: 18, color: "rgba(255, 255, 255, 0.45)" }} />
+            <span
+              data-menu-label=""
+              className="font-body text-[13px] font-medium"
+              style={{ color: "rgba(255, 255, 255, 0.8)" }}
+            >
+              Share Puzzle
+            </span>
+          </button>
+
+          {/* Divider */}
+          <div style={{ height: 1, background: "rgba(255, 255, 255, 0.06)", margin: "2px 12px" }} />
 
           {/* Stats */}
           <button
