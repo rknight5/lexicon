@@ -9,14 +9,14 @@ AI-powered word puzzle generator. Users describe a topic, Claude AI generates wo
 Next.js 16 (App Router) + React 19 + TypeScript | Tailwind CSS 4 | PostgreSQL + Drizzle ORM | iron-session (encrypted cookies) | Claude API (Haiku 4.5 categories, Sonnet 4.5 generation) | Vitest + Testing Library (jsdom, globals)
 
 ## Gotchas
-- Single API route `POST /api/generate` handles both category suggestions and full puzzle generation
-- Game state via `useReducer` action machines in `useWordSearchGame.ts` / `useCrosswordGame.ts` / `useAnagramGame.ts`
-- Status lifecycle: `idle` → `playing` → `won`/`lost` (with `paused` side state). Hints cost 1 life (disabled at 1 remaining)
-- Grid generators: `src/lib/games/wordsearch/gridGenerator.ts`, `src/lib/games/crossword/gridGenerator.ts`. Scoring: `src/lib/scoring.ts`
+- `POST /api/generate` handles category suggestions AND full puzzle generation
+- Generation is rate-limited. Config in `schema.ts`, response includes `_meta` — client strips before storing in sessionStorage
+- Retry with loosened categories on final attempt. Right-size candidate counts to ~1.5× minWords
+- Game state via `useReducer` in `use{WordSearch,Crossword,Anagram}Game.ts`. Status: `idle` → `playing` → `won`/`lost`
+- Grid generators: `src/lib/games/{wordsearch,crossword}/gridGenerator.ts`. Scoring: `src/lib/scoring.ts`
 - sessionStorage keys in `src/lib/storage-keys.ts`. Auto-save via `useAutoSave` hook. `hintedCells` Set → Array for JSON
-- All fetch to `/api/*` must include `credentials: "include"`
-- Puzzle history persisted in PostgreSQL, scoped by username. Stats derived server-side
-- Types/constants: `src/lib/types.ts`. Tests in `__tests__/` dirs, setup `src/test/setup.ts`, alias `@/` → `src/`
+- All fetch to `/api/*` must include `credentials: "include"`. Types: `src/lib/types.ts`. Tests: `__tests__/` dirs, alias `@/` → `src/`
+- Quick-start topics: Classic Movies, Italian Cuisine, Marvel Universe, Ancient Egypt, Ocean Life, Space Exploration
 ## Design
 Dark-first. Glassmorphic panels (`--glass-bg: rgba(255,255,255,0.08)`, `--glass-border: rgba(255,255,255,0.15)`, `--white-muted`). CSS custom properties in `globals.css`.
 
@@ -31,8 +31,7 @@ Purple gradient `#2D1B69` → `#1A0A2E` | Gold `#FFD700` | Green `#00E676` | Cya
 ## Environment Variables (.env.local)
 `ANTHROPIC_API_KEY` | `DATABASE_URL` | `SESSION_SECRET`
 
-## Reference docs (local only, not in git)
-- `.claude/docs/architecture.md` — game flow, API, state management, grid gen, hints, scoring, storage
+## Reference: `.claude/docs/architecture.md` (local only, not in git)
 
 ## Mobile / Desktop Components
 - All game pages share `GameBar` (header) and `GameStatsBar` (fixed bottom bar, desktop). `WordProgress` used by wordsearch, anagram, crossword. Update all when changing layout
