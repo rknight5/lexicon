@@ -38,15 +38,15 @@ async function testCombo(
 ): Promise<TestResult> {
   const start = Date.now();
   try {
-    const result = await generateAnagramWords(topic, difficulty, categories);
+    const result = await generateAnagramWords(topic, difficulty, categories) as Record<string, unknown>;
     const timeMs = Date.now() - start;
     return {
       topic,
       difficulty,
       timeMs,
-      apiCalls: result._attempts ?? -1,
-      candidates: result._candidates ?? -1,
-      survived: result._survived ?? -1,
+      apiCalls: (result._attempts as number) ?? -1,
+      candidates: (result._candidates as number) ?? -1,
+      survived: (result._survived as number) ?? -1,
       status: "PASS",
     };
   } catch (err) {
