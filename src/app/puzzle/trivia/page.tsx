@@ -127,6 +127,7 @@ function TriviaGame({ puzzle }: { puzzle: TriviaPuzzleData }) {
 
   // Start game on mount (auto-start since there's no grid interaction to trigger it)
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (state.gameStatus === "idle") {
       startGame();
     }
