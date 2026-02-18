@@ -377,12 +377,12 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetry }: { puzzle: CrosswordPu
             </div>
           </div>
 
-          {/* Check button — below grid panel */}
-          <div className="flex justify-center" style={{ marginTop: 8 }}>
+          {/* Submit button — below grid panel */}
+          <div className="flex justify-center" style={{ marginTop: -2 }}>
             <button
               onClick={checkWord}
               disabled={state.gameStatus !== "playing"}
-              className="px-8 h-10 font-heading text-sm font-bold tracking-wider transition-all active:scale-[0.97] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+              className="px-12 h-[52px] font-heading text-base font-bold tracking-wider transition-all active:scale-[0.97] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
               style={{
                 background: "linear-gradient(135deg, #f7c948, #e5b52e)",
                 color: "#1a1430",
@@ -391,7 +391,7 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetry }: { puzzle: CrosswordPu
                 boxShadow: "0 4px 15px rgba(247, 201, 72, 0.3)",
               }}
             >
-              Check
+              Submit
             </button>
           </div>
 
@@ -459,12 +459,12 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetry }: { puzzle: CrosswordPu
           </div>
         </div>
 
-        {/* Check button — below grid */}
+        {/* Submit button — below grid */}
         <div className="flex justify-center" style={{ padding: "0 18px" }}>
           <button
             onClick={checkWord}
             disabled={state.gameStatus !== "playing"}
-            className="px-7 h-9 font-heading text-[13px] font-bold tracking-wider transition-all active:scale-[0.97] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+            className="px-10 h-[46px] font-heading text-[15px] font-bold tracking-wider transition-all active:scale-[0.97] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
             style={{
               background: "linear-gradient(135deg, #f7c948, #e5b52e)",
               color: "#1a1430",
@@ -473,7 +473,7 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetry }: { puzzle: CrosswordPu
               boxShadow: "0 4px 15px rgba(247, 201, 72, 0.3)",
             }}
           >
-            Check
+            Submit
           </button>
         </div>
 
