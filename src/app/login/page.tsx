@@ -24,6 +24,13 @@ export default function LoginPage() {
       });
 
       if (res.ok) {
+        // Verify the session cookie actually persisted
+        const check = await fetch("/api/auth/check", { credentials: "include" });
+        const checkData = await check.json();
+        if (!checkData.authenticated) {
+          setError("Your browser is blocking cookies. Enable cookies for this site to play.");
+          return;
+        }
         router.push("/");
         router.refresh();
       } else {
