@@ -75,7 +75,6 @@ export function CrosswordGrid({
 
       if (e.key === "Tab" || e.key === "Enter") {
         e.preventDefault();
-        onCheckWord();
         return;
       }
 
@@ -236,7 +235,6 @@ export function CrosswordGrid({
             onDeleteLetter();
           } else if (e.key === "Tab" || e.key === "Enter") {
             e.preventDefault();
-            onCheckWord();
           } else if (e.key === " ") {
             e.preventDefault();
             onToggleDirection();
