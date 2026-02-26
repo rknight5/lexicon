@@ -167,13 +167,14 @@ export interface AutoSaveSummary {
   updatedAt: string;
 }
 
-export async function getAutoSave(): Promise<AutoSaveSummary | null> {
+export async function getAutoSaves(): Promise<AutoSaveSummary[]> {
   try {
     const res = await fetch("/api/autosave", { credentials: "include" });
-    if (!res.ok) return null;
-    return await res.json();
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : data ? [data] : [];
   } catch {
-    return null;
+    return [];
   }
 }
 
@@ -198,9 +199,14 @@ export async function upsertAutoSave(
   }
 }
 
-export async function deleteAutoSave(): Promise<boolean> {
+export async function deleteAutoSave(gameType?: string): Promise<boolean> {
   try {
-    const res = await fetch("/api/autosave", { method: "DELETE", credentials: "include" });
+    const res = await fetch("/api/autosave", {
+      method: "DELETE",
+      headers: gameType ? { "Content-Type": "application/json" } : undefined,
+      body: gameType ? JSON.stringify({ gameType }) : undefined,
+      credentials: "include",
+    });
     return res.ok;
   } catch {
     return false;

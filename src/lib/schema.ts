@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, real, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, real, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -38,14 +38,16 @@ export const savedPuzzles = pgTable("saved_puzzles", {
 
 export const autoSaves = pgTable("auto_saves", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
+  username: text("username").notNull(),
   gameType: text("game_type").notNull(),
   title: text("title").notNull(),
   difficulty: text("difficulty").notNull(),
   puzzleData: text("puzzle_data").notNull(),
   gameState: text("game_state").notNull(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => [
+  uniqueIndex("auto_saves_username_game_type_idx").on(table.username, table.gameType),
+]);
 
 export const DAILY_GENERATION_LIMIT = 10;
 

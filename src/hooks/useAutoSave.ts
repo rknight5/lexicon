@@ -159,12 +159,12 @@ export function useAutoSave({
       };
       // Write to sessionStorage synchronously so the home page can read it
       // immediately — the async fetch below may not complete before the home
-      // page's getAutoSave() call hits the server.
+      // page's getAutoSaves() call hits the server.
+      // Stored as an object keyed by gameType so multiple game saves coexist.
       try {
-        sessionStorage.setItem(
-          STORAGE_KEYS.PENDING_AUTOSAVE,
-          JSON.stringify({ ...payload, updatedAt: new Date().toISOString() })
-        );
+        const existing = JSON.parse(sessionStorage.getItem(STORAGE_KEYS.PENDING_AUTOSAVE) || "{}");
+        existing[gt] = { ...payload, updatedAt: new Date().toISOString() };
+        sessionStorage.setItem(STORAGE_KEYS.PENDING_AUTOSAVE, JSON.stringify(existing));
       } catch {
         // private browsing or quota
       }
@@ -186,7 +186,17 @@ export function useAutoSave({
   useEffect(() => {
     if ((gameStatus === "won" || gameStatus === "lost") && !deletedRef.current) {
       deletedRef.current = true;
-      deleteAutoSave().catch(() => {});
+      deleteAutoSave(optionsRef.current.gameType).catch(() => {});
+      // Also remove this game type from pending autosave in sessionStorage
+      try {
+        const pending = JSON.parse(sessionStorage.getItem(STORAGE_KEYS.PENDING_AUTOSAVE) || "{}");
+        delete pending[optionsRef.current.gameType];
+        if (Object.keys(pending).length === 0) {
+          sessionStorage.removeItem(STORAGE_KEYS.PENDING_AUTOSAVE);
+        } else {
+          sessionStorage.setItem(STORAGE_KEYS.PENDING_AUTOSAVE, JSON.stringify(pending));
+        }
+      } catch { /* ignore */ }
     }
   }, [gameStatus]);
 }

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/session";
 import { db } from "@/lib/db";
 import { autoSaves } from "@/lib/schema";
-import { eq } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 
 export async function GET() {
   let username: string;
@@ -13,38 +13,39 @@ export async function GET() {
   }
 
   try {
-    const [save] = await db
+    const saves = await db
       .select()
       .from(autoSaves)
-      .where(eq(autoSaves.username, username));
+      .where(eq(autoSaves.username, username))
+      .orderBy(desc(autoSaves.updatedAt));
 
-    if (!save) {
-      return NextResponse.json(null);
+    const results = [];
+    for (const save of saves) {
+      let puzzleData: unknown;
+      let gameState: unknown;
+      try {
+        puzzleData = JSON.parse(save.puzzleData);
+        gameState = JSON.parse(save.gameState);
+      } catch {
+        // Corrupted data — delete the record and skip
+        console.error("Corrupted auto-save data for user:", username, "gameType:", save.gameType);
+        await db.delete(autoSaves).where(and(eq(autoSaves.username, username), eq(autoSaves.gameType, save.gameType)));
+        continue;
+      }
+      results.push({
+        gameType: save.gameType,
+        title: save.title,
+        difficulty: save.difficulty,
+        puzzleData,
+        gameState,
+        updatedAt: save.updatedAt,
+      });
     }
 
-    let puzzleData: unknown;
-    let gameState: unknown;
-    try {
-      puzzleData = JSON.parse(save.puzzleData);
-      gameState = JSON.parse(save.gameState);
-    } catch {
-      // Corrupted data — delete the record and return null
-      console.error("Corrupted auto-save data for user:", username);
-      await db.delete(autoSaves).where(eq(autoSaves.username, username));
-      return NextResponse.json(null);
-    }
-
-    return NextResponse.json({
-      gameType: save.gameType,
-      title: save.title,
-      difficulty: save.difficulty,
-      puzzleData,
-      gameState,
-      updatedAt: save.updatedAt,
-    });
+    return NextResponse.json(results);
   } catch (err) {
-    console.error("Failed to fetch auto-save:", err);
-    return NextResponse.json({ error: "Failed to fetch auto-save" }, { status: 500 });
+    console.error("Failed to fetch auto-saves:", err);
+    return NextResponse.json({ error: "Failed to fetch auto-saves" }, { status: 500 });
   }
 }
 
@@ -89,9 +90,8 @@ export async function PUT(request: NextRequest) {
         gameState,
       })
       .onConflictDoUpdate({
-        target: autoSaves.username,
+        target: [autoSaves.username, autoSaves.gameType],
         set: {
-          gameType,
           title,
           difficulty: difficultyVal,
           puzzleData,
@@ -107,7 +107,7 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
   let username: string;
   try {
     username = await requireAuth();
@@ -115,10 +115,25 @@ export async function DELETE() {
     return NextResponse.json({ error: "Authentication required" }, { status: 401 });
   }
 
+  let gameType: string | undefined;
   try {
-    await db
-      .delete(autoSaves)
-      .where(eq(autoSaves.username, username));
+    const body = await request.json();
+    gameType = body.gameType as string;
+  } catch {
+    // No body — fall through to delete all
+  }
+
+  try {
+    if (gameType) {
+      await db
+        .delete(autoSaves)
+        .where(and(eq(autoSaves.username, username), eq(autoSaves.gameType, gameType)));
+    } else {
+      // Fallback: delete all saves for user
+      await db
+        .delete(autoSaves)
+        .where(eq(autoSaves.username, username));
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {

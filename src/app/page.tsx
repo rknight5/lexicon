@@ -6,7 +6,7 @@ import { Sparkles, LogOut, BarChart2, Bookmark } from "lucide-react";
 import { ConfigScreen } from "@/components/shared/ConfigScreen";
 import { StatsModal } from "@/components/shared/StatsModal";
 import { ResumeCard } from "@/components/shared/ResumeCard";
-import { getAutoSave, deleteAutoSave, savePuzzle, type AutoSaveSummary } from "@/lib/storage";
+import { getAutoSaves, deleteAutoSave, savePuzzle, type AutoSaveSummary } from "@/lib/storage";
 import type { CategorySuggestion, Difficulty, GameType } from "@/lib/types";
 import { STORAGE_KEYS, puzzleKeyForGameType } from "@/lib/storage-keys";
 import { isProfane } from "@/lib/content-filter";
@@ -33,7 +33,7 @@ export default function HomePage() {
   const [topicError, setTopicError] = useState<string | null>(null);
   const [shakeInput, setShakeInput] = useState(false);
   const [redirectToast, setRedirectToast] = useState<string | null>(null);
-  const [autoSave, setAutoSave] = useState<AutoSaveSummary | null>(null);
+  const [autoSaves, setAutoSaves] = useState<AutoSaveSummary[]>([]);
   const [hasUnseenSaves, setHasUnseenSaves] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const [savedConfig, setSavedConfig] = useState<{
@@ -87,16 +87,18 @@ export default function HomePage() {
 
   useEffect(() => {
     // Check sessionStorage first for instant resume after SPA navigation
-    // (the async server save may still be in-flight)
+    // (pending autosave is now an object keyed by gameType)
     const pending = sessionStorage.getItem(STORAGE_KEYS.PENDING_AUTOSAVE);
     if (pending) {
       try {
-        setAutoSave(JSON.parse(pending));
+        const pendingObj = JSON.parse(pending);
+        const pendingSaves: AutoSaveSummary[] = Object.values(pendingObj);
+        if (pendingSaves.length > 0) setAutoSaves(pendingSaves);
       } catch { /* ignore corrupt data */ }
       sessionStorage.removeItem(STORAGE_KEYS.PENDING_AUTOSAVE);
     }
     // Also fetch from server (authoritative, covers tab-close saves)
-    getAutoSave().then(setAutoSave).catch(() => {});
+    getAutoSaves().then(setAutoSaves).catch(() => {});
     try { setHasUnseenSaves(localStorage.getItem(STORAGE_KEYS.UNSEEN_SAVES) === "1"); } catch {}
   }, []);
 
@@ -152,39 +154,36 @@ export default function HomePage() {
     setShowConfig(true);
   };
 
-  const handleResume = () => {
-    if (!autoSave) return;
-
-    const storageKey = puzzleKeyForGameType(autoSave.gameType);
+  const handleResume = (save: AutoSaveSummary) => {
+    const storageKey = puzzleKeyForGameType(save.gameType);
 
     const route =
-      autoSave.gameType === "crossword"
+      save.gameType === "crossword"
         ? "/puzzle/crossword"
-        : autoSave.gameType === "anagram"
+        : save.gameType === "anagram"
           ? "/puzzle/anagram"
-          : autoSave.gameType === "trivia"
+          : save.gameType === "trivia"
             ? "/puzzle/trivia"
             : "/puzzle/wordsearch";
 
-    sessionStorage.setItem(storageKey, JSON.stringify(autoSave.puzzleData));
-    sessionStorage.setItem(STORAGE_KEYS.GAME_STATE, JSON.stringify(autoSave.gameState));
+    sessionStorage.setItem(storageKey, JSON.stringify(save.puzzleData));
+    sessionStorage.setItem(STORAGE_KEYS.GAME_STATE, JSON.stringify(save.gameState));
     router.push(route);
   };
 
-  const handleSaveAutoSave = async (): Promise<boolean> => {
-    if (!autoSave) return false;
+  const handleSaveAutoSave = async (save: AutoSaveSummary): Promise<boolean> => {
     const result = await savePuzzle(
-      autoSave.gameType,
-      autoSave.title,
-      autoSave.difficulty,
-      autoSave.puzzleData
+      save.gameType,
+      save.title,
+      save.difficulty,
+      save.puzzleData
     );
     return !!result.id;
   };
 
-  const handleDismissResume = async () => {
-    await deleteAutoSave();
-    setAutoSave(null);
+  const handleDismissResume = async (save: AutoSaveSummary) => {
+    await deleteAutoSave(save.gameType);
+    setAutoSaves((prev) => prev.filter((s) => s.gameType !== save.gameType));
   };
 
   if (showConfig) {
@@ -303,48 +302,52 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* Resume Card (replaces Quick Starts when auto-save exists) */}
-      {autoSave ? (
+      {/* Resume Cards (one per active game) */}
+      {autoSaves.length > 0 && (
         <div className="flex flex-col items-center mt-16 gap-4 w-full max-w-xl">
           <div className="flex items-center gap-3 w-full">
             <div className="h-px flex-1 bg-white/15" />
-            <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold whitespace-nowrap">Resume Game</span>
+            <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold whitespace-nowrap">Resume Game{autoSaves.length > 1 ? "s" : ""}</span>
             <div className="h-px flex-1 bg-white/15" />
           </div>
-          <ResumeCard
-            autoSave={autoSave}
-            onResume={handleResume}
-            onSave={handleSaveAutoSave}
-            onDismiss={handleDismissResume}
-          />
-        </div>
-      ) : (
-        <div className="flex flex-col items-center mt-16 gap-4 w-full max-w-md">
-          <div className="flex items-center gap-3 w-full">
-            <div className="h-px flex-1 bg-white/15" />
-            <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold whitespace-nowrap">Quick Starts</span>
-            <div className="h-px flex-1 bg-white/15" />
-          </div>
-          <div className="flex flex-wrap justify-center gap-2.5">
-            {EXAMPLE_TOPICS.map((example) => (
-              <button
-                key={example}
-                onClick={() => {
-                  handleTopicChange(example);
-                }}
-                className="px-4 py-2 rounded-pill text-sm font-body font-semibold transition-all hover:border-gold-primary"
-                style={{
-                  background: "rgba(255, 255, 255, 0.1)",
-                  border: "1px solid rgba(255, 255, 255, 0.2)",
-                  color: "var(--white-muted)",
-                }}
-              >
-                {example}
-              </button>
-            ))}
-          </div>
+          {autoSaves.map((save) => (
+            <ResumeCard
+              key={save.gameType}
+              autoSave={save}
+              onResume={() => handleResume(save)}
+              onSave={() => handleSaveAutoSave(save)}
+              onDismiss={() => handleDismissResume(save)}
+            />
+          ))}
         </div>
       )}
+
+      {/* Quick Starts */}
+      <div className={`flex flex-col items-center ${autoSaves.length > 0 ? "mt-8" : "mt-16"} gap-4 w-full max-w-md`}>
+        <div className="flex items-center gap-3 w-full">
+          <div className="h-px flex-1 bg-white/15" />
+          <span className="text-[11px] uppercase tracking-[2px] text-white/50 font-heading font-semibold whitespace-nowrap">Quick Starts</span>
+          <div className="h-px flex-1 bg-white/15" />
+        </div>
+        <div className="flex flex-wrap justify-center gap-2.5">
+          {EXAMPLE_TOPICS.map((example) => (
+            <button
+              key={example}
+              onClick={() => {
+                handleTopicChange(example);
+              }}
+              className="px-4 py-2 rounded-pill text-sm font-body font-semibold transition-all hover:border-gold-primary"
+              style={{
+                background: "rgba(255, 255, 255, 0.1)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                color: "var(--white-muted)",
+              }}
+            >
+              {example}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {showStats && <StatsModal onClose={() => setShowStats(false)} />}
       {redirectToast && (
