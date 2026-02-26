@@ -268,7 +268,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
         sessionStorage.setItem(storageKey, JSON.stringify(puzzleData));
         sessionStorage.setItem(
           STORAGE_KEYS.PUZZLE_CONFIG,
-          JSON.stringify({ topic, difficulty, gameType, focusCategories: selectedCategories })
+          JSON.stringify({ topic, difficulty, gameType, focusCategories: selectedCategories, categories })
         );
       } catch {
         // sessionStorage may be unavailable in private browsing

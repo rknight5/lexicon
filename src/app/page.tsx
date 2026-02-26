@@ -40,6 +40,7 @@ export default function HomePage() {
     difficulty?: Difficulty;
     gameType?: GameType;
     focusCategories?: string[];
+    categories?: CategorySuggestion[];
   } | null>(null);
 
   // Check for redirect reason from game pages
@@ -65,6 +66,7 @@ export default function HomePage() {
             difficulty: config.difficulty,
             gameType: config.gameType,
             focusCategories: config.focusCategories,
+            categories: config.categories,
           });
         } catch { /* ignore corrupt data */ }
         sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_CONFIG);
@@ -192,7 +194,7 @@ export default function HomePage() {
         topic={topic}
         onTopicChange={setTopic}
         onBack={() => { setShowConfig(false); setSavedConfig(null); }}
-        prefetchedCategories={prefetchTopicRef.current === topic.trim() ? prefetchedCategories : null}
+        prefetchedCategories={savedConfig?.categories ?? (prefetchTopicRef.current === topic.trim() ? prefetchedCategories : null)}
         initialDifficulty={savedConfig?.difficulty}
         initialGameType={savedConfig?.gameType}
         initialFocusCategories={savedConfig?.focusCategories}
