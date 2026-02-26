@@ -748,6 +748,7 @@ function AnagramGame({ puzzle: initialPuzzle, onRetryPuzzle }: { puzzle: Anagram
           wordsFound={state.solvedWords.length}
           wordsTotal={puzzle.words.length}
           elapsedSeconds={state.elapsedSeconds}
+          gameType="anagram"
           onRetryPuzzle={onRetryPuzzle}
           onNewPuzzle={handleNewTopic}
           onShare={handleShare}
@@ -767,6 +768,7 @@ function AnagramGame({ puzzle: initialPuzzle, onRetryPuzzle }: { puzzle: Anagram
           livesRemaining={state.livesRemaining}
           score={score}
           funFact={puzzle.funFact}
+          gameType="anagram"
           onRetryPuzzle={onRetryPuzzle}
           onNewPuzzle={handleNewTopic}
           onShare={handleShare}

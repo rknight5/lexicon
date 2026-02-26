@@ -482,6 +482,7 @@ function WordSearchGame({ puzzle: initialPuzzle, onRetryPuzzle }: { puzzle: Puzz
               wordsFound={state.foundWords.length}
               wordsTotal={puzzle.words.length}
               elapsedSeconds={state.elapsedSeconds}
+              gameType="wordsearch"
               onRetryPuzzle={onRetryPuzzle}
               onNewPuzzle={handleNewTopic}
               onShare={handleShare}
@@ -518,6 +519,7 @@ function WordSearchGame({ puzzle: initialPuzzle, onRetryPuzzle }: { puzzle: Puzz
               livesRemaining={state.livesRemaining}
               score={score}
               funFact={puzzle.funFact}
+              gameType="wordsearch"
               onRetryPuzzle={onRetryPuzzle}
               onNewPuzzle={handleNewTopic}
               onShare={handleShare}

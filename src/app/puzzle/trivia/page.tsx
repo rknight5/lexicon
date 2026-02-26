@@ -1010,6 +1010,7 @@ function TriviaGame({ puzzle, onRetryPuzzle }: { puzzle: TriviaPuzzleData; onRet
           wordsFound={correctCount}
           wordsTotal={puzzle.questions.length}
           elapsedSeconds={state.elapsedSeconds}
+          gameType="trivia"
           onRetryPuzzle={onRetryPuzzle}
           onNewPuzzle={handleNewTopic}
           onShare={handleShare}
@@ -1026,6 +1027,7 @@ function TriviaGame({ puzzle, onRetryPuzzle }: { puzzle: TriviaPuzzleData; onRet
           livesRemaining={state.livesRemaining}
           score={state.score}
           funFact={puzzle.funFact}
+          gameType="trivia"
           onRetryPuzzle={onRetryPuzzle}
           onNewPuzzle={handleNewTopic}
           onShare={handleShare}

@@ -1,6 +1,17 @@
-import { Trophy, Star } from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { RotateCcw, Plus, Share2, Save, Clock, LayoutGrid } from "lucide-react";
 import { formatTime } from "@/lib/format";
 import { useWinConfetti } from "@/hooks/useWinConfetti";
+import type { GameType } from "@/lib/types";
+
+const GAME_TYPE_LABELS: Record<string, string> = {
+  wordsearch: "Word Search",
+  crossword: "Crossword",
+  anagram: "Anagram",
+  trivia: "Trivia",
+};
 
 interface CompletionModalProps {
   wordsFound: number;
@@ -9,6 +20,7 @@ interface CompletionModalProps {
   livesRemaining: number;
   score: number;
   funFact: string;
+  gameType: GameType;
   onRetryPuzzle: () => void;
   onNewPuzzle: () => void;
   onShare?: () => void;
@@ -21,8 +33,7 @@ export function CompletionModal({
   wordsTotal,
   elapsedSeconds,
   livesRemaining,
-  score,
-  funFact,
+  gameType,
   onRetryPuzzle,
   onNewPuzzle,
   onShare,
@@ -30,117 +41,220 @@ export function CompletionModal({
   isSavedToLibrary,
 }: CompletionModalProps) {
   useWinConfetti(livesRemaining);
+
+  const isPerfect = wordsFound === wordsTotal;
+
+  // Score ring animation
+  const [ringAnimated, setRingAnimated] = useState(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setRingAnimated(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  const progress = wordsTotal > 0 ? wordsFound / wordsTotal : 0;
+  const ringSize = 120;
+  const sw = 5;
+  const r = (ringSize - sw) / 2;
+  const circ = 2 * Math.PI * r;
+  const dashOffset = circ * (1 - (ringAnimated ? progress : 0));
+  const ringColor = isPerfect ? "#34d399" : "#E8B730";
+
+  const emoji = isPerfect ? "\ud83c\udf89" : "\ud83c\udfc6";
+  const title = isPerfect ? "Perfect!" : "Puzzle Complete!";
+  const subtitle = isPerfect
+    ? "You found every word"
+    : `You found ${wordsFound} of ${wordsTotal}`;
+  const glowColor = isPerfect
+    ? "rgba(52, 211, 153, 0.1)"
+    : "rgba(232, 183, 48, 0.1)";
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-5"
-      style={{ background: "rgba(0, 0, 0, 0.5)", backdropFilter: "blur(8px)" }}
+      className="fixed inset-0 z-50 flex flex-col items-center overflow-y-auto"
+      style={{ background: "linear-gradient(180deg, #1a1430 0%, #0c0a14 100%)" }}
     >
+      {/* Radial glow */}
       <div
-        className="w-full max-w-sm flex flex-col"
+        className="absolute top-0 left-0 right-0 pointer-events-none"
         style={{
-          background: "rgba(22, 14, 42, 0.95)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          border: "1px solid rgba(167, 139, 250, 0.15)",
-          borderRadius: 20,
-          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
-          maxHeight: "85vh",
+          height: 300,
+          background: `radial-gradient(ellipse at 50% 0%, ${glowColor} 0%, transparent 70%)`,
+        }}
+      />
+
+      <div
+        className="relative flex flex-col items-center w-full max-w-sm mx-auto"
+        style={{
+          padding: "0 24px",
+          paddingTop: "calc(env(safe-area-inset-top, 40px) + 48px)",
+          paddingBottom: "calc(env(safe-area-inset-bottom, 34px) + 10px)",
         }}
       >
-        {/* Scrollable content */}
-        <div className="overflow-y-auto p-6 space-y-4 text-center">
-          <div className="flex justify-center">
-            <Trophy className="w-10 h-10 text-gold-primary" />
-          </div>
+        {/* TIER 1 — Emotion + Score */}
+        <span style={{ fontSize: 56, lineHeight: 1 }}>{emoji}</span>
 
-          <h2 className="font-heading text-3xl font-bold text-gold-primary text-center">
-            Puzzle Complete!
-          </h2>
+        <h2
+          className="font-heading text-3xl font-bold text-white text-center"
+          style={{ marginTop: 12 }}
+        >
+          {title}
+        </h2>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-center gap-2 text-gold-primary">
-              <Star className="w-5 h-5" fill="currentColor" />
-              <span className="font-grid text-3xl font-bold">{score}</span>
-            </div>
-            <p className="font-body text-sm text-center" style={{ color: "var(--white-muted)" }}>
-              {wordsFound}/{wordsTotal} words · {formatTime(elapsedSeconds)} · {livesRemaining}/3 lives
-            </p>
-            {livesRemaining === 3 && (
-              <p className="font-heading text-xs text-gold-primary text-center">
-                Perfect Game!
-              </p>
+        <p
+          className="font-body text-sm text-center"
+          style={{ color: "var(--white-muted)", marginTop: 4 }}
+        >
+          {subtitle}
+        </p>
+
+        {/* Score Ring */}
+        <div className="relative" style={{ width: ringSize, height: ringSize, marginTop: 24 }}>
+          <svg width={ringSize} height={ringSize}>
+            <circle
+              cx={ringSize / 2}
+              cy={ringSize / 2}
+              r={r}
+              fill="none"
+              stroke="rgba(255, 255, 255, 0.08)"
+              strokeWidth={sw}
+            />
+            {progress > 0 && (
+              <circle
+                cx={ringSize / 2}
+                cy={ringSize / 2}
+                r={r}
+                fill="none"
+                stroke={ringColor}
+                strokeWidth={sw}
+                strokeLinecap="round"
+                strokeDasharray={circ}
+                strokeDashoffset={dashOffset}
+                transform={`rotate(-90 ${ringSize / 2} ${ringSize / 2})`}
+                style={{
+                  transition: "stroke-dashoffset 1s ease-out",
+                  filter: `drop-shadow(0 0 6px ${ringColor}50)`,
+                }}
+              />
             )}
-          </div>
-
-          {/* Fun fact */}
-          {funFact && (
-            <div
-              className="rounded-2xl p-4 text-left"
-              style={{
-                background: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                maxHeight: "5.5lh",
-                overflowY: "auto",
-              }}
-            >
-              <p className="font-heading text-xs font-bold uppercase tracking-wider text-gold-primary mb-1">
-                Fun Fact
-              </p>
-              <p className="font-body text-sm" style={{ color: "var(--white-muted)" }}>
-                {funFact}
-              </p>
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div className="font-grid" style={{ fontSize: 32, fontWeight: 800, lineHeight: 1 }}>
+              <span className="text-white">{wordsFound}</span>
+              <span style={{ color: "rgba(255, 255, 255, 0.35)" }}>/{wordsTotal}</span>
             </div>
-          )}
+            <span
+              className="font-body"
+              style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.4)", marginTop: 2 }}
+            >
+              words
+            </span>
+          </div>
         </div>
 
-        {/* Pinned buttons */}
-        <div className="flex flex-col items-center gap-3 w-full px-6 pb-6 pt-2 shrink-0">
-          <div className="flex gap-3 w-4/5">
+        {/* Stat pills */}
+        <div className="flex items-center justify-center gap-3" style={{ marginTop: 16 }}>
+          <div
+            className="flex items-center gap-1.5 font-body"
+            style={{
+              fontSize: 13,
+              color: "rgba(255, 255, 255, 0.5)",
+              padding: "6px 14px",
+              borderRadius: 20,
+              background: "rgba(255, 255, 255, 0.06)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+            }}
+          >
+            <Clock className="w-3.5 h-3.5" />
+            {formatTime(elapsedSeconds)}
+          </div>
+          <div
+            className="flex items-center gap-1.5 font-body"
+            style={{
+              fontSize: 13,
+              color: "rgba(255, 255, 255, 0.5)",
+              padding: "6px 14px",
+              borderRadius: 20,
+              background: "rgba(255, 255, 255, 0.06)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+            }}
+          >
+            <LayoutGrid className="w-3.5 h-3.5" />
+            {GAME_TYPE_LABELS[gameType] ?? gameType}
+          </div>
+        </div>
+
+        {/* TIER 2 — Actions */}
+        <div className="w-full flex flex-col" style={{ marginTop: 32, gap: 10 }}>
+          <div className="flex" style={{ gap: 10 }}>
             <button
               onClick={onRetryPuzzle}
-              className="flex-1 h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.97]"
+              className="flex-1 flex items-center justify-center gap-2 font-heading font-bold transition-all active:scale-[0.97]"
               style={{
-                background: "rgba(255, 255, 255, 0.08)",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                color: "rgba(255, 255, 255, 0.85)",
+                height: 52,
+                borderRadius: 14,
+                background: "#E8B730",
+                color: "#1a1430",
+                fontSize: 15,
               }}
             >
-              Retry This Puzzle
+              <RotateCcw className="w-5 h-5" />
+              Retry
             </button>
             <button
               onClick={onNewPuzzle}
-              className="flex-1 h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider text-purple-deep transition-all active:scale-[0.97]"
+              className="flex-1 flex items-center justify-center gap-2 font-heading font-bold transition-all active:scale-[0.97]"
               style={{
-                background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
-                boxShadow: "0 4px 15px rgba(255, 215, 0, 0.3)",
+                height: 52,
+                borderRadius: 14,
+                background: "rgba(255, 255, 255, 0.06)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                color: "rgba(255, 255, 255, 0.85)",
+                fontSize: 15,
               }}
             >
+              <Plus className="w-5 h-5" />
               New Puzzle
             </button>
           </div>
-          {onShare && (
-            <button
-              onClick={onShare}
-              className="w-4/5 h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97]"
-              style={{
-                background: "rgba(255, 255, 255, 0.08)",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                color: "rgba(255, 255, 255, 0.8)",
-              }}
-            >
-              Share Results
-            </button>
-          )}
-          {onSaveToLibrary && (
-            <button
-              onClick={onSaveToLibrary}
-              disabled={isSavedToLibrary}
-              className={`w-4/5 h-9 rounded-pill font-body text-sm transition-colors text-center ${
-                isSavedToLibrary ? "text-gold-primary" : "text-white/50 hover:text-white/70"
-              }`}
-            >
-              {isSavedToLibrary ? "Saved to Library" : "Save to Library"}
-            </button>
+
+          {(onShare || onSaveToLibrary) && (
+            <div className="flex" style={{ gap: 10 }}>
+              {onShare && (
+                <button
+                  onClick={onShare}
+                  className="flex-1 flex items-center justify-center gap-2 font-heading transition-all active:scale-[0.97]"
+                  style={{
+                    height: 44,
+                    borderRadius: 12,
+                    background: "rgba(255, 255, 255, 0.04)",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    color: "rgba(255, 255, 255, 0.5)",
+                    fontSize: 14,
+                  }}
+                >
+                  <Share2 className="w-4 h-4" />
+                  Share
+                </button>
+              )}
+              {onSaveToLibrary && (
+                <button
+                  onClick={onSaveToLibrary}
+                  disabled={isSavedToLibrary}
+                  className="flex-1 flex items-center justify-center gap-2 font-heading transition-all active:scale-[0.97]"
+                  style={{
+                    height: 44,
+                    borderRadius: 12,
+                    background: "rgba(255, 255, 255, 0.04)",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    color: isSavedToLibrary ? "#E8B730" : "rgba(255, 255, 255, 0.5)",
+                    fontSize: 14,
+                  }}
+                >
+                  <Save className="w-4 h-4" />
+                  {isSavedToLibrary ? "Saved" : "Save"}
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>

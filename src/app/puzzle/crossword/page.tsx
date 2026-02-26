@@ -483,6 +483,7 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetryPuzzle }: { puzzle: Cross
           wordsFound={state.solvedClues.length}
           wordsTotal={puzzle.clues.length}
           elapsedSeconds={state.elapsedSeconds}
+          gameType="crossword"
           onRetryPuzzle={onRetryPuzzle}
           onNewPuzzle={handleNewTopic}
           onShare={handleShare}
@@ -503,6 +504,7 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetryPuzzle }: { puzzle: Cross
           livesRemaining={state.livesRemaining}
           score={score}
           funFact={puzzle.funFact}
+          gameType="crossword"
           onRetryPuzzle={onRetryPuzzle}
           onNewPuzzle={handleNewTopic}
           onShare={handleShare}
