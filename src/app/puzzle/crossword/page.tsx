@@ -378,7 +378,7 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetry }: { puzzle: CrosswordPu
           </div>
 
           {/* Submit button — below grid panel */}
-          <div className="flex justify-center" style={{ marginTop: -6 }}>
+          <div className="flex justify-center" style={{ marginTop: 12 }}>
             <button
               onClick={checkWord}
               disabled={state.gameStatus !== "playing"}
@@ -460,7 +460,7 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetry }: { puzzle: CrosswordPu
         </div>
 
         {/* Submit button — below grid */}
-        <div className="flex justify-center" style={{ padding: "0 18px", marginTop: -4 }}>
+        <div className="flex justify-center" style={{ padding: "0 18px", marginTop: 8 }}>
           <button
             onClick={checkWord}
             disabled={state.gameStatus !== "playing"}
