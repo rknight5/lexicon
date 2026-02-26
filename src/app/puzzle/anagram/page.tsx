@@ -753,6 +753,9 @@ function AnagramGame({ puzzle: initialPuzzle, onRetryPuzzle }: { puzzle: Anagram
           onShare={handleShare}
           onSaveToLibrary={handleSave}
           isSavedToLibrary={isSaved}
+          missedItems={puzzle.words
+            .filter(w => !state.solvedWords.includes(w.word))
+            .map(w => ({ label: w.word }))}
         />
       )}
 

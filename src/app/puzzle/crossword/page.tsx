@@ -488,6 +488,10 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetryPuzzle }: { puzzle: Cross
           onShare={handleShare}
           onSaveToLibrary={handleSave}
           isSavedToLibrary={isSaved}
+          missedItems={puzzle.clues
+            .filter(c => !state.solvedClues.includes(c.number))
+            .map(c => ({ label: `${c.number}${c.direction[0].toUpperCase()}: ${c.answer}` }))}
+          missedItemsTitle="Missed Clues"
         />
       )}
 

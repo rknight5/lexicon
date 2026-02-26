@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { formatTime } from "@/lib/format";
 import { ModalShell } from "@/components/shared/ModalShell";
 
@@ -10,6 +11,8 @@ interface GameOverModalProps {
   onShare?: () => void;
   onSaveToLibrary?: () => void;
   isSavedToLibrary?: boolean;
+  missedItems?: { label: string }[];
+  missedItemsTitle?: string;
 }
 
 export function GameOverModal({
@@ -21,8 +24,14 @@ export function GameOverModal({
   onShare,
   onSaveToLibrary,
   isSavedToLibrary,
+  missedItems,
+  missedItemsTitle = "Missed Words",
 }: GameOverModalProps) {
   const progress = wordsTotal > 0 ? (wordsFound / wordsTotal) * 100 : 0;
+  const [showAllMissed, setShowAllMissed] = useState(false);
+  const missedCount = missedItems?.length ?? 0;
+  const visibleMissed = showAllMissed ? missedItems : missedItems?.slice(0, 6);
+  const hiddenCount = missedCount - 6;
 
   return (
     <ModalShell centered>
@@ -60,6 +69,83 @@ export function GameOverModal({
             Time: {formatTime(elapsedSeconds)}
           </p>
         </div>
+
+        {/* Missed items */}
+        {visibleMissed && visibleMissed.length > 0 && (
+          <div className="w-full" style={{ marginTop: 4 }}>
+            <div className="flex items-center justify-between" style={{ marginBottom: 6 }}>
+              <span
+                className="uppercase font-semibold"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 10,
+                  color: "var(--white-muted)",
+                  letterSpacing: "0.5px",
+                }}
+              >
+                {missedItemsTitle}
+              </span>
+              {missedCount > 6 && (
+                <button
+                  onClick={() => setShowAllMissed(!showAllMissed)}
+                  className="cursor-pointer"
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 10,
+                    color: "#a78bfa",
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                  }}
+                >
+                  {showAllMissed ? "Show less \u2191" : "Show all \u2193"}
+                </button>
+              )}
+            </div>
+            <div
+              className="grid"
+              style={{ gridTemplateColumns: "1fr 1fr 1fr", gap: 5 }}
+            >
+              {visibleMissed.map((item) => (
+                <div
+                  key={item.label}
+                  className="text-center"
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "9.5px",
+                    padding: "5px 4px",
+                    borderRadius: 6,
+                    background: "rgba(255, 77, 106, 0.06)",
+                    border: "1px solid rgba(255, 77, 106, 0.08)",
+                    color: "rgba(255, 77, 106, 0.55)",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {item.label}
+                </div>
+              ))}
+              {!showAllMissed && hiddenCount > 0 && (
+                <button
+                  onClick={() => setShowAllMissed(true)}
+                  className="text-center cursor-pointer"
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "9.5px",
+                    padding: "5px 4px",
+                    borderRadius: 6,
+                    background: "rgba(255, 255, 255, 0.04)",
+                    border: "1px solid rgba(255, 255, 255, 0.06)",
+                    color: "var(--white-muted)",
+                  }}
+                >
+                  +{hiddenCount} more
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Buttons */}
         <div className="flex flex-col items-center gap-3 w-full pt-4">
