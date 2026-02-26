@@ -57,3 +57,15 @@ export const generationLog = pgTable("generation_log", {
   gameType: text("game_type").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const seenTriviaQuestions = pgTable("seen_trivia_questions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  username: text("username").notNull(),
+  topicNormalized: text("topic_normalized").notNull(),
+  questionText: text("question_text").notNull(),
+  seenAt: timestamp("seen_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("seen_trivia_username_topic_question_idx").on(
+    table.username, table.topicNormalized, table.questionText
+  ),
+]);

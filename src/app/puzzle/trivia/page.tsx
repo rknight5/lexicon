@@ -17,7 +17,7 @@ import { ShareSheet } from "@/components/shared/ShareSheet";
 import { generateShareCard, type ShareCardData } from "@/lib/share";
 import { useTriviaGame } from "@/hooks/useTriviaGame";
 import { useAutoSave } from "@/hooks/useAutoSave";
-import { saveResult, savePuzzle } from "@/lib/storage";
+import { saveResult, savePuzzle, getSeenTriviaQuestions, saveSeenTriviaQuestions } from "@/lib/storage";
 import { STORAGE_KEYS, puzzleKeyForGameType } from "@/lib/storage-keys";
 import type { TriviaPuzzleData } from "@/lib/types";
 import { shuffleArray } from "@/lib/shuffle";
@@ -84,6 +84,24 @@ function TriviaGame({ puzzle, onRetryPuzzle }: { puzzle: TriviaPuzzleData; onRet
   const [editingTitle, setEditingTitle] = useState(false);
   const [editTitleValue, setEditTitleValue] = useState(puzzleTitle);
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const seenQuestionsRef = useRef<Set<string>>(new Set());
+
+  // Seed seenQuestionsRef from backend + current puzzle
+  useEffect(() => {
+    puzzle.questions.forEach(q => seenQuestionsRef.current.add(q.question.trim().toLowerCase()));
+
+    let originalTopic: string | null = null;
+    try {
+      const configStr = sessionStorage.getItem(STORAGE_KEYS.PUZZLE_CONFIG);
+      if (configStr) originalTopic = JSON.parse(configStr).topic ?? null;
+    } catch {}
+
+    if (originalTopic) {
+      getSeenTriviaQuestions(originalTopic).then(qs => {
+        qs.forEach(q => seenQuestionsRef.current.add(q.trim().toLowerCase()));
+      }).catch(() => {});
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (editingTitle && titleInputRef.current) {
@@ -179,6 +197,20 @@ function TriviaGame({ puzzle, onRetryPuzzle }: { puzzle: TriviaPuzzleData; onRet
       }).then((ok) => {
         if (!ok) setToastMessage("Couldn't save stats — check your connection");
       });
+
+      // Save seen questions for cross-session dedup
+      try {
+        const configStr = sessionStorage.getItem(STORAGE_KEYS.PUZZLE_CONFIG);
+        if (configStr) {
+          const originalTopic = JSON.parse(configStr).topic;
+          if (originalTopic) {
+            saveSeenTriviaQuestions(
+              originalTopic,
+              puzzle.questions.map(q => q.question.trim())
+            ).catch(() => {});
+          }
+        }
+      } catch {}
     }
   }, [state.gameStatus, state.answers, state.score, state.elapsedSeconds, state.livesRemaining, state.hintsUsed, puzzle]);
 

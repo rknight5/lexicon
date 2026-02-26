@@ -413,13 +413,20 @@ function buildTriviaUserMessage(
   topic: string,
   difficulty: Difficulty,
   focusCategories: string[],
-  attempt: number
+  attempt: number,
+  excludeQuestions: string[] = [],
+  generateCount?: number
 ): string {
   const config = TRIVIA_DIFFICULTY_CONFIG[difficulty];
+  const requestCount = generateCount ?? config.questionCount;
   let message = `Topic: ${topic}
 Difficulty: ${difficulty}
-Question count: ${config.questionCount}
+Question count: ${requestCount}
 Focus categories: ${focusCategories.join(", ")}`;
+
+  if (excludeQuestions.length > 0) {
+    message += `\n\nIMPORTANT: The player has already seen these questions. Do NOT repeat any of them — generate completely different questions:\n${excludeQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n")}`;
+  }
 
   if (attempt === 2) {
     message +=
@@ -452,9 +459,13 @@ function validateTriviaQuestions(questions: TriviaQuestion[], minCount: number):
 export async function generateTriviaQuestions(
   topic: string,
   difficulty: Difficulty,
-  focusCategories: string[]
+  focusCategories: string[],
+  excludeQuestions: string[] = []
 ): Promise<{ title: string; questions: TriviaQuestion[]; funFact: string }> {
   const config = TRIVIA_DIFFICULTY_CONFIG[difficulty];
+  const generateCount = excludeQuestions.length > 0
+    ? config.questionCount * 2
+    : config.questionCount;
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     const response = await anthropic.messages.create({
@@ -465,7 +476,7 @@ export async function generateTriviaQuestions(
       messages: [
         {
           role: "user",
-          content: buildTriviaUserMessage(topic, difficulty, focusCategories, attempt),
+          content: buildTriviaUserMessage(topic, difficulty, focusCategories, attempt, excludeQuestions, generateCount),
         },
       ],
     });
@@ -490,12 +501,12 @@ export async function generateTriviaQuestions(
       if (jsonEnd >= 0) cleaned = cleaned.slice(0, jsonEnd + 1);
 
       const parsed = JSON.parse(cleaned);
-      const validated = validateTriviaQuestions(parsed.questions ?? [], config.questionCount);
+      const validated = validateTriviaQuestions(parsed.questions ?? [], generateCount);
 
       if (validated.length >= config.questionCount) {
         return {
           title: parsed.title || `${topic} Trivia`,
-          questions: validated.slice(0, config.questionCount),
+          questions: validated.slice(0, generateCount),
           funFact: parsed.funFact || "",
         };
       }

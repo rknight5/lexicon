@@ -212,3 +212,33 @@ export async function deleteAutoSave(gameType?: string): Promise<boolean> {
     return false;
   }
 }
+
+// --- Seen Trivia Questions ---
+
+export async function getSeenTriviaQuestions(topic: string): Promise<string[]> {
+  try {
+    const res = await fetch(
+      `/api/trivia/seen?topic=${encodeURIComponent(topic)}`,
+      { credentials: "include" }
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.questions ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function saveSeenTriviaQuestions(topic: string, questions: string[]): Promise<boolean> {
+  try {
+    const res = await fetch("/api/trivia/seen", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic, questions }),
+      credentials: "include",
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}

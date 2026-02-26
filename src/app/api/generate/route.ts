@@ -7,7 +7,7 @@ import type { Difficulty, GameType, PlacedWord, PuzzleData, CrosswordPuzzleData,
 import { isProfane, filterProfaneItems } from "@/lib/content-filter";
 import { requireAuth } from "@/lib/session";
 import { db } from "@/lib/db";
-import { generationLog, DAILY_GENERATION_LIMIT } from "@/lib/schema";
+import { generationLog, DAILY_GENERATION_LIMIT, seenTriviaQuestions } from "@/lib/schema";
 import { eq, and, gte, sql } from "drizzle-orm";
 
 function scrambleWord(word: string): string {
@@ -204,11 +204,35 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // Fetch seen questions for cross-session dedup (last 30 days)
+      const normTopic = topic.trim().toLowerCase();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      let seenQuestionTexts: string[] = [];
+      try {
+        const seenRows = await db
+          .select({ questionText: seenTriviaQuestions.questionText })
+          .from(seenTriviaQuestions)
+          .where(
+            and(
+              eq(seenTriviaQuestions.username, username),
+              eq(seenTriviaQuestions.topicNormalized, normTopic),
+              gte(seenTriviaQuestions.seenAt, thirtyDaysAgo)
+            )
+          );
+        seenQuestionTexts = seenRows.map(r => r.questionText);
+      } catch {
+        // Non-fatal — continue without dedup
+      }
+      const seenSet = new Set(seenQuestionTexts.map(q => q.trim().toLowerCase()));
+
       for (let contentAttempt = 0; contentAttempt < 3; contentAttempt++) {
         const { title, questions, funFact } = await generateTriviaQuestions(
           topic,
           difficulty,
-          focusCategories
+          focusCategories,
+          seenQuestionTexts
         );
 
         const hasProfanity = isProfane(title) || isProfane(funFact) ||
@@ -216,9 +240,26 @@ export async function POST(request: NextRequest) {
 
         if (!hasProfanity) {
           await recordGeneration(username, gameType as string);
+
+          // Dedup: prefer new questions, fallback to repeats for narrow topics
+          const questionCount = config.questionCount;
+          const newQs = questions.filter(q => !seenSet.has(q.question.trim().toLowerCase()));
+          const repeatedQs = questions.filter(q => seenSet.has(q.question.trim().toLowerCase()));
+
+          let finalQuestions: typeof questions;
+          if (newQs.length >= questionCount) {
+            finalQuestions = newQs.slice(0, questionCount);
+          } else if (newQs.length < Math.floor(questionCount / 2)) {
+            // Fewer than half are new — narrow topic, allow repeats
+            finalQuestions = questions.slice(0, questionCount);
+          } else {
+            // Pad new with some repeats to reach count
+            finalQuestions = [...newQs, ...repeatedQs.slice(0, questionCount - newQs.length)];
+          }
+
           const puzzle: TriviaPuzzleData = {
             title,
-            questions,
+            questions: finalQuestions,
             funFact,
             difficulty,
           };
