@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Home, Heart, Bookmark } from "lucide-react";
 import { CountdownTimer } from "@/components/trivia/CountdownTimer";
@@ -20,14 +20,12 @@ import { useAutoSave } from "@/hooks/useAutoSave";
 import { saveResult, savePuzzle } from "@/lib/storage";
 import { STORAGE_KEYS, puzzleKeyForGameType } from "@/lib/storage-keys";
 import type { TriviaPuzzleData } from "@/lib/types";
-import { LoadingOverlay } from "@/components/shared/LoadingOverlay";
+import { shuffleArray } from "@/lib/shuffle";
 
 export default function TriviaPage() {
   const router = useRouter();
   const [puzzle, setPuzzle] = useState<TriviaPuzzleData | null>(null);
   const [puzzleKey, setPuzzleKey] = useState(0);
-  const [regenerating, setRegenerating] = useState(false);
-  const seenQuestionsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     const stored = sessionStorage.getItem(puzzleKeyForGameType("trivia"));
@@ -39,8 +37,6 @@ export default function TriviaPage() {
     try {
       const parsed = JSON.parse(stored) as TriviaPuzzleData;
       setPuzzle(parsed);
-      // Track initial questions as seen
-      parsed.questions.forEach((q) => seenQuestionsRef.current.add(q.question));
     } catch {
       sessionStorage.removeItem(puzzleKeyForGameType("trivia"));
       sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
@@ -49,75 +45,33 @@ export default function TriviaPage() {
     }
   }, [router]);
 
-  const handleRetry = useCallback(async () => {
+  const handleRetryPuzzle = useCallback(() => {
     if (!puzzle) return;
-    setRegenerating(true);
+    const reshuffled = {
+      ...puzzle,
+      questions: puzzle.questions.map(q => {
+        if (q.type === "tf") return q;
+        const indices = q.options.map((_: string, i: number) => i);
+        const shuffled = shuffleArray(indices);
+        return {
+          ...q,
+          options: shuffled.map((i: number) => q.options[i]),
+          correctIndex: shuffled.indexOf(q.correctIndex),
+        };
+      }),
+    };
+    sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
+    sessionStorage.setItem(puzzleKeyForGameType("trivia"), JSON.stringify(reshuffled));
+    setPuzzle(reshuffled);
+    setPuzzleKey(k => k + 1);
+  }, [puzzle]);
 
-    // Extract categories from current puzzle's questions
-    const categories = [...new Set(
-      puzzle.questions.map((q) => q.category).filter(Boolean) as string[]
-    )];
-
-    try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topic: puzzle.title,
-          difficulty: puzzle.difficulty,
-          focusCategories: categories.length >= 2 ? categories : ["General"],
-          gameType: "trivia",
-        }),
-        credentials: "include",
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to generate");
-      }
-
-      const { _meta, ...newPuzzleData } = await res.json();
-      const newPuzzle = newPuzzleData as TriviaPuzzleData;
-
-      // Filter out previously seen questions
-      const freshQuestions = newPuzzle.questions.filter(
-        (q) => !seenQuestionsRef.current.has(q.question)
-      );
-
-      // Use fresh questions if enough, otherwise use all (better than failing)
-      const finalPuzzle: TriviaPuzzleData = {
-        ...newPuzzle,
-        questions: freshQuestions.length >= newPuzzle.questions.length / 2
-          ? freshQuestions
-          : newPuzzle.questions,
-      };
-
-      // Track new questions as seen
-      finalPuzzle.questions.forEach((q) => seenQuestionsRef.current.add(q.question));
-
-      // Store and remount
-      sessionStorage.setItem(puzzleKeyForGameType("trivia"), JSON.stringify(finalPuzzle));
-      sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
-      setPuzzle(finalPuzzle);
-      setPuzzleKey((k) => k + 1);
-    } catch {
-      // Fallback: send to config screen
-      sessionStorage.removeItem(puzzleKeyForGameType("trivia"));
-      sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
-      sessionStorage.setItem(STORAGE_KEYS.SHOW_CONFIG, puzzle.title);
-      router.push("/");
-    } finally {
-      setRegenerating(false);
-    }
-  }, [puzzle, router]);
-
-  if (regenerating) return <LoadingOverlay />;
   if (!puzzle) return null;
 
-  return <TriviaGame key={puzzleKey} puzzle={puzzle} onRetry={handleRetry} />;
+  return <TriviaGame key={puzzleKey} puzzle={puzzle} onRetryPuzzle={handleRetryPuzzle} />;
 }
 
-function TriviaGame({ puzzle, onRetry }: { puzzle: TriviaPuzzleData; onRetry: () => void }) {
+function TriviaGame({ puzzle, onRetryPuzzle }: { puzzle: TriviaPuzzleData; onRetryPuzzle: () => void }) {
   const router = useRouter();
   const [puzzleTitle, setPuzzleTitle] = useState(puzzle.title);
   const [showStats, setShowStats] = useState(false);
@@ -276,13 +230,16 @@ function TriviaGame({ puzzle, onRetry }: { puzzle: TriviaPuzzleData; onRetry: ()
   const handleHome = () => router.push("/");
 
   const handleNewTopic = () => {
+    const configStr = sessionStorage.getItem(STORAGE_KEYS.PUZZLE_CONFIG);
+    let originalTopic = puzzleTitle;
+    if (configStr) {
+      try { originalTopic = JSON.parse(configStr).topic || puzzleTitle; } catch {}
+    }
     sessionStorage.removeItem(puzzleKeyForGameType("trivia"));
     sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
-    sessionStorage.setItem(STORAGE_KEYS.SHOW_CONFIG, puzzleTitle);
+    sessionStorage.setItem(STORAGE_KEYS.SHOW_CONFIG, originalTopic);
     router.push("/");
   };
-
-  const handlePlayAgain = () => onRetry();
 
   const handleSave = async () => {
     if (isSaving) return;
@@ -1021,8 +978,8 @@ function TriviaGame({ puzzle, onRetry }: { puzzle: TriviaPuzzleData; onRetry: ()
           wordsFound={correctCount}
           wordsTotal={puzzle.questions.length}
           elapsedSeconds={state.elapsedSeconds}
-          onTryAgain={handlePlayAgain}
-          onNewTopic={handleNewTopic}
+          onRetryPuzzle={onRetryPuzzle}
+          onNewPuzzle={handleNewTopic}
           onShare={handleShare}
           onSaveToLibrary={handleSave}
           isSavedToLibrary={isSaved}
@@ -1037,8 +994,8 @@ function TriviaGame({ puzzle, onRetry }: { puzzle: TriviaPuzzleData; onRetry: ()
           livesRemaining={state.livesRemaining}
           score={state.score}
           funFact={puzzle.funFact}
-          onPlayAgain={handlePlayAgain}
-          onNewTopic={handleNewTopic}
+          onRetryPuzzle={onRetryPuzzle}
+          onNewPuzzle={handleNewTopic}
           onShare={handleShare}
           onSaveToLibrary={handleSave}
           isSavedToLibrary={isSaved}

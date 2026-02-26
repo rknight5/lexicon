@@ -23,14 +23,13 @@ import { ANAGRAM_DIFFICULTY_CONFIG } from "@/lib/types";
 import { ShareSheet } from "@/components/shared/ShareSheet";
 import { generateShareCard, type ShareCardData } from "@/lib/share";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
-import { LoadingOverlay } from "@/components/shared/LoadingOverlay";
+import { scrambleWord } from "@/lib/shuffle";
 import type { AnagramPuzzleData } from "@/lib/types";
 
 export default function AnagramPage() {
   const router = useRouter();
   const [puzzle, setPuzzle] = useState<AnagramPuzzleData | null>(null);
   const [puzzleKey, setPuzzleKey] = useState(0);
-  const [regenerating, setRegenerating] = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem(STORAGE_KEYS.PUZZLE_ANAGRAM);
@@ -49,55 +48,27 @@ export default function AnagramPage() {
     }
   }, [router]);
 
-  const handleRetry = useCallback(async () => {
+  const handleRetryPuzzle = useCallback(() => {
     if (!puzzle) return;
-    setRegenerating(true);
+    const rescrambled = {
+      ...puzzle,
+      words: puzzle.words.map(w => ({
+        ...w,
+        scrambled: scrambleWord(w.word.toUpperCase()),
+      })),
+    };
+    sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
+    sessionStorage.setItem(STORAGE_KEYS.PUZZLE_ANAGRAM, JSON.stringify(rescrambled));
+    setPuzzle(rescrambled);
+    setPuzzleKey(k => k + 1);
+  }, [puzzle]);
 
-    const categories = [...new Set(
-      puzzle.words.map((w) => w.category).filter(Boolean)
-    )];
-
-    try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topic: puzzle.title,
-          difficulty: puzzle.difficulty,
-          focusCategories: categories.length >= 2 ? categories : ["General"],
-          gameType: "anagram",
-        }),
-        credentials: "include",
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to generate");
-      }
-
-      const { _meta, ...newPuzzle } = await res.json();
-
-      sessionStorage.setItem(STORAGE_KEYS.PUZZLE_ANAGRAM, JSON.stringify(newPuzzle));
-      sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
-      setPuzzle(newPuzzle as AnagramPuzzleData);
-      setPuzzleKey((k) => k + 1);
-    } catch {
-      sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_ANAGRAM);
-      sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
-      sessionStorage.setItem(STORAGE_KEYS.SHOW_CONFIG, puzzle.title);
-      router.push("/");
-    } finally {
-      setRegenerating(false);
-    }
-  }, [puzzle, router]);
-
-  if (regenerating) return <LoadingOverlay />;
   if (!puzzle) return null;
 
-  return <AnagramGame key={puzzleKey} puzzle={puzzle} onRetry={handleRetry} />;
+  return <AnagramGame key={puzzleKey} puzzle={puzzle} onRetryPuzzle={handleRetryPuzzle} />;
 }
 
-function AnagramGame({ puzzle: initialPuzzle, onRetry }: { puzzle: AnagramPuzzleData; onRetry: () => void }) {
+function AnagramGame({ puzzle: initialPuzzle, onRetryPuzzle }: { puzzle: AnagramPuzzleData; onRetryPuzzle: () => void }) {
   const router = useRouter();
   const [puzzleTitle, setPuzzleTitle] = useState(initialPuzzle.title);
   const [showStats, setShowStats] = useState(false);
@@ -204,13 +175,16 @@ function AnagramGame({ puzzle: initialPuzzle, onRetry }: { puzzle: AnagramPuzzle
   const handleHome = () => router.push("/");
 
   const handleNewTopic = () => {
+    const configStr = sessionStorage.getItem(STORAGE_KEYS.PUZZLE_CONFIG);
+    let originalTopic = puzzleTitle;
+    if (configStr) {
+      try { originalTopic = JSON.parse(configStr).topic || puzzleTitle; } catch {}
+    }
     sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_ANAGRAM);
     sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
-    sessionStorage.setItem(STORAGE_KEYS.SHOW_CONFIG, puzzleTitle);
+    sessionStorage.setItem(STORAGE_KEYS.SHOW_CONFIG, originalTopic);
     router.push("/");
   };
-
-  const handlePlayAgain = () => onRetry();
 
   const [isSaving, setIsSaving] = useState(false);
 
@@ -774,8 +748,8 @@ function AnagramGame({ puzzle: initialPuzzle, onRetry }: { puzzle: AnagramPuzzle
           wordsFound={state.solvedWords.length}
           wordsTotal={puzzle.words.length}
           elapsedSeconds={state.elapsedSeconds}
-          onTryAgain={handlePlayAgain}
-          onNewTopic={handleNewTopic}
+          onRetryPuzzle={onRetryPuzzle}
+          onNewPuzzle={handleNewTopic}
           onShare={handleShare}
           onSaveToLibrary={handleSave}
           isSavedToLibrary={isSaved}
@@ -790,8 +764,8 @@ function AnagramGame({ puzzle: initialPuzzle, onRetry }: { puzzle: AnagramPuzzle
           livesRemaining={state.livesRemaining}
           score={score}
           funFact={puzzle.funFact}
-          onPlayAgain={handlePlayAgain}
-          onNewTopic={handleNewTopic}
+          onRetryPuzzle={onRetryPuzzle}
+          onNewPuzzle={handleNewTopic}
           onShare={handleShare}
           onSaveToLibrary={handleSave}
           isSavedToLibrary={isSaved}

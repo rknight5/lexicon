@@ -31,6 +31,7 @@ import type { PuzzleData } from "@/lib/types";
 export default function WordSearchPage() {
   const router = useRouter();
   const [puzzle, setPuzzle] = useState<PuzzleData | null>(null);
+  const [puzzleKey, setPuzzleKey] = useState(0);
 
   useEffect(() => {
     const stored = sessionStorage.getItem(STORAGE_KEYS.PUZZLE_WORDSEARCH);
@@ -51,10 +52,13 @@ export default function WordSearchPage() {
 
   if (!puzzle) return null;
 
-  return <WordSearchGame puzzle={puzzle} />;
+  return <WordSearchGame key={puzzleKey} puzzle={puzzle} onRetryPuzzle={() => {
+    sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
+    setPuzzleKey(k => k + 1);
+  }} />;
 }
 
-function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
+function WordSearchGame({ puzzle: initialPuzzle, onRetryPuzzle }: { puzzle: PuzzleData; onRetryPuzzle: () => void }) {
   const router = useRouter();
   const [puzzleTitle, setPuzzleTitle] = useState(initialPuzzle.title);
   const [showStats, setShowStats] = useState(false);
@@ -157,15 +161,15 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
   const handleHome = () => router.push("/");
 
   const handleNewTopic = () => {
+    const configStr = sessionStorage.getItem(STORAGE_KEYS.PUZZLE_CONFIG);
+    let originalTopic = puzzleTitle;
+    if (configStr) {
+      try { originalTopic = JSON.parse(configStr).topic || puzzleTitle; } catch {}
+    }
     sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_WORDSEARCH);
     sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
-    sessionStorage.setItem(STORAGE_KEYS.SHOW_CONFIG, puzzleTitle);
+    sessionStorage.setItem(STORAGE_KEYS.SHOW_CONFIG, originalTopic);
     router.push("/");
-  };
-
-  const handlePlayAgain = () => {
-    sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
-    window.location.reload();
   };
 
   const [isSaving, setIsSaving] = useState(false);
@@ -466,9 +470,8 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
               missedWords={missedWords}
               elapsedSeconds={state.elapsedSeconds}
               score={score}
-              onTryAgain={handlePlayAgain}
-              onChangeTopic={handleNewTopic}
-              onHome={handleNewTopic}
+              onRetryPuzzle={onRetryPuzzle}
+              onNewPuzzle={handleNewTopic}
               onShare={handleShare}
               onSaveToLibrary={handleSave}
               isSavedToLibrary={isSaved}
@@ -479,8 +482,8 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
               wordsFound={state.foundWords.length}
               wordsTotal={puzzle.words.length}
               elapsedSeconds={state.elapsedSeconds}
-              onTryAgain={handlePlayAgain}
-              onNewTopic={handleNewTopic}
+              onRetryPuzzle={onRetryPuzzle}
+              onNewPuzzle={handleNewTopic}
               onShare={handleShare}
               onSaveToLibrary={handleSave}
               isSavedToLibrary={isSaved}
@@ -500,9 +503,8 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
               livesRemaining={state.livesRemaining}
               score={score}
               funFact={puzzle.funFact}
-              onPlayAgain={handlePlayAgain}
-              onChangeTopic={handleNewTopic}
-              onHome={handleNewTopic}
+              onRetryPuzzle={onRetryPuzzle}
+              onNewPuzzle={handleNewTopic}
               onShare={handleShare}
               onSaveToLibrary={handleSave}
               isSavedToLibrary={isSaved}
@@ -516,8 +518,8 @@ function WordSearchGame({ puzzle: initialPuzzle }: { puzzle: PuzzleData }) {
               livesRemaining={state.livesRemaining}
               score={score}
               funFact={puzzle.funFact}
-              onPlayAgain={handlePlayAgain}
-              onNewTopic={handleNewTopic}
+              onRetryPuzzle={onRetryPuzzle}
+              onNewPuzzle={handleNewTopic}
               onShare={handleShare}
               onSaveToLibrary={handleSave}
               isSavedToLibrary={isSaved}

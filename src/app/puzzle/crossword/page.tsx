@@ -24,14 +24,12 @@ import { Bookmark } from "lucide-react";
 import { ShareSheet } from "@/components/shared/ShareSheet";
 import { generateShareCard, type ShareCardData } from "@/lib/share";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
-import { LoadingOverlay } from "@/components/shared/LoadingOverlay";
 import type { CrosswordPuzzleData, CrosswordClue } from "@/lib/types";
 
 export default function CrosswordPage() {
   const router = useRouter();
   const [puzzle, setPuzzle] = useState<CrosswordPuzzleData | null>(null);
   const [puzzleKey, setPuzzleKey] = useState(0);
-  const [regenerating, setRegenerating] = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem(STORAGE_KEYS.PUZZLE_CROSSWORD);
@@ -50,66 +48,17 @@ export default function CrosswordPage() {
     }
   }, [router]);
 
-  const handleRetry = useCallback(async () => {
-    if (!puzzle) return;
-    setRegenerating(true);
+  const handleRetryPuzzle = useCallback(() => {
+    sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
+    setPuzzleKey(k => k + 1);
+  }, []);
 
-    try {
-      // Crossword clues don't store categories — re-suggest them
-      let categories: string[] = ["General"];
-      try {
-        const catRes = await fetch("/api/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ topic: puzzle.title }),
-          credentials: "include",
-        });
-        if (catRes.ok) {
-          const catData = await catRes.json();
-          categories = (catData.categories ?? []).slice(0, 3).map((c: { name: string }) => c.name);
-        }
-      } catch { /* use fallback */ }
-
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topic: puzzle.title,
-          difficulty: puzzle.difficulty,
-          focusCategories: categories.length >= 2 ? categories : ["General"],
-          gameType: "crossword",
-        }),
-        credentials: "include",
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to generate");
-      }
-
-      const { _meta, ...newPuzzle } = await res.json();
-
-      sessionStorage.setItem(STORAGE_KEYS.PUZZLE_CROSSWORD, JSON.stringify(newPuzzle));
-      sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
-      setPuzzle(newPuzzle as CrosswordPuzzleData);
-      setPuzzleKey((k) => k + 1);
-    } catch {
-      sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_CROSSWORD);
-      sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
-      sessionStorage.setItem(STORAGE_KEYS.SHOW_CONFIG, puzzle.title);
-      router.push("/");
-    } finally {
-      setRegenerating(false);
-    }
-  }, [puzzle, router]);
-
-  if (regenerating) return <LoadingOverlay />;
   if (!puzzle) return null;
 
-  return <CrosswordGame key={puzzleKey} puzzle={puzzle} onRetry={handleRetry} />;
+  return <CrosswordGame key={puzzleKey} puzzle={puzzle} onRetryPuzzle={handleRetryPuzzle} />;
 }
 
-function CrosswordGame({ puzzle: initialPuzzle, onRetry }: { puzzle: CrosswordPuzzleData; onRetry: () => void }) {
+function CrosswordGame({ puzzle: initialPuzzle, onRetryPuzzle }: { puzzle: CrosswordPuzzleData; onRetryPuzzle: () => void }) {
   const router = useRouter();
   const [puzzleTitle, setPuzzleTitle] = useState(initialPuzzle.title);
   const [showStats, setShowStats] = useState(false);
@@ -172,13 +121,16 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetry }: { puzzle: CrosswordPu
   const handleHome = () => router.push("/");
 
   const handleNewTopic = () => {
+    const configStr = sessionStorage.getItem(STORAGE_KEYS.PUZZLE_CONFIG);
+    let originalTopic = puzzleTitle;
+    if (configStr) {
+      try { originalTopic = JSON.parse(configStr).topic || puzzleTitle; } catch {}
+    }
     sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_CROSSWORD);
     sessionStorage.removeItem(STORAGE_KEYS.GAME_STATE);
-    sessionStorage.setItem(STORAGE_KEYS.SHOW_CONFIG, puzzleTitle);
+    sessionStorage.setItem(STORAGE_KEYS.SHOW_CONFIG, originalTopic);
     router.push("/");
   };
-
-  const handlePlayAgain = () => onRetry();
 
   const [isSaving, setIsSaving] = useState(false);
   const handleSave = async () => {
@@ -531,8 +483,8 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetry }: { puzzle: CrosswordPu
           wordsFound={state.solvedClues.length}
           wordsTotal={puzzle.clues.length}
           elapsedSeconds={state.elapsedSeconds}
-          onTryAgain={handlePlayAgain}
-          onNewTopic={handleNewTopic}
+          onRetryPuzzle={onRetryPuzzle}
+          onNewPuzzle={handleNewTopic}
           onShare={handleShare}
           onSaveToLibrary={handleSave}
           isSavedToLibrary={isSaved}
@@ -547,8 +499,8 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetry }: { puzzle: CrosswordPu
           livesRemaining={state.livesRemaining}
           score={score}
           funFact={puzzle.funFact}
-          onPlayAgain={handlePlayAgain}
-          onNewTopic={handleNewTopic}
+          onRetryPuzzle={onRetryPuzzle}
+          onNewPuzzle={handleNewTopic}
           onShare={handleShare}
           onSaveToLibrary={handleSave}
           isSavedToLibrary={isSaved}
