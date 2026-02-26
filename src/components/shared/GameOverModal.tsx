@@ -5,8 +5,8 @@ interface GameOverModalProps {
   wordsFound: number;
   wordsTotal: number;
   elapsedSeconds: number;
-  onTryAgain: () => void;
-  onNewTopic: () => void;
+  onRetryPuzzle: () => void;
+  onNewPuzzle: () => void;
   onShare?: () => void;
   onSaveToLibrary?: () => void;
   isSavedToLibrary?: boolean;
@@ -16,8 +16,8 @@ export function GameOverModal({
   wordsFound,
   wordsTotal,
   elapsedSeconds,
-  onTryAgain,
-  onNewTopic,
+  onRetryPuzzle,
+  onNewPuzzle,
   onShare,
   onSaveToLibrary,
   isSavedToLibrary,
@@ -63,16 +63,29 @@ export function GameOverModal({
 
         {/* Buttons */}
         <div className="flex flex-col items-center gap-3 w-full pt-4">
-          <button
-            onClick={onTryAgain}
-            className="w-4/5 h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider text-purple-deep transition-all hover:-translate-y-0.5 active:scale-[0.97]"
-            style={{
-              background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
-              boxShadow: "0 4px 15px rgba(255, 215, 0, 0.4)",
-            }}
-          >
-            Try Again
-          </button>
+          <div className="flex gap-3 w-4/5">
+            <button
+              onClick={onRetryPuzzle}
+              className="flex-1 h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider text-purple-deep transition-all active:scale-[0.97]"
+              style={{
+                background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
+                boxShadow: "0 4px 15px rgba(255, 215, 0, 0.3)",
+              }}
+            >
+              Retry This Puzzle
+            </button>
+            <button
+              onClick={onNewPuzzle}
+              className="flex-1 h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.97]"
+              style={{
+                background: "rgba(255, 255, 255, 0.08)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                color: "rgba(255, 255, 255, 0.85)",
+              }}
+            >
+              New Puzzle
+            </button>
+          </div>
           {onShare && (
             <button
               onClick={onShare}
@@ -86,17 +99,6 @@ export function GameOverModal({
               Share Results
             </button>
           )}
-          <button
-            onClick={onNewTopic}
-            className="w-4/5 h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97]"
-            style={{
-              background: "rgba(255, 255, 255, 0.08)",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              color: "rgba(255, 255, 255, 0.8)",
-            }}
-          >
-            New Puzzle
-          </button>
           {onSaveToLibrary && (
             <button
               onClick={onSaveToLibrary}

@@ -9,9 +9,8 @@ interface WordSearchCompletionProps {
   livesRemaining: number;
   score: number;
   funFact: string;
-  onPlayAgain: () => void;
-  onChangeTopic: () => void;
-  onHome: () => void;
+  onRetryPuzzle: () => void;
+  onNewPuzzle: () => void;
   onShare?: () => void;
   onSaveToLibrary?: () => void;
   isSavedToLibrary?: boolean;
@@ -24,9 +23,8 @@ export function WordSearchCompletion({
   livesRemaining,
   score,
   funFact,
-  onPlayAgain,
-  onChangeTopic,
-  onHome,
+  onRetryPuzzle,
+  onNewPuzzle,
   onShare,
   onSaveToLibrary,
   isSavedToLibrary,
@@ -160,80 +158,56 @@ export function WordSearchCompletion({
 
         {/* Action buttons */}
         <div className="w-full flex flex-col" style={{ marginTop: 24, gap: 8 }}>
-          {/* Primary — Play Again */}
-          <button
-            onClick={onPlayAgain}
-            className="w-full cursor-pointer transition-all hover:-translate-y-0.5 active:scale-[0.97]"
-            style={{
-              padding: 14,
-              borderRadius: 14,
-              background: "linear-gradient(135deg, #f7c948, #e5b52e)",
-              color: "#1a1430",
-              fontFamily: "var(--font-ws-body)",
-              fontSize: 14,
-              fontWeight: 600,
-              border: "none",
-              boxShadow: "0 4px 20px rgba(247, 201, 72, 0.25)",
-            }}
-          >
-            Try Again
-          </button>
-
-          {/* Secondary row */}
+          {/* Side-by-side: Retry (secondary) + New Puzzle (primary) */}
           <div className="flex" style={{ gap: 8 }}>
-            {onShare && (
-              <button
-                onClick={onShare}
-                className="flex-1 cursor-pointer transition-all hover:-translate-y-0.5 active:scale-[0.97]"
-                style={{
-                  padding: 12,
-                  borderRadius: 12,
-                  background: "rgba(255, 255, 255, 0.04)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
-                  color: "var(--ws-text)",
-                  fontFamily: "var(--font-ws-body)",
-                  fontSize: 13,
-                  fontWeight: 500,
-                }}
-              >
-                Share
-              </button>
-            )}
             <button
-              onClick={onChangeTopic}
-              className="flex-1 cursor-pointer transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+              onClick={onRetryPuzzle}
+              className="flex-1 font-heading text-sm font-bold uppercase tracking-wider transition-all active:scale-[0.97]"
               style={{
-                padding: 12,
-                borderRadius: 12,
-                background: "rgba(255, 255, 255, 0.04)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
-                color: "var(--ws-text)",
-                fontFamily: "var(--font-ws-body)",
-                fontSize: 13,
-                fontWeight: 500,
+                padding: 14,
+                borderRadius: 14,
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.15)",
+                color: "rgba(255,255,255,0.85)",
               }}
             >
-              Create Puzzle
+              Retry This Puzzle
             </button>
             <button
-              onClick={onHome}
-              className="flex-1 cursor-pointer transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+              onClick={onNewPuzzle}
+              className="flex-1 font-heading text-sm font-bold uppercase tracking-wider transition-all active:scale-[0.97]"
               style={{
-                padding: 12,
-                borderRadius: 12,
-                background: "rgba(255, 255, 255, 0.04)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
-                color: "var(--ws-text)",
-                fontFamily: "var(--font-ws-body)",
-                fontSize: 13,
-                fontWeight: 500,
+                padding: 14,
+                borderRadius: 14,
+                background: "linear-gradient(135deg, #f7c948, #e5b52e)",
+                color: "#1a1430",
               }}
             >
-              Home
+              New Puzzle
             </button>
           </div>
 
-          {/* Tertiary — Save to Library */}
+          {/* Share */}
+          {onShare && (
+            <button
+              onClick={onShare}
+              className="w-full cursor-pointer transition-all hover:-translate-y-0.5 active:scale-[0.97]"
+              style={{
+                padding: 12,
+                borderRadius: 12,
+                background: "rgba(255, 255, 255, 0.04)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+                color: "var(--ws-text)",
+                fontFamily: "var(--font-ws-body)",
+                fontSize: 13,
+                fontWeight: 500,
+              }}
+            >
+              Share Results
+            </button>
+          )}
+
+          {/* Save to Library */}
           {onSaveToLibrary && (
             <button
               onClick={onSaveToLibrary}

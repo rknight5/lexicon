@@ -13,6 +13,9 @@ interface ConfigScreenProps {
   onTopicChange: (topic: string) => void;
   onBack: () => void;
   prefetchedCategories?: CategorySuggestion[] | null;
+  initialDifficulty?: Difficulty;
+  initialGameType?: GameType;
+  initialFocusCategories?: string[];
 }
 
 const DIFFICULTY_OPTIONS: {
@@ -45,10 +48,10 @@ const DIFFICULTY_OPTIONS: {
   },
 ];
 
-export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategories }: ConfigScreenProps) {
+export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategories, initialDifficulty, initialGameType, initialFocusCategories }: ConfigScreenProps) {
   const router = useRouter();
-  const [gameType, setGameType] = useState<GameType>("wordsearch");
-  const [difficulty, setDifficulty] = useState<Difficulty>("medium");
+  const [gameType, setGameType] = useState<GameType>(initialGameType ?? "wordsearch");
+  const [difficulty, setDifficulty] = useState<Difficulty>(initialDifficulty ?? "medium");
   const [categories, setCategories] = useState<CategorySuggestion[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
@@ -62,6 +65,7 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
   const [limitReached, setLimitReached] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const cancelledRef = useRef(false);
+  const initialFocusCategoriesRef = useRef(initialFocusCategories ?? null);
 
   async function fetchCategories(signal?: AbortSignal) {
     setLoadingCategories(true);
@@ -87,7 +91,14 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
       if (signal?.aborted) return;
       if (data.categories && data.categories.length > 0) {
         setCategories(data.categories);
-        setSelectedCategories([]);
+        if (initialFocusCategoriesRef.current && initialFocusCategoriesRef.current.length > 0) {
+          const validNames = new Set(data.categories.map((c: CategorySuggestion) => c.name));
+          const restored = initialFocusCategoriesRef.current.filter((name: string) => validNames.has(name));
+          setSelectedCategories(restored.length >= 2 ? restored : []);
+          initialFocusCategoriesRef.current = null;
+        } else {
+          setSelectedCategories([]);
+        }
       } else {
         setCategoryError(true);
       }
@@ -105,7 +116,14 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
   useEffect(() => {
     if (prefetchedCategories && prefetchedCategories.length > 0) {
       setCategories(prefetchedCategories);
-      setSelectedCategories([]);
+      if (initialFocusCategoriesRef.current && initialFocusCategoriesRef.current.length > 0) {
+        const validNames = new Set(prefetchedCategories.map((c) => c.name));
+        const restored = initialFocusCategoriesRef.current.filter((name: string) => validNames.has(name));
+        setSelectedCategories(restored.length >= 2 ? restored : []);
+        initialFocusCategoriesRef.current = null;
+      } else {
+        setSelectedCategories([]);
+      }
       setLoadingCategories(false);
       hasFetchedRef.current = true;
       return;

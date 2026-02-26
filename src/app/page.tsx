@@ -7,7 +7,7 @@ import { ConfigScreen } from "@/components/shared/ConfigScreen";
 import { StatsModal } from "@/components/shared/StatsModal";
 import { ResumeCard } from "@/components/shared/ResumeCard";
 import { getAutoSave, deleteAutoSave, savePuzzle, type AutoSaveSummary } from "@/lib/storage";
-import type { CategorySuggestion } from "@/lib/types";
+import type { CategorySuggestion, Difficulty, GameType } from "@/lib/types";
 import { STORAGE_KEYS, puzzleKeyForGameType } from "@/lib/storage-keys";
 import { isProfane } from "@/lib/content-filter";
 import { Toast } from "@/components/shared/Toast";
@@ -36,6 +36,11 @@ export default function HomePage() {
   const [autoSave, setAutoSave] = useState<AutoSaveSummary | null>(null);
   const [hasUnseenSaves, setHasUnseenSaves] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
+  const [savedConfig, setSavedConfig] = useState<{
+    difficulty?: Difficulty;
+    gameType?: GameType;
+    focusCategories?: string[];
+  } | null>(null);
 
   // Check for redirect reason from game pages
   useEffect(() => {
@@ -52,6 +57,18 @@ export default function HomePage() {
     if (savedTopic !== null) {
       sessionStorage.removeItem(STORAGE_KEYS.SHOW_CONFIG);
       if (savedTopic) setTopic(savedTopic);
+      const configStr = sessionStorage.getItem(STORAGE_KEYS.PUZZLE_CONFIG);
+      if (configStr) {
+        try {
+          const config = JSON.parse(configStr);
+          setSavedConfig({
+            difficulty: config.difficulty,
+            gameType: config.gameType,
+            focusCategories: config.focusCategories,
+          });
+        } catch { /* ignore corrupt data */ }
+        sessionStorage.removeItem(STORAGE_KEYS.PUZZLE_CONFIG);
+      }
       setShowConfig(true);
     }
   }, []);
@@ -175,8 +192,11 @@ export default function HomePage() {
       <ConfigScreen
         topic={topic}
         onTopicChange={setTopic}
-        onBack={() => setShowConfig(false)}
+        onBack={() => { setShowConfig(false); setSavedConfig(null); }}
         prefetchedCategories={prefetchTopicRef.current === topic.trim() ? prefetchedCategories : null}
+        initialDifficulty={savedConfig?.difficulty}
+        initialGameType={savedConfig?.gameType}
+        initialFocusCategories={savedConfig?.focusCategories}
       />
     );
   }

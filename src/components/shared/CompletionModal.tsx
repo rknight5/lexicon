@@ -8,8 +8,8 @@ interface CompletionModalProps {
   livesRemaining: number;
   score: number;
   funFact: string;
-  onPlayAgain: () => void;
-  onNewTopic: () => void;
+  onRetryPuzzle: () => void;
+  onNewPuzzle: () => void;
   onShare?: () => void;
   onSaveToLibrary?: () => void;
   isSavedToLibrary?: boolean;
@@ -22,8 +22,8 @@ export function CompletionModal({
   livesRemaining,
   score,
   funFact,
-  onPlayAgain,
-  onNewTopic,
+  onRetryPuzzle,
+  onNewPuzzle,
   onShare,
   onSaveToLibrary,
   isSavedToLibrary,
@@ -93,16 +93,29 @@ export function CompletionModal({
 
         {/* Pinned buttons */}
         <div className="flex flex-col items-center gap-3 w-full px-6 pb-6 pt-2 shrink-0">
-          <button
-            onClick={onPlayAgain}
-            className="w-4/5 h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider text-purple-deep transition-all hover:-translate-y-0.5 active:scale-[0.97]"
-            style={{
-              background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
-              boxShadow: "0 4px 15px rgba(255, 215, 0, 0.4)",
-            }}
-          >
-            Try Again
-          </button>
+          <div className="flex gap-3 w-4/5">
+            <button
+              onClick={onRetryPuzzle}
+              className="flex-1 h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all active:scale-[0.97]"
+              style={{
+                background: "rgba(255, 255, 255, 0.08)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                color: "rgba(255, 255, 255, 0.85)",
+              }}
+            >
+              Retry This Puzzle
+            </button>
+            <button
+              onClick={onNewPuzzle}
+              className="flex-1 h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider text-purple-deep transition-all active:scale-[0.97]"
+              style={{
+                background: "linear-gradient(180deg, #FFD700 0%, #E5A100 100%)",
+                boxShadow: "0 4px 15px rgba(255, 215, 0, 0.3)",
+              }}
+            >
+              New Puzzle
+            </button>
+          </div>
           {onShare && (
             <button
               onClick={onShare}
@@ -116,17 +129,6 @@ export function CompletionModal({
               Share Results
             </button>
           )}
-          <button
-            onClick={onNewTopic}
-            className="w-4/5 h-9 rounded-pill font-heading text-xs font-bold uppercase tracking-wider transition-all hover:-translate-y-0.5 active:scale-[0.97]"
-            style={{
-              background: "rgba(255, 255, 255, 0.08)",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              color: "rgba(255, 255, 255, 0.8)",
-            }}
-          >
-            New Puzzle
-          </button>
           {onSaveToLibrary && (
             <button
               onClick={onSaveToLibrary}
