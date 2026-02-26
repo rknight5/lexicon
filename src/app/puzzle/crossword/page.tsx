@@ -460,7 +460,7 @@ function CrosswordGame({ puzzle: initialPuzzle, onRetry }: { puzzle: CrosswordPu
         </div>
 
         {/* Submit button — below grid */}
-        <div className="flex justify-center" style={{ padding: "0 18px", marginTop: 8 }}>
+        <div className="flex justify-center" style={{ padding: "0 18px", marginTop: 16 }}>
           <button
             onClick={checkWord}
             disabled={state.gameStatus !== "playing"}
