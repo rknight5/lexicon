@@ -10,6 +10,7 @@ export const STORAGE_KEYS = {
   UNSEEN_SAVES: "lexicon-unseen-saves",
   SHOW_CONFIG: "lexicon-show-config",
   REDIRECT_REASON: "lexicon-redirect-reason",
+  PUZZLE_CONFIG: "lexicon-puzzle-config",
 } as const;
 
 /** Map a GameType to its puzzle sessionStorage key */

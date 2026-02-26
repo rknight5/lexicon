@@ -248,6 +248,10 @@ export function ConfigScreen({ topic, onTopicChange, onBack, prefetchedCategorie
             : "/puzzle/wordsearch";
       try {
         sessionStorage.setItem(storageKey, JSON.stringify(puzzleData));
+        sessionStorage.setItem(
+          STORAGE_KEYS.PUZZLE_CONFIG,
+          JSON.stringify({ topic, difficulty, gameType, focusCategories: selectedCategories })
+        );
       } catch {
         // sessionStorage may be unavailable in private browsing
         throw new Error("Unable to save puzzle data. Try disabling private browsing.");
