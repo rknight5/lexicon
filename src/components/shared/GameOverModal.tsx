@@ -77,7 +77,7 @@ export function GameOverModal({
               <span
                 className="uppercase font-semibold"
                 style={{
-                  fontFamily: "var(--font-mono)",
+                  fontFamily: "var(--font-grid)",
                   fontSize: 10,
                   color: "var(--white-muted)",
                   letterSpacing: "0.5px",
@@ -90,7 +90,7 @@ export function GameOverModal({
                   onClick={() => setShowAllMissed(!showAllMissed)}
                   className="cursor-pointer"
                   style={{
-                    fontFamily: "var(--font-mono)",
+                    fontFamily: "var(--font-grid)",
                     fontSize: 10,
                     color: "#a78bfa",
                     background: "none",
@@ -111,7 +111,7 @@ export function GameOverModal({
                   key={item.label}
                   className="text-center"
                   style={{
-                    fontFamily: "var(--font-mono)",
+                    fontFamily: "var(--font-grid)",
                     fontSize: "9.5px",
                     padding: "5px 4px",
                     borderRadius: 6,
@@ -131,7 +131,7 @@ export function GameOverModal({
                   onClick={() => setShowAllMissed(true)}
                   className="text-center cursor-pointer"
                   style={{
-                    fontFamily: "var(--font-mono)",
+                    fontFamily: "var(--font-grid)",
                     fontSize: "9.5px",
                     padding: "5px 4px",
                     borderRadius: 6,
