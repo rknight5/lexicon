@@ -213,7 +213,7 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-5 pb-20 relative" style={{ paddingTop: "8vh", background: "linear-gradient(180deg, #2D1B69 0%, #0c0a14 100%)" }}>
+    <main className="min-h-screen flex flex-col items-center justify-center px-5 pb-20 relative" style={{ paddingTop: "max(8vh, 80px)", background: "linear-gradient(180deg, #2D1B69 0%, #0c0a14 100%)" }}>
       {/* Nav icons — bookmark & stats left, logout right */}
       <div className="absolute top-6 left-5 right-5 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
