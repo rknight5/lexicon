@@ -1,5 +1,6 @@
 import { Trophy, Star } from "lucide-react";
 import { formatTime } from "@/lib/format";
+import { useWinConfetti } from "@/hooks/useWinConfetti";
 
 interface CompletionModalProps {
   wordsFound: number;
@@ -28,6 +29,7 @@ export function CompletionModal({
   onSaveToLibrary,
   isSavedToLibrary,
 }: CompletionModalProps) {
+  useWinConfetti(livesRemaining);
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-5"

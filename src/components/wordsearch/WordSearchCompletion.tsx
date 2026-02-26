@@ -1,6 +1,7 @@
 "use client";
 
 import { formatTime } from "@/lib/format";
+import { useWinConfetti } from "@/hooks/useWinConfetti";
 
 interface WordSearchCompletionProps {
   wordsFound: number;
@@ -29,6 +30,7 @@ export function WordSearchCompletion({
   onSaveToLibrary,
   isSavedToLibrary,
 }: WordSearchCompletionProps) {
+  useWinConfetti(livesRemaining);
   const isPerfect = livesRemaining === 3;
 
   return (
